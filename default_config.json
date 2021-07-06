@@ -1,4 +1,5 @@
 {
-	"data_dir": "data",
-	"info_path": "info.json"
+	"data_dir": "/dataset/fd5061f6/cogview/dingming0629",
+	"info_path": "info.json",
+	"output_dir": "outputs"
 }

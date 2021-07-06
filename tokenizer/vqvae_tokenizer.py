@@ -12,7 +12,7 @@ import torch
 import torch.nn.functional as F
 
 
-from api import new_model,  img2code, code2img
+from tokenizer.api import new_model,  img2code, code2img
 from torchvision import transforms
 from PIL import Image
 

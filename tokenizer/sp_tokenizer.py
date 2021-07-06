@@ -19,7 +19,7 @@ or  git clone https://github.com/google/sentencepiece.git
 python setup.py install
 
 """
-PRETRAINED_MODEL_FILE = "pretrained/chinese_sentencepiece/cog-pretrain.model"
+PRETRAINED_MODEL_FILE = "chinese_sentencepiece/cog-pretrain.model"
 
 
 def get_pairs(word):
@@ -48,7 +48,8 @@ class Encoder:
             return token
 
         while True:
-            bigram = min(pairs, key=lambda pair: self.bpe_ranks.get(pair, float('inf')))
+            bigram = min(pairs, key=lambda pair: self.bpe_ranks.get(
+                pair, float('inf')))
             if bigram not in self.bpe_ranks:
                 break
             first, second = bigram
@@ -140,7 +141,8 @@ def get_encoder(encoder_file, bpe_file):
             encoder = json.load(f)
         with open(bpe_file, 'r', encoding="utf-8") as f:
             bpe_data = f.read()
-        bpe_merges = [tuple(merge_str.split()) for merge_str in bpe_data.split('\n')[1:-1]]
+        bpe_merges = [tuple(merge_str.split())
+                      for merge_str in bpe_data.split('\n')[1:-1]]
         return Encoder(
             encoder=encoder,
             bpe_merges=bpe_merges,
