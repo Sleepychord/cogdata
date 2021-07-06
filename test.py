@@ -81,7 +81,6 @@ def read(index):
         transform = transforms.Compose([
             transforms.Resize(256),
             transforms.CenterCrop(256),
-            transforms.ToTensor(),
             transforms.Normalize([0.79093, 0.76271, 0.75340], [
                 0.30379, 0.32279, 0.32800])])
         mylen = (tot_len+2)//2
@@ -93,8 +92,10 @@ def read(index):
         for i in range(begin_idx, begin_idx+mylen):
             if i >= tot_len:
                 break
-            imgs = Image.open(zip.open(file_list[i]))
-            # imgs = transform(imgs)
+            img = Image.open(zip.open(file_list[i]))
+            img = transforms.ToTensor()(img).cuda()
+            img = transform(img)
+            print(img.shape)
             dirs, filename = os.path.split(file_list[i].filename)
             if (i-begin_idx)-print_info >= 100000:
                 print("pid{} read:{}/{}".format(os.getpid(), i-begin_idx, mylen))
