@@ -45,10 +45,9 @@ def process(input, output):
                 transforms.Resize(img_size),
                 transforms.CenterCrop(img_size),
                 transforms.Normalize([0.79093, 0.76271, 0.75340], [0.30379, 0.32279, 0.32800])])
-            batch_size = buffer_size//(4096*4)
+            batch_size = 10
             mylen = (tot_len+read_k)//read_k
             begin_idx = list(range(0, tot_len, mylen))[id]
-            cnt = 0
             imgs = []
             txts = []
             for i in range(begin_idx, begin_idx+mylen):
@@ -56,6 +55,7 @@ def process(input, output):
                     lock.acquire()
                     index = input['index'].value
                     input["sum"].value += len(txts)
+                    sum = input['sum'].value
                     info.append(input['sum'].value)
                     input["index"].value += 1
                     lock.release()
@@ -70,6 +70,8 @@ def process(input, output):
                         f.write(str.join("\n", txts).encode("utf-8"))
                     with open(os.path.join(output_dir, str(index)+".bin"), "wb") as f:
                         f.write(codes_byte)
+                    if (sum/batch_size) % 10 == 0:
+                        print("write {}, sum {}/{}".format(index, sum, tot_len))
                     txts = []
                     imgs = []
                 if i > tot_len:
@@ -83,9 +85,6 @@ def process(input, output):
                 torch.cuda.synchronize()
                 dirs, filename = os.path.split(file_list[i].filename)
                 txts.append(text_dict[filename.split(".")[0]])
-                if cnt % 1000 == 0:
-                    print("pid{} finish:{}/{}".format(os.getpid(), cnt, mylen))
-                cnt += 1
             zip.close()
             if len(txts) > 0:
                 lock.acquire()

@@ -1,6 +1,3 @@
-from multiprocessing import Pool, Lock, Queue
-import struct
-
 from utils import get_data_list, format_file_size
 import json
 import shutil

@@ -33,7 +33,7 @@ class VQVAETokenizer(object):
                  model_path,
                  device='cuda'
                  ):
-        ckpt = torch.load(model_path, map_location=torch.device(device))
+        ckpt = torch.load(model_path, map_location=torch.device('cpu'))
 
         model = new_model()
 
@@ -48,6 +48,7 @@ class VQVAETokenizer(object):
         self.device = device
         self.image_tokens = model.quantize_t.n_embed
         self.num_tokens = model.quantize_t.n_embed
+        del ckpt
 
     def __len__(self):
         return self.num_tokens
