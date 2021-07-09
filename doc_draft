@@ -1,0 +1,341 @@
+### 需求文档draft
+
+#### 一、需求
+
+- 数据预处理
+
+  读入压缩文件(list)，初始化/增量化更新数据文件（合成1份或划成n份）
+
+  - 解压缩（zip，rar）
+  - 文本$\leftrightarrow$图片/视频的匹配，各自tokenization，得到token序列。
+  - 写入数据文件
+
+- 提供训练数据支持
+
+  - data iterator
+  - tokenizer
+
+- 数据集信息查询
+
+  - 总条目数
+  - 大小
+  - merge的各数据集信息
+  - ...
+
+- 数据集整理
+  - 移动存储目录
+  - 修改份数
+  - 根据（子数据集name/...）提取子集至新目录
+- ...
+
+#### 二、存储
+
+- Data arrangement
+
+  - under source dir
+
+    源数据集目录
+
+    - 每个源数据集各自一个文件夹，内部放一个config.json
+
+      ```json
+      {
+        'name': str #名称
+        'format': str #数据类型：图片/视频
+      	'text_format': str #存放文本的形式（json/json_ks/...） 
+        
+        'merged': bool #是否已经merge
+        ...
+      }
+      ```
+
+  - under merge dir
+
+    merge汇总的数据集目录
+
+    - 存放n个data_trunk
+
+    - config.json
+
+      ```json
+      {
+        'format': str #数据类型：图片/视频
+        'trunk_num': int #数据集划分个数
+        
+        'src_dir': str #源数据集目录
+        'merge_dir': str #merge结果目录
+        
+        'tokenizer_path': str #tokenizer路径
+        ...
+      }
+      ```
+
+    - source_data
+
+      逐行记录已merge的dataset
+
+#### 三、对应接口
+
+#### （1）class
+
+- DataManager
+
+  - 显式接口
+
+    - ```python
+      def __init__(self, merge_dir = None, config = None) #初始化，merge_dir目录下生成config.json
+      ```
+
+      - Merge_dir: directory of merge result
+      - config: as config.json in last part
+
+    - ```python
+      def update_merge(self) #检查sub_datasets，增量化merge已preprocess但未merge数据
+      ```
+
+    - ```python
+      def clear_merge(self) #清除merge结果与源数据集中的merge标记
+      ```
+
+    - ```python
+      def add_data(self, data_path, data_name) #添加新的数据集，取文件
+      ```
+
+      - data_path: path to a new dataset
+      - data_name: name of the dataset
+
+    - ```python
+      def remove_data(self, data_name) #删除数据集
+      ```
+
+      - data_path: path to a new dataset
+      - data_name: name of a existed dataset
+
+    - ...
+
+  - 隐式接口
+
+    - ```python
+      def _merge_all(self) #merge预处理后的源数据集，线程并行调用_merge_single_dataset
+      ```
+
+    - ```python
+      def _merge_single_dataset(self, folder_name, config) #单个数据集merge
+      ```
+
+      - folder_name: dataset's name of folder under src_dir
+      - config: information of this dataset
+
+    - ```python
+      def _get_data(self) #获取未split的数据（BaseData类）
+      ```
+
+    - ```python
+      def _data_split(self, ds) #基于basedata划分
+      ```
+
+      - ds: merged BaseDataset
+
+    - ...
+
+- DataProcesser
+
+  - 显式接口
+
+    - ```python
+      def __init__(self, merge_dir) #初始化，目录下获取config.json
+      ```
+
+      - merge_dir：directory of merge result
+
+    - ```python
+      def update_preprocess(self) #检查sub_datasets，增量化更新未preprocess数据
+      ```
+
+    - ```python
+      def clear_preprocess(self) #清除所有预处理结果
+      ```
+
+    - ...
+
+  - 隐式接口
+
+    - ```python
+      def _set_tokenizer(self, path = None) #设置tokenizer
+      ```
+
+      - path: new tokenizer path
+
+    - ```python
+      def _preprocess_all(self) #预处理src_dir下所有未预处理源数据集，线程并行调用_preprocess_single_dataset
+      ```
+
+    - ```python
+      def _preprocess_single_dataset(self, folder_name, config) #单个数据集preprocess
+      ```
+
+      - folder_name: dataset's name of folder under src_dir
+      - config: information of this dataset
+
+    - ```python
+      def _make_text_img_batch(self, txts, imgs) #对text和image batch做tokenize
+      ```
+
+      - txts: text in a batch
+
+      - imgs: images in a batch
+
+    - ...
+
+- DataLoader
+
+  - 显式接口
+
+    - ```python
+      def __init__(self, merge_dir) #初始化，目录下获取config.json
+      ```
+
+      - merge_dir：directory of merge result
+
+    - ```python
+      def get_split_data(self) #return train_data, valid_data, test_data（SplitData类）
+      ```
+
+    - ```python
+      def get_tokenizer(self) #根据tokenizer_path获取tokenizer
+      ```
+
+  - 隐式接口
+
+    - ```python
+      def _set_tokenizer(self, path = None) #设置tokenizer
+      ```
+
+      - path: new tokenizer path
+
+    - ```python
+      def _get_data(self) #获取未split的数据（BaseData类）
+      ```
+
+    - ```python
+      def _data_split(self, ds) #基于basedata划分
+      ```
+
+      - ds: merged BaseDataset
+
+- BaseDataset
+
+  - ```python
+    def __init__(self, dir, trunk_num) #初始化dataset
+    ```
+
+    - trunk_num: num of data trunk
+
+  - ```python
+    def __len__(self)
+    ```
+
+  - ```python
+    def __getitem__(self, idx)
+    ```
+
+    - idx: index of sample to fetch
+
+- SplitDataset
+
+  - ```python
+    def __init__(self, base_dataset, begin_idx, end_idx) #初始化划分
+    ```
+
+    - base_dataset: original dataset without split
+    - begin_idx: left border of split range
+    - end_idx: right border of split range
+
+  - ```python
+    def __len__(self)
+    ```
+
+  - ```python
+    def __getitem(self, idx)
+    ```
+
+    - idx: index of sample to fetch
+
+#### （2）运行定义方式
+
+这一部分的定义基本可以通过调用类定义里的显式接口实现（？）
+
+- 所有参数
+
+  ```
+  <--src_dir type: str, directory of source datasets>
+  <--merge_dir type: str, directory of merge datasets>
+  <--trunk_num type: int, number of data trunks>
+  
+  <--config type: str, path to config file>
+  
+  <--data_path, type: str, path of a probable new dataset>
+  <--data_name, type: str, name of a dataset to deal with>
+  ```
+
+- Initialization
+
+  ```
+  python run.py init
+  	<--src_dir type: str>
+  	<--merge_dir type: str>
+  	<--trunk_num type: int>
+  	
+  or 
+  
+  python run.py init
+  	<--config type: str>
+  ```
+
+- Preprocess（增量化）
+
+  ```
+  python run.py preprocess
+  	<--merge_dir, type: str>
+  	
+  or
+  
+  python run.py preprocess
+  	<--config, type: str>
+  ```
+
+- Merge（增量化）
+
+  ```
+  python run.py merge
+  	<--merge_dir, type: str>
+  	
+  or
+  
+  python run.py merge
+  	<--config, type: str>
+  ```
+
+- Update：Preprocess+Merge
+
+  ```
+  python run.py update
+  	<--merge_dir, type: str> / <--config, type: str>
+  ```
+
+- Add：添加新的源数据集到目录下
+
+  ```
+  python run.py add
+  	<--data_path, type: str>
+  	<--data_name, type: str>
+  	<--merge_dir, type: str> / <--config, type: str>
+  ```
+
+- Remove：从merge结果、src_dir下删去源数据集
+
+  ```
+  python run.py remove
+  	<--data_name, type: str>
+  	<--merge_dir, type: str> / <--config, type: str>
+  ```
