@@ -196,3 +196,22 @@ if __name__ == "__main__":
     # pool.close()
     # pool.join()
     extract_code(args, img_folders, txt_files, device, 1, 0)
+
+
+def DataProcessor():
+    def __init__(self, merge_dir):
+        pass
+
+    def updata_preprocess(self):
+        pass
+
+    def clear_preprocess(self):
+        pass
+
+    def _preprocess_all(self):
+        pass
+
+    def _preprocess_single_dataset(self, folder_name, config):
+        pass
+
+    def _make_text_img_batch(self, txts, imgs)
