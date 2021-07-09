@@ -1,0 +1,6 @@
+{
+    "task": "image_text_tokenization",
+    "saver": "binary",
+    "length_per_sample": 1089,
+    "dtype": "int32"
+}
