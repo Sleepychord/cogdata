@@ -17,3 +17,5 @@ MANIFEST
 *.so
 __pycache__/
 .vscode
+outputs/
+vqvae_hard_biggerset_011.pt
