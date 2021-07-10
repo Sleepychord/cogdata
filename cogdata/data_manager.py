@@ -8,17 +8,31 @@ import random
 
 from data_processor import DataProcessor
 from utils.data import format_file_size
+from data_savers import BinarySaver
+
+data_size = {
+    'int32': 4,
+}
 
 class DataManager():
+
     def __init__(self, args) -> None:
         base_dir = '/workspace/zwd/test_dir'
         self.base_dir = base_dir
+
         self.current_dir = None
+
+        self.task = None
+        self.saver = None
+        self.length_per_sample = None
+        self.dtype = None
+
+        self.merged = False
+        self.merge_split = 0
 
         self.processor = DataProcessor(args)
 
         datasets = ["test_ds", "test_ds2"]
-        self.datasets = datasets
         for dataset in datasets:
             folder_path = os.path.join(base_dir, dataset)
             if not os.path.exists(folder_path):
@@ -50,12 +64,28 @@ class DataManager():
         number(2) raw(10.23GB) processed(10MB)
         unprocessed: dataset2 
         '''
+        datasets = []
+        processed_datasets = []
+
+        items = os.listdir(self.base_dir)
+        for item in items:
+            path = os.path.join(self.base_dir, item)
+            if not os.path.isdir(path) or path == self.current_dir:
+                continue
+            
+            if os.path.exists(os.path.join(path, 'cogdata_info.json')):
+                datasets.append(item)
+        
+        for dataset in datasets:
+            if os.path.exists(os.path.join(self.current_dir, f"processed.{dataset}.bin")):
+                processed_datasets.append(dataset)
+
         unprocessed_names = []
         size_sum = 0
         processed_size_sum = 0
         cnt = 0
 
-        for dataset in self.datasets:
+        for dataset in datasets:
             info = None
             path = os.path.join(self.base_dir, dataset)
             try:
@@ -66,7 +96,6 @@ class DataManager():
                 assert 'data_files' in info and type(info['data_files']) is list
                 assert 'data_format' in info and type(info['data_format']) is str
                 assert 'text_format' in info and type(info['text_format']) is str
-                assert 'processed_files' not in info or type(info['processed_files']) is list
 
                 print(info['name'], end = ' ')
 
@@ -82,12 +111,8 @@ class DataManager():
                 print(info['text_format'], end = ' ')
 
                 processed_size = 0
-                if 'processed_files' in info and len(info['processed_files']) > 0:
-                    for file in info['processed_files']:
-                        try:
-                            processed_size += os.path.getsize(os.path.join(path, file))
-                        except:
-                            continue
+                if dataset in processed_datasets:
+                    processed_size = os.path.getsize(os.path.join(self.current_dir, f"processed.{dataset}.bin"))
                     print(f"processed({format_file_size(processed_size)})")
                 else:
                     unprocessed_names.append(info['name'])
@@ -181,8 +206,17 @@ class DataManager():
         if os.path.exists(config_path):
             if self.current_dir is None:
                 self.current_dir = path
+                self.task = args["task"]
+                self.saver = args["saver"]
+                self.length_per_sample = args["length_per_sample"]
+                self.dtype = args["dtype"]
             print(f"Error: Workspace {name} already existed. Setup failed.")
             return
+
+        self.task = args["task"]
+        self.saver = args["saver"]
+        self.length_per_sample = args["length_per_sample"]
+        self.dtype = args["dtype"]
 
         config_dic = {
             "task": args["task"],
@@ -198,18 +232,61 @@ class DataManager():
     def process(self, args):
         '''process one or some (in args) unprocessed dataset (detected).
         '''
-        pass
+        datasets = ["example"]
+        # run process with data_processor api
 
     def merge(self, args):
         '''merge all current processed datasets.
         '''
-        pass
+
+        if self.merged is True and self.merge_split > 0:
+            for i in range(self.merge_split):
+                os.remove(os.path.join(self.current_dir, f"merge_{i}.bin"))
+
+        merge_file = open(os.path.join(self.current_dir, 'merge.bin'), 'wb')
+
+        for dataset in self.processed_datasets:
+            with open(os.path.join(self.current_dir, f"processed.{dataset}.bin"), 'rb') as data_file:
+                merge_file.write(data_file.read())
+
+        merge_file.close()
+
+        self.merged = True
+
     def split(self, args):
         '''split the merged files into N parts.
         '''
-        pass
-    
+        split_num = 5
 
+        if not self.merged:
+            print(f"Error: task {self.task} not merged but receive a split request.")
+            return
+        
+        sample_size = self.length_per_sample * data_size[self.dtype]
+
+        if self.merge_split == 0:
+            merge_path = os.path.join(self.current_dir, 'merge.bin')
+            size = os.path.getsize(merge_path)
+            sample_num = size // sample_size
+
+            split_num = (sample_num + split_num - 1) // split_num
+
+
+            with open(merge_path, 'rb') as merge_file:
+                for i in range(split_num - 1):
+                    merge_trunk = open(os.path.join(self.current_dir, f"merge_{i}.bin"), 'wb')
+                    merge_trunk.write(merge_file.read(split_num * sample_size))
+                    merge_trunk.close()
+                merge_trunk = open(os.path.join(self.current_dir, f"merge_{split_num - 1}.bin"), 'wb')
+                merge_trunk.write(merge_file.read())
+                merge_trunk.close()
+
+            os.remove(merge_path)
+
+            print(f"Split task {self.task} successully.")
+        else:
+            print(f"Error: task {self.task} is already splitted.")
+            return
 
 if __name__ == '__main__':
     manager = DataManager(1)
