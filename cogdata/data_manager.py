@@ -6,11 +6,39 @@ import json
 import math
 import random
 
+from data_processor import DataProcessor
 from utils.data import format_file_size
 
 class DataManager():
     def __init__(self, args) -> None:
-        self.current_dir = '/workspace/zwd/test_dir'
+        base_dir = '/workspace/zwd/test_dir'
+        self.base_dir = base_dir
+        self.current_dir = None
+
+        self.processor = DataProcessor(args)
+
+        datasets = ["test_ds", "test_ds2"]
+        self.datasets = datasets
+        for dataset in datasets:
+            folder_path = os.path.join(base_dir, dataset)
+            if not os.path.exists(folder_path):
+                os.mkdir(folder_path)
+            self.new_dataset(dataset, {
+                "name": "example",
+                "description": "Describe the dataset",
+                "data_files": ["example"],
+                "data_format": "zip",
+                "text_file": "example.json",
+                "text_format": "json"
+            })
+
+        self.new_task("test_task", 
+        {
+            "task": "image_text_tokenization",
+            "saver": "binary",
+            "length_per_sample": 1089,
+            "dtype": "int32"
+        })
     
     def list(self):
         '''List all datasets in current dir.
@@ -22,19 +50,14 @@ class DataManager():
         number(2) raw(10.23GB) processed(10MB)
         unprocessed: dataset2 
         '''
-        datasets = os.listdir(self.current_dir)
         unprocessed_names = []
         size_sum = 0
         processed_size_sum = 0
         cnt = 0
 
-        for dataset in datasets:
+        for dataset in self.datasets:
             info = None
-            path = os.path.join(self.current_dir, dataset)
-
-            if not os.path.isdir(path):
-                continue
-
+            path = os.path.join(self.base_dir, dataset)
             try:
                 with open(os.path.join(path, 'cogdata_info.json'), 'r') as info_file:
                     info = json.load(info_file)
@@ -43,22 +66,28 @@ class DataManager():
                 assert 'data_files' in info and type(info['data_files']) is list
                 assert 'data_format' in info and type(info['data_format']) is str
                 assert 'text_format' in info and type(info['text_format']) is str
-                assert 'processed_files' not in info or ('processed_files' in info and type(info['processed_files']) is list)
+                assert 'processed_files' not in info or type(info['processed_files']) is list
 
-                print(f"{info['name']}", end = ' ')
+                print(info['name'], end = ' ')
 
                 size = 0
                 for file in info['data_files']:
-                    size += os.path.getsize(os.path.join(path, file))
+                    try:
+                        size += os.path.getsize(os.path.join(path, file))
+                    except:
+                        continue
                 print(f"({format_file_size(size)})", end = ' ')
 
-                print(f"{info['data_format']}", end = ' ')
-                print(f"{info['text_format']}", end = ' ')
+                print(info['data_format'], end = ' ')
+                print(info['text_format'], end = ' ')
 
                 processed_size = 0
                 if 'processed_files' in info and len(info['processed_files']) > 0:
                     for file in info['processed_files']:
-                        processed_size += os.path.getsize(os.path.join(path, file))
+                        try:
+                            processed_size += os.path.getsize(os.path.join(path, file))
+                        except:
+                            continue
                     print(f"processed({format_file_size(processed_size)})")
                 else:
                     unprocessed_names.append(info['name'])
@@ -92,16 +121,79 @@ class DataManager():
         except:
             print("Error: bad config.")
 
-    def new_dataset(self, dataset_name):
+    def new_dataset(self, dataset_name, args):
         '''Create a dataset subfolder and a template (cogdata_info.json) in it.
         One should manually handle the data files.
         '''
-        pass
+        try:
+            assert "data_files" in args
+            assert "data_format" in args
+            assert "text_file" in args
+            assert "text_format" in args
+        except:
+            print(f"Error: Key args absence in info of dataset {dataset_name}. Setup failed.")
+            return
 
-    def new_task(self, args):
+        path = os.path.join(self.base_dir, dataset_name)
+        info_path = os.path.join(path, 'cogdata_info.json')
+
+        if not os.path.exists(path):
+            os.mkdir(path)
+        
+        if os.path.exists(info_path):
+            while True:
+                sign = input(f"Warning: dataset {dataset_name} already existed. Rewrite?(y/n)")
+                sign = sign.strip(' ').lower()
+                if sign == 'y':
+                    break
+                elif sign == 'n':
+                    return
+
+        info_dic = {
+            "name": dataset_name,
+            "description": args["description"] if "description" in args else "",
+            "data_files": args["data_files"],
+            "data_format": args["data_format"],
+            "text_file": args["text_file"],
+            "text_format": args["text_format"]
+        }
+        with open(info_path, 'w') as info:
+            json.dump(info_dic, info)
+
+    def new_task(self, name, args):
         '''create a cogdata_workspace subfolder and cogdata_config.json with configs in args.
         '''
-        pass
+        try:
+            assert "task" in args
+            assert "saver" in args
+            assert "length_per_sample" in args
+            assert "dtype" in args
+        except:
+            print(f"Error: Key args absence in config of workspace {name}. Setup failed.")
+            return
+
+        path = os.path.join(self.base_dir, name)
+        config_path = os.path.join(path, 'cogdata_config.json')
+
+        if not os.path.exists(path):
+            os.mkdir(path)
+        
+        if os.path.exists(config_path):
+            if self.current_dir is None:
+                self.current_dir = path
+            print(f"Error: Workspace {name} already existed. Setup failed.")
+            return
+
+        config_dic = {
+            "task": args["task"],
+            "saver": args["saver"],
+            "length_per_sample": args["length_per_sample"],
+            "dtype": args["dtype"],
+        }
+        with open(config_path, 'w') as config:
+            json.dump(config_dic, config)   
+
+        self.current_dir = path     
 
     def process(self, args):
         '''process one or some (in args) unprocessed dataset (detected).
