@@ -6,19 +6,77 @@ from data_manager import DataManager
 from arguments import get_args
 
 def add_task(manager, args):
-    pass
+    task_id = args.task_id
+    task_type = args.task_type
+    saver = args.saver
+    length_per_sample = args.length_per_sample
+    dtype = args.dtype
+
+    try:
+        assert not task_id is None
+        assert not task_type is None
+        assert saver in ['binary']
+        assert length_per_sample > 0
+        assert dtype in ['int32']
+    except:
+        print(f"Error: bad config for task {task_id}. Adding failed.")
+        return
+
+    manager.new_task(
+        id = task_id,
+        task = task_type,
+        saver = saver,
+        length_per_sample = length_per_sample,
+        dtype = dtype
+    )
 
 def add_data(manager, args):
-    pass
+    name = args.dataset
+    description = args.description
+    data_files = args.data_files
+    data_format = args.data_format
+    text_file = args.text_file
+    text_format = args.text_format
+
+    try:
+        assert not name in manager.fetch_datasets()
+        assert data_format in ['zip', 'rar']
+        assert text_format in ['json', 'json_ks']
+    except:
+        print(f"Error: bad infos for dataset {name}. Adding failed.")
+        return
+
+    manager.new_dataset(
+        dataset_name = name,
+        description = description,
+        data_files = data_files,
+        data_format = data_format,
+        text_file = text_file,
+        text_format = text_format
+    )
 
 def process(manager, args):
     pass
 
 def merge(manager, args):
-    pass
+    task_id = args.task_id
+
+    if manager.load_task(task_id):
+        manager.merge()
 
 def split(manager, args):
-    pass
+    task_id = args.task_id
+    split_num = args.split_num
+
+    try:
+        assert split_num > 1
+    except:
+        print(f"Error: incorrect split number. Failed")
+        return
+    
+    if manager.load_task(task_id):
+        manager.split(split_num)
+
 
 if __name__ == '__main__':
     print('cli')

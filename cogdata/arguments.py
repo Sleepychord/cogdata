@@ -1,8 +1,8 @@
 import argparse
 
 def add_task_args(parser):
-    parser.add_argument('--task_name', type=str, default=None, help='name of the handling task.')
-    parser.add_argument('--task', type=str, default=None, help='type of the handling task.')
+    parser.add_argument('--task_id', type=str, default=None, help='id of the handling task.')
+    parser.add_argument('--task_type', type=str, default=None, help='type of the handling task.')
     parser.add_argument('--saver', type=str, default='binary', help='saver mode.')
     parser.add_argument('--length_per_sample', type=int, default=1089, help='data length of one sample (Bytes).')
     parser.add_argument('--dtype', type=str, default='int32', help='data type of samples.')
@@ -36,24 +36,24 @@ def get_args():
 task level:
     python cli.py 
         --action add_task
-        --task []
-        --task_name []
+        --task_type []
+        --task_id []
         --saver []
         --length_per_sample []
         --dtype []
 
     python cli.py 
         --action process
-        --task_name []
+        --task_id []
         --dataset [] （没有就处理所有未处理的）
     
     python cli.py 
         --action merge
-        --task_name []
+        --task_id []
 
     python cli.py 
         --action split
-        --task_name []
+        --task_id []
         --split_num []
     
 dataset level:
