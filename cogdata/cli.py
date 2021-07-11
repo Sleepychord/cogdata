@@ -56,7 +56,14 @@ def add_data(manager, args):
     )
 
 def process(manager, args):
-    pass
+    task_id = args.task_id
+    dataset = args.dataset
+
+    if manager.load_task(task_id):
+        if dataset is None:
+            manager.process_all()
+        else:
+            manager.process(dataset)
 
 def merge(manager, args):
     task_id = args.task_id
@@ -77,6 +84,19 @@ def split(manager, args):
     if manager.load_task(task_id):
         manager.split(split_num)
 
+def list_info(manager, args):
+    task_id = args.task_id
+
+    if manager.load_task(task_id):
+        manager.list()
+
+def display(manager, args):
+    task_id = args.task_id
+    dataset = args.dataset
+    display_num = args.display_num
+
+    if manager.load_task(task_id):
+        manager.display(dataset, display_num)
 
 if __name__ == '__main__':
     print('cli')
@@ -96,5 +116,9 @@ if __name__ == '__main__':
         merge(manager, args)
     elif action == 'split':
         split(manager, args)
+    elif action == 'list':
+        list_info(manager, args)
+    elif action == 'display':
+        display(manager, args)
     else:
         print("Please give a correct action.")

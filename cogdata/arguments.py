@@ -7,6 +7,7 @@ def add_task_args(parser):
     parser.add_argument('--length_per_sample', type=int, default=1089, help='data length of one sample (Bytes).')
     parser.add_argument('--dtype', type=str, default='int32', help='data type of samples.')
     parser.add_argument('--split_num', type=int, default=1, help='number of split pieces for the merge result.')
+    parser.add_argument('--display_num', type=int, default=0, help='number of samples to randomly display')
 
     return parser
 

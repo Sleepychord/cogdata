@@ -5,6 +5,7 @@ import sys
 import json
 import math
 import random
+from tqdm import tqdm
 
 from data_processor import DataProcessor
 from utils.data import format_file_size
@@ -73,7 +74,8 @@ class DataManager():
         processed_datasets = []
         
         for dataset in datasets:
-            if os.path.exists(os.path.join(self.current_dir, f"processed.{dataset}.bin")):
+            pro_dir = os.path.join(self.current_dir, dataset)
+            if os.path.exists(pro_dir) and os.path.exists(os.path.join(pro_dir, 'processed.bin')):
                 processed_datasets.append(dataset)
         
         return processed_datasets
@@ -123,7 +125,8 @@ class DataManager():
 
                 processed_size = 0
                 if dataset in processed_datasets:
-                    processed_size = os.path.getsize(os.path.join(self.current_dir, f"processed.{dataset}.bin"))
+                    pro_dir = os.path.join(self.current_dir, dataset)
+                    processed_size = os.path.getsize(os.path.join(pro_dir, 'processed.bin'))
                     print(f"processed({format_file_size(processed_size)})")
                 else:
                     unprocessed_names.append(info['name'])
@@ -242,10 +245,17 @@ class DataManager():
         self.current_dir = path  
         self.current_id = id  
 
-    def process(self, args):
+    def process(self, dataset):
         '''process one or some (in args) unprocessed dataset (detected).
         '''
-        datasets = ["example"]
+        # run process with data_processor api
+        pass
+    
+    def process_all(self):
+        datasets = self.fetch_datasets()
+        processed_datasets = self.fetch_processed_datasets(datasets)
+        unprocessed_datasets = [dataset for dataset in datasets if not dataset in processed_datasets]
+        
         # run process with data_processor api
 
     def merge(self):
@@ -258,8 +268,11 @@ class DataManager():
 
         merge_file = open(os.path.join(self.current_dir, 'merge.bin'), 'wb')
 
-        for dataset in self.processed_datasets:
-            with open(os.path.join(self.current_dir, f"processed.{dataset}.bin"), 'rb') as data_file:
+        processed_datasets = self.fetch_processed_datasets(self.fetch_datasets)
+
+        for dataset in processed_datasets:
+            pro_dir = os.path.join(self.current_dir, dataset)
+            with open(os.path.join(pro_dir, 'processed.bin'), 'rb') as data_file:
                 merge_file.write(data_file.read())
 
         merge_file.close()
@@ -300,6 +313,11 @@ class DataManager():
             print(f"Error: task {self.task} is already splitted.")
             return
 
+    def display(self, dataset, number):
+        # use display api
+        pass
+
 if __name__ == '__main__':
-    manager = DataManager(1)
+    manager = DataManager('/workspace/zwd/test_dir')
+    manager.load_task('test_task')
     manager.list()
