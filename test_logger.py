@@ -1,8 +1,10 @@
+import argparse
 import os
 import sys
 import torch
 
 from cogdata.utils.logger import set_logger, get_logger
+
 
 def initialize_distributed(args):
     """Initialize torch.distributed."""
@@ -19,7 +21,7 @@ def initialize_distributed(args):
         world_size=args.world_size, rank=args.local_rank,
         init_method=init_method)
 
-import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--local_rank", type=int, default=None)
 parser.add_argument("--world_size", type=int, default=None)
@@ -28,7 +30,7 @@ args = parser.parse_args()
 print(sys.argv)
 if args.local_rank is not None:
     initialize_distributed(args)
-else: # attention ! to avoid recursively launching
+else:  # attention ! to avoid recursively launching
     os.system('python -m torch.distributed.launch --nproc_per_node=2 test_logger.py --world_size=2 > test.txt 2>&1')
 
 print(torch.distributed.is_initialized())
