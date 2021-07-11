@@ -16,11 +16,12 @@ data_size = {
 
 class DataManager():
 
-    def __init__(self, args) -> None:
-        base_dir = '/workspace/zwd/test_dir'
+    def __init__(self, base_dir) -> None:
+        # base_dir = '/workspace/zwd/test_dir'
         self.base_dir = base_dir
 
         self.current_dir = None
+        self.current_id = None
 
         self.task = None
         self.saver = None
@@ -30,42 +31,32 @@ class DataManager():
         self.merged = False
         self.merge_split = 0
 
-        self.processor = DataProcessor(args)
+        # self.processor = DataProcessor(args)
 
-        datasets = ["test_ds", "test_ds2"]
-        for dataset in datasets:
-            folder_path = os.path.join(base_dir, dataset)
-            if not os.path.exists(folder_path):
-                os.mkdir(folder_path)
-            self.new_dataset(dataset, {
-                "name": "example",
-                "description": "Describe the dataset",
-                "data_files": ["example"],
-                "data_format": "zip",
-                "text_file": "example.json",
-                "text_format": "json"
-            })
+        # datasets = ["test_ds", "test_ds2"]
+        # for dataset in datasets:
+        #     folder_path = os.path.join(base_dir, dataset)
+        #     if not os.path.exists(folder_path):
+        #         os.mkdir(folder_path)
+        #     self.new_dataset(dataset, {
+        #         "name": "example",
+        #         "description": "Describe the dataset",
+        #         "data_files": ["example"],
+        #         "data_format": "zip",
+        #         "text_file": "example.json",
+        #         "text_format": "json"
+        #     })
 
-        self.new_task("test_task", 
-        {
-            "task": "image_text_tokenization",
-            "saver": "binary",
-            "length_per_sample": 1089,
-            "dtype": "int32"
-        })
+        # self.new_task("test_task", 
+        # {
+        #     "task": "image_text_tokenization",
+        #     "saver": "binary",
+        #     "length_per_sample": 1089,
+        #     "dtype": "int32"
+        # })
     
-    def list(self):
-        '''List all datasets in current dir.
-
-        dataset1(233 MB) rar json processed(10MB)
-        dataset2(10 GB) zip json_ks unprocessed
-        --------------- Summary ---------------
-        current taskname: image_text_tokenization
-        number(2) raw(10.23GB) processed(10MB)
-        unprocessed: dataset2 
-        '''
+    def fetch_datasets(self):
         datasets = []
-        processed_datasets = []
 
         items = os.listdir(self.base_dir)
         for item in items:
@@ -76,9 +67,29 @@ class DataManager():
             if os.path.exists(os.path.join(path, 'cogdata_info.json')):
                 datasets.append(item)
         
+        return datasets
+        
+    def fetch_processed_datasets(self, datasets):
+        processed_datasets = []
+        
         for dataset in datasets:
             if os.path.exists(os.path.join(self.current_dir, f"processed.{dataset}.bin")):
                 processed_datasets.append(dataset)
+        
+        return processed_datasets
+
+    def list(self):
+        '''List all datasets in current dir.
+
+        dataset1(233 MB) rar json processed(10MB)
+        dataset2(10 GB) zip json_ks unprocessed
+        --------------- Summary ---------------
+        current taskname: image_text_tokenization
+        number(2) raw(10.23GB) processed(10MB)
+        unprocessed: dataset2 
+        '''
+        datasets = self.fetch_datasets()
+        processed_datasets = self.fetch_processed_datasets(datasets)
 
         unprocessed_names = []
         size_sum = 0
@@ -146,18 +157,14 @@ class DataManager():
         except:
             print("Error: bad config.")
 
-    def new_dataset(self, dataset_name, args):
+    # def new_dataset(self, dataset_name, args):
+    def new_dataset(self, 
+                    dataset_name, description, 
+                    data_files, data_format,
+                    text_file, text_format):
         '''Create a dataset subfolder and a template (cogdata_info.json) in it.
         One should manually handle the data files.
         '''
-        try:
-            assert "data_files" in args
-            assert "data_format" in args
-            assert "text_file" in args
-            assert "text_format" in args
-        except:
-            print(f"Error: Key args absence in info of dataset {dataset_name}. Setup failed.")
-            return
 
         path = os.path.join(self.base_dir, dataset_name)
         info_path = os.path.join(path, 'cogdata_info.json')
@@ -176,28 +183,31 @@ class DataManager():
 
         info_dic = {
             "name": dataset_name,
-            "description": args["description"] if "description" in args else "",
-            "data_files": args["data_files"],
-            "data_format": args["data_format"],
-            "text_file": args["text_file"],
-            "text_format": args["text_format"]
+            "description": description,
+            "data_files": data_files,
+            "data_format": data_format,
+            "text_file": text_file,
+            "text_format": text_format
         }
         with open(info_path, 'w') as info:
             json.dump(info_dic, info)
 
-    def new_task(self, name, args):
+    def load_task(self, id):
+        path = os.path.join(self.base_dir, id)
+        config_path = os.path.join(path, 'cogdata_config.json')
+
+        if not (os.path.exists(path) and os.path.exists(config_path)):
+            print(f"Error: task {id} not exist. Load failed.")
+            return False
+        
+        self.current_dir = path
+        self.current_id = id
+        return True
+
+    def new_task(self, id, task, saver, length_per_sample, dtype):
         '''create a cogdata_workspace subfolder and cogdata_config.json with configs in args.
         '''
-        try:
-            assert "task" in args
-            assert "saver" in args
-            assert "length_per_sample" in args
-            assert "dtype" in args
-        except:
-            print(f"Error: Key args absence in config of workspace {name}. Setup failed.")
-            return
-
-        path = os.path.join(self.base_dir, name)
+        path = os.path.join(self.base_dir, id)
         config_path = os.path.join(path, 'cogdata_config.json')
 
         if not os.path.exists(path):
@@ -206,28 +216,31 @@ class DataManager():
         if os.path.exists(config_path):
             if self.current_dir is None:
                 self.current_dir = path
-                self.task = args["task"]
-                self.saver = args["saver"]
-                self.length_per_sample = args["length_per_sample"]
-                self.dtype = args["dtype"]
+                self.current_id = id
+
+                self.task = task
+                self.saver = saver
+                self.length_per_sample = length_per_sample
+                self.dtype = dtype
             print(f"Error: Workspace {name} already existed. Setup failed.")
             return
 
-        self.task = args["task"]
-        self.saver = args["saver"]
-        self.length_per_sample = args["length_per_sample"]
-        self.dtype = args["dtype"]
+        self.task = task
+        self.saver = saver
+        self.length_per_sample = length_per_sample
+        self.dtype = dtype
 
         config_dic = {
-            "task": args["task"],
-            "saver": args["saver"],
-            "length_per_sample": args["length_per_sample"],
-            "dtype": args["dtype"],
+            "task": task,
+            "saver": saver,
+            "length_per_sample": length_per_sample,
+            "dtype": dtype,
         }
         with open(config_path, 'w') as config:
             json.dump(config_dic, config)   
 
-        self.current_dir = path     
+        self.current_dir = path  
+        self.current_id = id  
 
     def process(self, args):
         '''process one or some (in args) unprocessed dataset (detected).
@@ -235,7 +248,7 @@ class DataManager():
         datasets = ["example"]
         # run process with data_processor api
 
-    def merge(self, args):
+    def merge(self):
         '''merge all current processed datasets.
         '''
 
@@ -250,13 +263,12 @@ class DataManager():
                 merge_file.write(data_file.read())
 
         merge_file.close()
-
         self.merged = True
 
-    def split(self, args):
+    def split(self, split_num):
         '''split the merged files into N parts.
         '''
-        split_num = 5
+        # split_num = 5
 
         if not self.merged:
             print(f"Error: task {self.task} not merged but receive a split request.")
