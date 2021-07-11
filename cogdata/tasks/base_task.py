@@ -36,3 +36,8 @@ class BaseTask(ABC):
             final commit saver
         '''
         raise NotImplementedError
+
+    def display(self, *args):
+        '''Display samples of this task.
+        '''
+        raise NotImplementedError

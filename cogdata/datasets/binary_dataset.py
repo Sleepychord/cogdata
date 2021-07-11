@@ -30,6 +30,3 @@ class BinaryDataset(Dataset):
     
     def __getitem__(self, index):
         return torch.from_numpy(self.bin[index])
-
-
-        

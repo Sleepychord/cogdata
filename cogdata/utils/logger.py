@@ -16,25 +16,26 @@ import logging
 
 __all__ = ['get_logger', 'set_logger']
 
-def set_logger(target_path):
+def set_logger(target_path=None):
     global logger
     import torch.distributed as dist
-    if dist.is_available():
+    if target_path is not None:
         logger = logging.getLogger()
-        logger.setLevel(logging.ERROR)  # Log等级总开关
-
-        rank = dist.get_rank()
+        logger.setLevel(logging.DEBUG)  # Log等级总开关
+        if dist.is_initialized():
+            rank = dist.get_rank()
+        else:
+            rank = '_main'
         logfile = os.path.join(target_path, 'logs', f'rank{rank}.log')
-        os.path.mkdir(os.path.dirname(logfile), exist_ok=True)
+        os.makedirs(os.path.dirname(logfile), exist_ok=True)
 
         fh = logging.FileHandler(logfile, mode='w')
-        fh.setLevel(logging.DEBUG)
         formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
         fh.setFormatter(formatter)
 
         logger.addHandler(fh)
     else:
-        logger = logging.getLogger()
+        logger = logging.getLogger()    
         logger.setLevel(logging.DEBUG)  # Log等级总开关
 
 def get_logger():

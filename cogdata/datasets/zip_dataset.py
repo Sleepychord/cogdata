@@ -34,7 +34,7 @@ class ZipDataset(Dataset):
                 if info.filename[-1] != os.sep
         ]
         # split by distributed
-        if dist.is_available():
+        if dist.is_initialized():
             num_replicas = dist.get_world_size()
             rank = dist.get_rank()
             self.members = [

@@ -54,7 +54,7 @@ class StreamingRarDataset(IterableDataset):
         self.handle = None
         self.raw_members = self.rar.namelist()
         # split by distributed
-        if dist.is_available():
+        if dist.is_initialized():
             num_replicas = dist.get_world_size()
             rank = dist.get_rank()
             self.raw_members = [

@@ -20,7 +20,7 @@ class TarDataset(Dataset):
         self.tar = tarfile.TarFile(path)
         self.members = self.tar.getmembers()
         # split by distributed
-        if dist.is_available():
+        if dist.is_initialized():
             num_replicas = dist.get_world_size()
             rank = dist.get_rank()
             self.members = [
