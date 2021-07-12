@@ -3,6 +3,7 @@
 import os
 import PIL
 import torch
+import struct
 from torchvision.transforms.functional import pil_to_tensor
 from torchvision import transforms
 from PIL import Image
@@ -10,6 +11,8 @@ from PIL import Image
 from .base_task import BaseTask
 from ..utils.logger import get_logger
 from ..data_savers import BinarySaver
+from cogdata.utils.logger import set_logger, get_logger
+from cogdata.utils.cogview.api import img2code
 
 
 class ImageTextTokenizationTask(BaseTask):
@@ -43,11 +46,12 @@ class ImageTextTokenizationTask(BaseTask):
                 img = local_transform(img)
         return transform_fn
 
-    def process(self, dataset_index, dataset, text_dict, args):
-        saver = BinarySaver()
-        device = args.device
+    def process(self, dataset_index, dataset, args_dict):
+        txt_saver = BinarySaver(args_dict['txt_output_path'])
+        img_saver = BinarySaver(args_dict['img_output_path'])
+        text_dict = args_dict['text_dict']
+        device = args_dict['device']
         loader = dataset
-        print(str(dataset) + " index: " + str(dataset_index))
         cnt = 0
         total_cnt = len(loader)
         raw_filenames = []
@@ -66,7 +70,7 @@ class ImageTextTokenizationTask(BaseTask):
                 continue
             raw_imgs = normfunc(raw_imgs)
             cnt += 1
-            if cnt > total_cnt * args.ratio:
+            if cnt > total_cnt * args_dict['ratio']:
                 break
             # imgs = []
             filenames = []
@@ -82,10 +86,13 @@ class ImageTextTokenizationTask(BaseTask):
             raw_imgs = raw_imgs[filter_ids]
             try:
                 txts = [text_dict[filename] for filename in filenames]
-
-                write(model, txts, raw_imgs, cnt)
+                codes = img2code(args_dict['model'], raw_imgs).cpu().numpy()
+                txt_saver.save(str.join("\n", txts).encode("utf-8"))
+                img_saver.save(codes)
             except KeyError:
                 print("warning: KeyError. The text cannot be find")
                 pass
-            if cnt % 100 == 0:
-                print("proc{}:{}/{}".format(os.getpid(), cnt, total_cnt))
+            if cnt % 1000 == 0:
+                get_logger()("{}/{}".format(cnt, total_cnt))
+        txt_saver.commit()
+        img_saver.commit()

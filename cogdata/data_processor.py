@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+import argparse
 import os
 import sys
 import math
@@ -12,15 +13,14 @@ from cogdata.data_manager import DataManager
 from cogdata.tasks.image_text_tokenization_task import ImageTextTokenizationTask
 import torch.multiprocessing as mp
 from cogdata.utils.logger import set_logger, get_logger
-
-
+import json
 
 
 class DataProcessor():
-    def initialize_distributed(self,args):
+    def initialize_distributed(self, args):
         """Initialize torch.distributed."""
-        if args.local_rank is not None:
-            device = args.local_rank
+        if args['local_rank'] is not None:
+            device = args['local_rank']
         torch.cuda.set_device(device)
         # Call the init process
         init_method = 'tcp://'
@@ -29,10 +29,10 @@ class DataProcessor():
         init_method += master_ip + ':' + master_port
         torch.distributed.init_process_group(
             backend='nccl',
-            world_size=args.world_size, rank=args.local_rank,
+            world_size=args['world_size'], rank=args['local_rank'],
             init_method=init_method)
-        
-    def read_text(self,txt_files, mode):
+
+    def read_text(self, txt_files, mode):
         text_dict = {}
         if mode == "json":
             import json
@@ -87,32 +87,36 @@ class DataProcessor():
                     t = json.load(fin)
                     text_dict.update(t)
         return text_dict
-    
+
     def __init__(self, args) -> None:
         pass
 
-    def run_monitor(self, args):
+    def run_monitor(self, args_dict):
         '''Launch k run_single processes (by cmd, not multiprocess for dataloader)
            Monitor all the progresses by outputs in tmp files, clean tmp files from previous runs at first. use utils.progress_record !
            Wait and merge k files (use the helper in saver).
         '''
-        os.system('python -m torch.distributed.launch --nproc_per_node={} {} --world_size={}'.format(args.nproc_per_node,"data_processor.py",args.world_size))
+        set_logger('tmp')
+        os.system(
+            'python -m torch.distributed.launch data_processor.py --args_dict={}'.format(args_dict))
 
-    def run_single(self, args):
+    def run_single(self, args_dict):
         '''really process, create datasets with task.transform_fn, iterating the dataloader and run task.process
         '''
-        self.initialize_distributed(args)
-        image_folders = args['image_folders']
-        img_size = args['img_size']
-        txt_files = args['txt_files']
-        for i in args.datasets:
-            image_folders.append(os.path.join(self.base_dir, i))
-        task = args.task
+        self.initialize_distributed(args_dict)
+        image_folders = args_dict['image_folders']
+        txt_files = args_dict['txt_files']
+        for i in args_dict['datasets']:
+            image_folders.append(os.path.join(args_dict['base_dir'], i))
+        task = args_dict['task']
+        tokenizer = get_tokenizer(args_dict['img_tokenizer_path'])
+        model = tokenizer.img_tokenizer.model
+        args_dict['model'] = model
+        datasets = []
+
         if task == "image_text":
+            img_size = args_dict['img_size']
             task = ImageTextTokenizationTask(img_size)
-            tokenizer = get_tokenizer(args)
-            model = tokenizer.img_tokenizer.model
-            datasets = []
             image_transform = transforms.Compose([
                 transforms.Resize(img_size),
                 transforms.CenterCrop(img_size),
@@ -135,6 +139,20 @@ class DataProcessor():
                 datasets.append(dataset)
             print('Finish reading meta-data of dataset.')
             txt_mode = "dict"
-            text_dict = read_text(txt_files, txt_mode)
-            for dataset_index, dataset in enumerate(datasets):
-                task.process(dataset_index, dataset, args)
+            text_dict = self.read_text(txt_files, txt_mode)
+            args_dict['text_dict'] = text_dict
+        for dataset_index, dataset in enumerate(datasets):
+            task.process(dataset_index, dataset, args_dict)
+            get_logger().debug(
+                '{} begin:{}/{}'.format(image_folders[dataset_index], dataset_index, len(datasets)))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--args_dict', type=json.loads, default={})
+    parser.add_argument("--local_rank", type=int, default=None)
+    args = parser.parse_args()
+    args_dict = args.args_dict  # Will return a dictionary
+    args_dict['local_rank'] = args.local_rank
+    processor = DataProcessor(args_dict)
+    processor.run_single(args_dict)
