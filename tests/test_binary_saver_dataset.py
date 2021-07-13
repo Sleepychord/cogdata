@@ -45,13 +45,13 @@ def test_binary_merge_and_split():
     saver.save(d2)
     saver.commit()
 
-    output_path_merge = 'tmp/split_fake/merge.bin'
+    output_path_merge = 'tmp/merge.bin'
     saver.merge([output_path1, output_path2], output_path_merge, overwrite=True)
     dataset = BinaryDataset(output_path_merge, length_per_sample=5, dtype='int32', preload=True)
     assert dataset[3][2] == 17
     assert (dataset[-1] == d2[-5:]).all()
 
-    split_path = os.path.dirname(output_path_merge)
+    split_path = 'tmp/split_merge'
     saver.split(output_path_merge, split_path, 5)
     dataset = BinaryDataset(os.path.join(split_path, 'merge.bin.part001'), length_per_sample=5, dtype='int32', preload=False)
     assert dataset[3][2] == 217

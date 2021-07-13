@@ -60,8 +60,9 @@ class BinarySaver(BaseSaver):
         Split input_path into n files in output_path.
         '''
         os.makedirs(output_dir, exist_ok=True)
+        prefix = os.path.join(output_dir, os.path.split(input_path)[-1]+'.part')
         ret = os.system('split -d {} -n {} {} -a 3'.format(
-            input_path, n, input_path+'.part'
+            input_path, n, prefix
         ))
         if ret != 0:
             raise Exception(f'split return code {ret}')
