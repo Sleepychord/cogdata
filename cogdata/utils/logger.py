@@ -39,6 +39,9 @@ def set_logger(target_path=None):
         logger.setLevel(logging.DEBUG)  # Log等级总开关
 
 def get_logger():
-    global logger
-    return logger
+    try:
+        global logger
+        return logger
+    except NameError:
+        return logging.getLogger('std')
 

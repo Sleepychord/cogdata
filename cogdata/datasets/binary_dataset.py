@@ -19,11 +19,13 @@ class BinaryDataset(Dataset):
     def __init__(self, path, length_per_sample, dtype='int32', preload=False):
         self.length_per_sample = length_per_sample
         self.dtype = np.dtype(dtype)
-        self.bytes_per_sample = length_per_sample * self.dtype.itemsize
         if preload:
-            self.bin = np.fromfile(path, dtype=self.dtype, shape=(-1, length_per_sample))
+            self.bin = np.fromfile(path, dtype=self.dtype).reshape(-1, length_per_sample)
         else:
-            self.bin = np.memmap(path, dtype=self.dtype, shape=(-1, length_per_sample))
+            with open(path, 'r') as fid:
+                nbytes = fid.seek(0, 2)
+                flen = fid.tell() // self.dtype.itemsize
+            self.bin = np.memmap(path, dtype=self.dtype, shape=(flen // length_per_sample, length_per_sample))
     
     def __len__(self):
         return self.bin.shape[0]
