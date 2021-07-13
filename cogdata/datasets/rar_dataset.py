@@ -95,15 +95,17 @@ class StreamingRarDataset(IterableDataset):
         except unrarlib.UnrarException:
             ret = None
             full_filename = self.members[self.pointer]
+            file_size = 0
             get_logger().warning(f'{full_filename} is a bad rarfile.')
         else:
             ret = self.data_storage.get_bytes()
-        
-        if self.transform_fn is not None:
-            ret = self.transform_fn(ret, self.members[self.pointer])
+            full_filename, file_size = rarinfo.filename, rarinfo.file_size
 
         self.pointer += 1
-        return ret
+        if self.transform_fn is not None:
+            return self.transform_fn(ret, full_filename, file_size)
+
+        return ret, full_filename, file_size
 
     def __iter__(self):
         worker_info = torch.utils.data.get_worker_info()

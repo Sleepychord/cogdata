@@ -39,7 +39,8 @@ class TarDataset(Dataset):
         target_info = self.members[idx]
         fp = self.tar.extractfile(target_info)
         full_filename = self.members[idx].name
+        file_size = self.members[idx].size
         if self.transform_fn is not None:
-            return self.transform_fn(fp, full_filename)
+            return self.transform_fn(fp, full_filename, file_size)
         else:
             return fp, full_filename

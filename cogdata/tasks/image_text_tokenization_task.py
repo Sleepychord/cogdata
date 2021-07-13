@@ -22,7 +22,7 @@ class ImageTextTokenizationTask(BaseTask):
         Args:
             transform: a transform in torchvision, do not use ToTensor().
         '''
-        def transform_fn(fp, full_filename, local_transform=transform):
+        def transform_fn(fp, full_filename, *args, local_transform=transform):
             '''file obj to (PIL.Image, filename w/o suffix)
             '''
             try:

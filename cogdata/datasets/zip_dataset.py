@@ -49,6 +49,7 @@ class ZipDataset(Dataset):
     def __getitem__(self, idx):
         target_info = self.members[idx]
         full_filename = self.members[idx].filename
+        file_size = self.members[idx].file_size
         try:
             fp = self.zip.open(target_info)
         except zipfile.BadZipFile as e:
@@ -56,9 +57,9 @@ class ZipDataset(Dataset):
             get_logger().warning(f'{full_filename} is a bad zipfile.')
 
         if self.transform_fn is not None:
-            return self.transform_fn(fp, full_filename)
+            return self.transform_fn(fp, full_filename, file_size)
         else:
-            return fp, full_filename
+            return fp, full_filename, file_size
     
     def __del__(self):
         self.zip.close()

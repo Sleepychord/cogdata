@@ -16,7 +16,7 @@ from .base_saver import BaseSaver
 
 class BinarySaver(BaseSaver):
     def __init__(self, output_path, dtype='int32'):
-        self.bin = open(output_path, 'wb')
+        self.bin = open(output_path, 'wb', buffering=-1) # TODO test speed of buffering
         mapping = {'int32': torch.IntTensor,
             'int64': torch.LongTensor,
             'float32': torch.FloatTensor,

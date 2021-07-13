@@ -15,7 +15,7 @@ import PIL
 
 from cogdata.datasets import ZipDataset, TarDataset, StreamingRarDataset
 
-def extract_fn(fp, full_filename):
+def extract_fn(fp, full_filename, *args):
     name = os.path.split(full_filename)[-1]
     img = PIL.Image.open(fp).convert('RGB')
     img.save(os.path.join('tmp', current_ds, name))
