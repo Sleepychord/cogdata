@@ -13,13 +13,15 @@ from ..utils.logger import get_logger
 from ..data_savers import BinarySaver
 from cogdata.utils.logger import set_logger, get_logger
 from cogdata.utils.cogview.api import img2code
+import numpy as np
 
 
 class ImageTextTokenizationTask(BaseTask):
     '''handle tokenization
     '''
 
-    def __init__(self, img_size) -> None:
+    def __init__(self, img_size, output_path) -> None:
+        self.saver = BinarySaver(output_path, np.byte)
         self.img_size = img_size
         raise NotImplementedError
 
@@ -47,8 +49,6 @@ class ImageTextTokenizationTask(BaseTask):
         return transform_fn
 
     def process(self, dataset_index, dataset, args_dict):
-        txt_saver = BinarySaver(args_dict['txt_output_path'])
-        img_saver = BinarySaver(args_dict['img_output_path'])
         text_dict = args_dict['text_dict']
         device = args_dict['device']
         loader = dataset
@@ -60,6 +60,7 @@ class ImageTextTokenizationTask(BaseTask):
                                         0.30379, 0.32279, 0.32800])
         raw_imgs = torch.zeros(
             32, 3, 256, 256, device=device, dtype=torch.float)
+        txt_len = args_dict['txt_len']
         for raw_img, raw_filename in loader:
             raw_img = pil_to_tensor(raw_img)
             if len(raw_filenames) >= 32:
@@ -85,10 +86,20 @@ class ImageTextTokenizationTask(BaseTask):
             # filtered_img = torch.stack(imgs)
             raw_imgs = raw_imgs[filter_ids]
             try:
-                txts = [text_dict[filename] for filename in filenames]
+                txts = [text_dict[filename].encode(
+                    "utf-8") for filename in filenames]
+                txts = []
+                for filename in filenames:
+                    txt = text_dict[filename].encode("utf-8")
+                    if len(text_dict[filename]) < txt_len:
+                        txt += [0]*(txt_len-len(text_dict[filename]))
+                    else:
+                        txt = txt[:txt_len]
+                    txts.append(txt)
+                txts = np.asarray(txts, dtype=np.byte)
                 codes = img2code(args_dict['model'], raw_imgs).cpu().numpy()
-                txt_saver.save(str.join("\n", txts).encode("utf-8"))
-                img_saver.save(codes)
+                data = np.concatenate((txts, codes), dtype=np.byte)
+                self.saver.save(data)
             except KeyError:
                 print("warning: KeyError. The text cannot be find")
                 pass

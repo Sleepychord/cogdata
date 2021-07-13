@@ -1,5 +1,4 @@
 # -*- encoding: utf-8 -*-
-
 import argparse
 import os
 import sys
@@ -7,13 +6,14 @@ import math
 import random
 import torch
 from torchvision import transforms
-from cogdata.utils.cogview.unified_tokenizer import get_tokenizer
-from cogdata.datasets import BinaryDataset, StreamingRarDataset, TarDataset, ZipDataset
-from cogdata.data_manager import DataManager
-from cogdata.tasks.image_text_tokenization_task import ImageTextTokenizationTask
 import torch.multiprocessing as mp
-from cogdata.utils.logger import set_logger, get_logger
 import json
+
+from utils.cogview.unified_tokenizer import get_tokenizer
+from utils.logger import set_logger, get_logger
+from datasets import BinaryDataset,  TarDataset, ZipDataset
+from data_manager import DataManager
+from tasks.image_text_tokenization_task import ImageTextTokenizationTask
 
 
 class DataProcessor():
@@ -88,7 +88,7 @@ class DataProcessor():
                     text_dict.update(t)
         return text_dict
 
-    def __init__(self, args) -> None:
+    def __init__(self) -> None:
         pass
 
     def run_monitor(self, args_dict):
@@ -96,9 +96,8 @@ class DataProcessor():
            Monitor all the progresses by outputs in tmp files, clean tmp files from previous runs at first. use utils.progress_record !
            Wait and merge k files (use the helper in saver).
         '''
-        set_logger('tmp')
         os.system(
-            'python -m torch.distributed.launch data_processor.py --args_dict={}'.format(args_dict))
+            'python -m torch.distributed.launch cogdata/data_processor.py --args_dict={}'.format(args_dict))
 
     def run_single(self, args_dict):
         '''really process, create datasets with task.transform_fn, iterating the dataloader and run task.process
@@ -106,15 +105,13 @@ class DataProcessor():
         self.initialize_distributed(args_dict)
         image_folders = args_dict['image_folders']
         txt_files = args_dict['txt_files']
-        for i in args_dict['datasets']:
-            image_folders.append(os.path.join(args_dict['base_dir'], i))
         task = args_dict['task']
         tokenizer = get_tokenizer(args_dict['img_tokenizer_path'])
         model = tokenizer.img_tokenizer.model
         args_dict['model'] = model
         datasets = []
 
-        if task == "image_text":
+        if task == "text_image":
             img_size = args_dict['img_size']
             task = ImageTextTokenizationTask(img_size)
             image_transform = transforms.Compose([
