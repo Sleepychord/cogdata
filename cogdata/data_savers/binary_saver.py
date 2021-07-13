@@ -32,7 +32,7 @@ class BinarySaver(BaseSaver):
         self.bin.write(data.type(self.dtype).numpy().tobytes()) # TODO buffer
 
     def commit(self):
-        pass
+        self.bin.flush()
     
     def __del__(self):
         self.commit()
