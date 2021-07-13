@@ -6,9 +6,9 @@ import json
 import math
 import random
 
-from data_processor import DataProcessor
-from utils.helpers import format_file_size
-from data_savers import BinarySaver
+from .data_processor import DataProcessor
+from .utils.helpers import format_file_size
+from .data_savers import BinarySaver
 
 data_size = {
     'int32': 4,
@@ -77,7 +77,11 @@ class DataManager():
             processed_path = os.path.join(path, 'processed.bin')
             meta_info_path = os.path.join(path, 'meta_info.json')
             if os.path.exists(meta_info_path) and os.path.exists(processed_path):
-                processed_datasets.append(dataset)
+                with open(meta_info_path, 'r') as meta_info_file:
+                    meta_info = json.load(meta_info_file)
+                state = meta_info.get('state', 0)
+                if state == 1:
+                    processed_datasets.append(dataset)
         
         return processed_datasets
 
@@ -195,9 +199,20 @@ class DataManager():
             "text_format": text_format
         }
         with open(info_path, 'w') as info:
-            json.dump(info_dic, info)
+            json.dump(info_dic, info, indent = 4)
+
+    def clear(self):
+        self.current_dir = None
+        self.current_id = None
+
+        self.task = None
+        self.saver = None
+        self.length_per_sample = None
+        self.dtype = None
 
     def load_task(self, id):
+        id = str(id)
+
         path = os.path.join(self.base_dir, id)
         config_path = os.path.join(path, 'cogdata_config.json')
 
@@ -216,6 +231,9 @@ class DataManager():
             self.saver = config['saver']
             self.length_per_sample = config['length_per_sample']
             self.dtype = config['dtype']
+
+            self.merged = config.get('merged', False)
+            self.merge_split = config.get('merged_split', 0)
         except:
             print(f"Error: Load task {id} failed with bad parameters.")
             return False
@@ -225,6 +243,8 @@ class DataManager():
     def new_task(self, id, task, saver, length_per_sample, dtype):
         '''create a cogdata_workspace subfolder and cogdata_config.json with configs in args.
         '''
+        id = str(id)
+
         path = os.path.join(self.base_dir, id)
         config_path = os.path.join(path, 'cogdata_config.json')
 
@@ -244,6 +264,9 @@ class DataManager():
                     self.saver = config['saver']
                     self.length_per_sample = config['length_per_sample']
                     self.dtype = config['dtype']
+                    
+                    self.merged = config.get('merged', False)
+                    self.merge_split = config.get('merged_split', 0)
                 except:
                     pass
             print(f"Error: Workspace {name} already existed. Setup failed.")
@@ -254,6 +277,9 @@ class DataManager():
         self.length_per_sample = length_per_sample
         self.dtype = dtype
 
+        self.merged = False
+        self.merge_split = 0
+
         config_dic = {
             "task": task,
             "saver": saver,
@@ -261,7 +287,7 @@ class DataManager():
             "dtype": dtype,
         }
         with open(config_path, 'w') as config:
-            json.dump(config_dic, config)   
+            json.dump(config_dic, config, indent = 4)   
 
         self.current_dir = path  
         self.current_id = id  
@@ -281,12 +307,23 @@ class DataManager():
 
         merge_file = open(os.path.join(self.current_dir, 'merge.bin'), 'wb')
 
-        for dataset in self.processed_datasets:
-            with open(os.path.join(self.current_dir, f"processed.{dataset}.bin"), 'rb') as data_file:
+        processed_datasets = self.fetch_processed_datasets(self.fetch_datasets())
+
+        for dataset in processed_datasets:
+            processed_data_path = os.path.join(self.current_dir, dataset)
+            with open(os.path.join(processed_data_path, "processed.bin"), 'rb') as data_file:
                 merge_file.write(data_file.read())
 
         merge_file.close()
         self.merged = True
+
+        config_path = os.path.join(self.current_dir, 'cogdata_config.json')
+        with open(config_path, 'r') as config_file:
+            config = json.load(config_file)
+        config['merged'] = True
+
+        with open(config_path, 'w') as config_file:
+            json.dump(config, config_file, indent = 4)
 
     def split(self, split_num):
         '''split the merged files into N parts.
@@ -304,18 +341,27 @@ class DataManager():
             size = os.path.getsize(merge_path)
             sample_num = size // sample_size
 
-            split_num = (sample_num + split_num - 1) // split_num
+            split_size = (sample_num + split_num - 1) // split_num
 
             with open(merge_path, 'rb') as merge_file:
                 for i in range(split_num - 1):
                     merge_trunk = open(os.path.join(self.current_dir, f"merge_{i}.bin"), 'wb')
-                    merge_trunk.write(merge_file.read(split_num * sample_size))
+                    merge_trunk.write(merge_file.read(split_size * sample_size))
                     merge_trunk.close()
                 merge_trunk = open(os.path.join(self.current_dir, f"merge_{split_num - 1}.bin"), 'wb')
                 merge_trunk.write(merge_file.read())
                 merge_trunk.close()
 
             os.remove(merge_path)
+            self.merge_split = split_num
+
+            config_path = os.path.join(self.current_dir, 'cogdata_config.json')            
+            with open(config_path, 'r') as config_file:
+                config = json.load(config_file)
+            config['merge_split'] = split_num
+
+            with open(config_path, 'w') as config_file:
+                json.dump(config, config_file)
 
             print(f"Split task {self.task} successully.")
         else:
@@ -323,5 +369,6 @@ class DataManager():
             return
 
 if __name__ == '__main__':
-    manager = DataManager(1)
+    manager = DataManager('tests/test_base_dir')
+    manager.new_task('1234')
     manager.list()
