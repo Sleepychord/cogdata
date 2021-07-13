@@ -30,3 +30,29 @@ def test_save_and_load():
     dataset = BinaryDataset(output_path, length_per_sample=5, dtype='int32', preload=False)
     assert dataset[3][2] == 17
     assert (dataset[-1] == d[-5:]).all()
+
+def test_binary_merge_and_split():
+    os.makedirs('tmp/split_fake', exist_ok=True)
+    output_path1 = 'tmp/fake1.bin'
+    saver = BinarySaver(output_path1, dtype='int32')
+    d1 = torch.arange(500)
+    saver.save(d1)
+    saver.commit()
+
+    output_path2 = 'tmp/fake2.bin'
+    saver = BinarySaver(output_path2, dtype='int32')
+    d2 = torch.arange(500)
+    saver.save(d2)
+    saver.commit()
+
+    output_path_merge = 'tmp/split_fake/merge.bin'
+    saver.merge([output_path1, output_path2], output_path_merge, overwrite=True)
+    dataset = BinaryDataset(output_path_merge, length_per_sample=5, dtype='int32', preload=True)
+    assert dataset[3][2] == 17
+    assert (dataset[-1] == d2[-5:]).all()
+
+    split_path = os.path.dirname(output_path_merge)
+    saver.split(output_path_merge, split_path, 5)
+    dataset = BinaryDataset(os.path.join(split_path, 'merge.bin.part001'), length_per_sample=5, dtype='int32', preload=False)
+    assert dataset[3][2] == 217
+    assert (dataset[-1] == d1[395:400]).all()

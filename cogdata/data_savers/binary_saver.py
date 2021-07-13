@@ -37,3 +37,31 @@ class BinarySaver(BaseSaver):
     def __del__(self):
         self.commit()
         self.bin.close()
+
+    @classmethod
+    def merge(cls, files, output_path, overwrite=False):
+        '''
+        Merge files into one.
+        '''
+        if os.path.exists(output_path):
+            if overwrite:
+                os.remove(output_path)
+            else:
+                raise FileExistsError
+        ret = os.system('cat {} >> {}'.format(
+            ' '.join(files), output_path
+        )) # TODO: solve possible "Argument list too long"
+        if ret != 0:
+            raise Exception(f'cat return code {ret}')
+    
+    @classmethod
+    def split(cls, input_path, output_dir, n):
+        '''
+        Split input_path into n files in output_path.
+        '''
+        os.makedirs(output_dir, exist_ok=True)
+        ret = os.system('split -d {} -n {} {} -a 3'.format(
+            input_path, n, input_path+'.part'
+        ))
+        if ret != 0:
+            raise Exception(f'split return code {ret}')
