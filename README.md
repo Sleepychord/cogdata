@@ -5,8 +5,12 @@
 ├── cogdata_workspace
 │   ├── cogdata_config.json
 │   ├── merged.bin
-│   ├── processed.dataset1.bin
-│   └── processed.dataset2.bin
+│   ├── dataset1
+│   │   ├── processed.bin
+│   │   └── meta_info.json
+│   └── dataset2
+│       ├── processed.bin
+│       └── meta_info.json
 ├── dataset1
 │   ├── cogdata_info.json
 │   ├── dataset1.json

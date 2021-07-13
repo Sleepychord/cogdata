@@ -73,7 +73,10 @@ class DataManager():
         processed_datasets = []
         
         for dataset in datasets:
-            if os.path.exists(os.path.join(self.current_dir, f"processed.{dataset}.bin")):
+            path = os.path.join(self.current_dir, dataset)
+            processed_path = os.path.join(path, 'processed.bin')
+            meta_info_path = os.path.join(path, 'meta_info.json')
+            if os.path.exists(meta_info_path) and os.path.exists(processed_path):
                 processed_datasets.append(dataset)
         
         return processed_datasets
@@ -123,7 +126,9 @@ class DataManager():
 
                 processed_size = 0
                 if dataset in processed_datasets:
-                    processed_size = os.path.getsize(os.path.join(self.current_dir, f"processed.{dataset}.bin"))
+                    path = os.path.join(self.current_dir, dataset)
+                    processed_path = os.path.join(path, 'processed.bin')
+                    processed_size = os.path.getsize(processed_path)
                     print(f"processed({format_file_size(processed_size)})")
                 else:
                     unprocessed_names.append(info['name'])
@@ -200,8 +205,21 @@ class DataManager():
             print(f"Error: task {id} not exist. Load failed.")
             return False
         
-        self.current_dir = path
-        self.current_id = id
+        try:
+            self.current_dir = path
+            self.current_id = id
+
+            with open(config_path, 'r') as config_file:
+                config = json.load(config_file)
+
+            self.task = config['task']
+            self.saver = config['saver']
+            self.length_per_sample = config['length_per_sample']
+            self.dtype = config['dtype']
+        except:
+            print(f"Error: Load task {id} failed with bad parameters.")
+            return False
+
         return True
 
     def new_task(self, id, task, saver, length_per_sample, dtype):
@@ -215,13 +233,19 @@ class DataManager():
         
         if os.path.exists(config_path):
             if self.current_dir is None:
-                self.current_dir = path
-                self.current_id = id
+                try:
+                    self.current_dir = path
+                    self.current_id = id
 
-                self.task = task
-                self.saver = saver
-                self.length_per_sample = length_per_sample
-                self.dtype = dtype
+                    with open(config_path, 'r') as config_file:
+                        config = json.load(config_file)
+
+                    self.task = config['task']
+                    self.saver = config['saver']
+                    self.length_per_sample = config['length_per_sample']
+                    self.dtype = config['dtype']
+                except:
+                    pass
             print(f"Error: Workspace {name} already existed. Setup failed.")
             return
 
