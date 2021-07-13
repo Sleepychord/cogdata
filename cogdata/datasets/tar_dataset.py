@@ -18,7 +18,10 @@ import torch.distributed as dist
 class TarDataset(Dataset):
     def __init__(self, path, transform_fn=None):
         self.tar = tarfile.TarFile(path)
-        self.members = self.tar.getmembers()
+        self.members = [
+            x for x in self.tar.getmembers()
+            if x.isfile() and '__MACOSX' not in x.name
+        ]
         # split by distributed
         if dist.is_initialized():
             num_replicas = dist.get_world_size()
@@ -36,7 +39,6 @@ class TarDataset(Dataset):
         target_info = self.members[idx]
         fp = self.tar.extractfile(target_info)
         full_filename = self.members[idx].name
-        
         if self.transform_fn is not None:
             return self.transform_fn(fp, full_filename)
         else:

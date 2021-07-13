@@ -31,12 +31,12 @@ class ZipDataset(Dataset):
         self.zip = zipfile.ZipFile(path)
         self.members = [
             info for info in self.zip.infolist() 
-                if info.filename[-1] != os.sep
+                if info.filename[-1] != os.sep and '__MACOSX' not in info.filename
         ]
         # split by distributed
         if dist.is_initialized():
             num_replicas = dist.get_world_size()
-            rank = dist.get_rank()
+            rank = dist.get_rank()  
             self.members = [
                 x for i, x in enumerate(self.members) 
                 if i % num_replicas == rank

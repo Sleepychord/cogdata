@@ -23,7 +23,6 @@ from torch.utils.data import Dataset, IterableDataset
 from torchvision import datasets
 from PIL import Image
 import timeit
-from collections import Iterable
 import torch.distributed as dist
 from ..utils.logger import get_logger
 
@@ -52,7 +51,10 @@ class StreamingRarDataset(IterableDataset):
         self.transform_fn = transform_fn
         # new handle
         self.handle = None
-        self.raw_members = self.rar.namelist()
+        self.raw_members = [
+            x for x in self.rar.namelist()
+            if x[-1] != os.sep and '__MACOSX' not in x
+        ]
         # split by distributed
         if dist.is_initialized():
             num_replicas = dist.get_world_size()
