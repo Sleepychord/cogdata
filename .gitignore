@@ -20,3 +20,4 @@ __pycache__/
 outputs/
 vqvae_hard_biggerset_011.pt
 tmp/
+test.*

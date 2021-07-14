@@ -15,6 +15,7 @@ from torch.utils.data import Dataset
 import tarfile
 import torch.distributed as dist
 
+
 class TarDataset(Dataset):
     def __init__(self, path, transform_fn=None):
         self.tar = tarfile.TarFile(path)
@@ -24,7 +25,7 @@ class TarDataset(Dataset):
             num_replicas = dist.get_world_size()
             rank = dist.get_rank()
             self.members = [
-                x for i, x in enumerate(self.members) 
+                x for i, x in enumerate(self.members)
                 if i % num_replicas == rank
             ]
         self.transform_fn = transform_fn
@@ -36,7 +37,7 @@ class TarDataset(Dataset):
         target_info = self.members[idx]
         fp = self.tar.extractfile(target_info)
         full_filename = self.members[idx].name
-        
+
         if self.transform_fn is not None:
             return self.transform_fn(fp, full_filename)
         else:

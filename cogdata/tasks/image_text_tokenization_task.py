@@ -4,7 +4,7 @@ import os
 import PIL
 import torch
 import struct
-from torchvision.transforms.functional import pil_to_tensor
+from torchvision.transforms.functional import pil_to_tensor, to_tensor
 from torchvision import transforms
 from PIL import Image
 
@@ -21,9 +21,8 @@ class ImageTextTokenizationTask(BaseTask):
     '''
 
     def __init__(self, img_size, output_path) -> None:
-        self.saver = BinarySaver(output_path, np.byte)
+        self.saver = BinarySaver(output_path, "uint8")
         self.img_size = img_size
-        raise NotImplementedError
 
     def get_transform_fn(self, transform=None):
         '''
@@ -40,12 +39,12 @@ class ImageTextTokenizationTask(BaseTask):
             except (OSError, PIL.UnidentifiedImageError, Image.DecompressionBombError, ValueError) as e:
                 if not isinstance(e, ValueError):
                     get_logger().warning(f'Image {full_filename} is damaged.')
-                return Image.new('RGB', (self.img_size, self.img_size), (255, 255, 255)), None
-
+                return Image.new('RGB', (self.img_size, self.img_size), (255, 255, 255)), "not_a_image"
             dirs, filename = os.path.split(full_filename)
             filename = filename.split('.')[0]
             if local_transform is not None:
                 img = local_transform(img)
+            return img, filename
         return transform_fn
 
     def process(self, dataset_index, dataset, args_dict):
@@ -86,19 +85,17 @@ class ImageTextTokenizationTask(BaseTask):
             # filtered_img = torch.stack(imgs)
             raw_imgs = raw_imgs[filter_ids]
             try:
-                txts = [text_dict[filename].encode(
-                    "utf-8") for filename in filenames]
                 txts = []
                 for filename in filenames:
                     txt = text_dict[filename].encode("utf-8")
                     if len(text_dict[filename]) < txt_len:
-                        txt += [0]*(txt_len-len(text_dict[filename]))
+                        txt = txt.ljust(txt_len, b'\0')
                     else:
                         txt = txt[:txt_len]
-                    txts.append(txt)
-                txts = np.asarray(txts, dtype=np.byte)
-                codes = img2code(args_dict['model'], raw_imgs).cpu().numpy()
-                data = np.concatenate((txts, codes), dtype=np.byte)
+                    txts.append(list(txt))
+                txts = torch.tensor(txts)
+                codes = img2code(args_dict['model'], raw_imgs).cpu()
+                data = torch.cat((txts, codes), dim=1)
                 self.saver.save(data)
             except KeyError:
                 print("warning: KeyError. The text cannot be find")

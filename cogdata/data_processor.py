@@ -104,7 +104,8 @@ class DataProcessor():
     def run_single(self, local_rank, args_dict):
         '''really process, create datasets with task.transform_fn, iterating the dataloader and run task.process
         '''
-        self.initialize_distributed(local_rank, args_dict)
+        if local_rank is not None:
+            self.initialize_distributed(local_rank, args_dict)
 
         image_folders = args_dict['image_folders']
         txt_files = args_dict['txt_files']
@@ -116,7 +117,8 @@ class DataProcessor():
 
         if task == "text_image":
             img_size = args_dict['img_size']
-            task = ImageTextTokenizationTask(img_size)
+            task = ImageTextTokenizationTask(
+                img_size, args_dict['output_path'])
             image_transform = transforms.Compose([
                 transforms.Resize(img_size),
                 transforms.CenterCrop(img_size),
