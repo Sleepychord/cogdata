@@ -18,14 +18,18 @@ def test_task_init_load():
     task = "image_text_tokenization"
     saver = "binary"
     length_per_sample = 1089
+    image_length = 1024
+    txt_length = 64
     dtype = "int32"
 
-    manager.new_task(id, task, saver, length_per_sample, dtype)
+    manager.new_task(id, task, saver, length_per_sample, image_length, txt_length, dtype)
     assert manager.current_dir == os.path.join(test_base_dir, id)
     assert manager.current_id == id
     assert manager.task == task
     assert manager.saver == saver
     assert manager.length_per_sample == length_per_sample
+    assert manager.image_length == image_length
+    assert manager.txt_length == txt_length
     assert manager.dtype == dtype
 
     task_path = os.path.join(test_base_dir, id)
@@ -37,6 +41,8 @@ def test_task_init_load():
     assert task == config['task']
     assert saver == config['saver']
     assert length_per_sample == config['length_per_sample']
+    assert image_length == config['image_length']
+    assert txt_length == config['txt_length']
     assert dtype == config['dtype']
 
     manager.clear()
@@ -47,6 +53,8 @@ def test_task_init_load():
     assert manager.task == task
     assert manager.saver == saver
     assert manager.length_per_sample == length_per_sample
+    assert manager.image_length == image_length
+    assert manager.txt_length == txt_length
     assert manager.dtype == dtype
 
 def test_init_data():

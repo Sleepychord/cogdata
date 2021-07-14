@@ -26,10 +26,14 @@ class DataManager():
         self.task = None
         self.saver = None
         self.length_per_sample = None
+        self.image_length = None
+        self.txt_length = None
         self.dtype = None
 
         self.merged = False
         self.merge_split = 0
+
+        self.processer = DataProcessor(None)
 
         # self.processor = DataProcessor(args)
 
@@ -230,6 +234,8 @@ class DataManager():
             self.task = config['task']
             self.saver = config['saver']
             self.length_per_sample = config['length_per_sample']
+            self.image_length = config['image_length']
+            self.txt_length = config['txt_length']
             self.dtype = config['dtype']
 
             self.merged = config.get('merged', False)
@@ -240,7 +246,7 @@ class DataManager():
 
         return True
 
-    def new_task(self, id, task, saver, length_per_sample, dtype):
+    def new_task(self, id, task, saver, length_per_sample, image_length, txt_length, dtype):
         '''create a cogdata_workspace subfolder and cogdata_config.json with configs in args.
         '''
         id = str(id)
@@ -263,6 +269,8 @@ class DataManager():
                     self.task = config['task']
                     self.saver = config['saver']
                     self.length_per_sample = config['length_per_sample']
+                    self.image_length = config['image_length']
+                    self.txt_length = config['txt_length']
                     self.dtype = config['dtype']
                     
                     self.merged = config.get('merged', False)
@@ -276,6 +284,8 @@ class DataManager():
         self.saver = saver
         self.length_per_sample = length_per_sample
         self.dtype = dtype
+        self.image_length = image_length
+        self.txt_length = txt_length
 
         self.merged = False
         self.merge_split = 0
@@ -284,6 +294,8 @@ class DataManager():
             "task": task,
             "saver": saver,
             "length_per_sample": length_per_sample,
+            "image_length": image_length,
+            "txt_length": txt_length,
             "dtype": dtype,
         }
         with open(config_path, 'w') as config:
@@ -292,10 +304,54 @@ class DataManager():
         self.current_dir = path  
         self.current_id = id  
 
-    def process(self, args):
+    def process_all(self, args_dict):
+        datasets = self.fetch_datasets()
+        processed_datasets = self.fetch_processed_datasets(datasets)
+
+        unprocessed_datasets = []
+        for dataset in datasets:
+            if not datasets in processed_datasets:
+                unprocessed_datasets.append(dataset)
+        
+        for dataset in unprocessed_datasets:
+            self.process(dataset, None, args_dict)
+
+    def process(self, dataset, local_rank, args_dict):
         '''process one or some (in args) unprocessed dataset (detected).
         '''
-        datasets = ["example"]
+
+        if local_rank is None:
+            output_dir = os.path.join(self.current_dir, dataset)
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+
+            processor.run_monitor(args_dict)
+
+            meta_info = {
+                'name': dataset,
+                'state': 1
+            }
+            with open(os.path.join(output_dir, 'meta_info.json'), 'w') as meta_info_file:
+                json.dump(meta_info, meta_info_file, indent = 4)
+
+            # write meta_info
+        else:
+            args_dict['img_size'] = self.image_length
+            args_dict['txt_len'] = self.txt_length
+
+            data_path = os.path.join(self.base_dir, dataset)
+            output_dir = os.path.join(self.current_dir, dataset)
+            args_dict['output_dir'] = output_dir
+
+            with open(os.path.join(data_path, 'cogdata_info.json'), 'r') as info_file:
+                info = json.load(info_file)
+            args_dict['image_folders'] = [os.path.join(data_path, item) for item in info['data_files']]
+            args_dict['txt_files'] = [os.path.join(data_path, info['text_file'])]
+
+            args_dict['data_format'] = info['data_format']
+            args_dict['text_format'] = info['text_format']
+
+            processor.run_single(local_rank, args_dict)
         # run process with data_processor api
 
     def merge(self):
@@ -370,5 +426,5 @@ class DataManager():
 
 if __name__ == '__main__':
     manager = DataManager('tests/test_base_dir')
-    manager.new_task('1234')
-    manager.list()
+    # manager.new_task('1234')
+    # manager.list()

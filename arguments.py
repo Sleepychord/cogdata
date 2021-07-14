@@ -5,6 +5,8 @@ def add_task_args(parser):
     parser.add_argument('--task_type', type=str, default=None, help='type of the handling task.')
     parser.add_argument('--saver', type=str, default='binary', help='saver mode.')
     parser.add_argument('--length_per_sample', type=int, default=1089, help='data length of one sample (Bytes).')
+    parser.add_argument('--img_length', type=int, default=1024, help='length of a tokenized image.')
+    parser.add_argument('--txt_length', type=int, default=64, help='length of text in one sample.')
     parser.add_argument('--dtype', type=str, default='int32', help='data type of samples.')
     parser.add_argument('--split_num', type=int, default=1, help='number of split pieces for the merge result.')
     parser.add_argument('--display_num', type=int, default=0, help='number of samples to randomly display')
@@ -21,6 +23,12 @@ def add_dataset_args(parser):
     
     return parser
 
+def add_processor_args(parser):
+    parser.add_argument('--local_rank', type=int, default=None, help='rank number for processor run_single')
+    parser.add_argument('--args_dict', type=str, default='{}')
+
+    return parser
+
 def get_args():
     parser = argparse.ArgumentParser()
 
@@ -29,6 +37,7 @@ def get_args():
     
     parser = add_task_args(parser)
     parser = add_dataset_args(parser)
+    parser = add_processor_args(parser)
 
     args = parser.parse_args()
     return args

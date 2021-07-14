@@ -58,12 +58,25 @@ def add_data(manager, args):
 def process(manager, args):
     task_id = args.task_id
     dataset = args.dataset
+    local_rank = args.local_rank
+    world_size = args.world_size
+    args_dict = args.args_dict
+
+    try:
+        if local_rank is not None:
+            assert local_rank >= 0 and local_rank < world_size
+        args_dict = json.load(args_dict)
+    except:
+        print(f"Error: Args wrong. Process failed.")
+        return
 
     if manager.load_task(task_id):
         if dataset is None:
-            manager.process_all()
+            manager.process_all(args_dict)
         else:
-            manager.process(dataset)
+            manager.process(dataset, local_rank, args_dict)
+    
+
 
 def merge(manager, args):
     task_id = args.task_id
