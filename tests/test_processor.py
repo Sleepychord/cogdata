@@ -4,10 +4,9 @@ import sys
 import json
 import os
 import argparse
-sys.path.append('./')
-from cogdata.utils.logger import set_logger, get_logger
-from cogdata.data_processor import DataProcessor
 os.environ['MKL_THREADING_LAYER'] = 'GNU'
+sys.path.append('./')
+from cogdata.data_processor import DataProcessor
 
 
 parser = argparse.ArgumentParser()
@@ -16,7 +15,6 @@ parser.add_argument("--local_rank", type=int, default=None)
 args = parser.parse_args()
 local_rank = os.getenv("LOCAL_RANK", None)
 
-get_logger().debug(args.args_dict)
 args_dict = json.loads(args.args_dict)  # Will return a dictionary
 
 image_list = os.listdir(
