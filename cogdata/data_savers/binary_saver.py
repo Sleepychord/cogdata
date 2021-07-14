@@ -12,9 +12,12 @@ import sys
 import math
 import random
 import torch
+from tqdm import tqdm
 from .base_saver import BaseSaver
 
 class BinarySaver(BaseSaver):
+    max_buffer_size = 1024 * 1024 * 1024 * 10
+
     def __init__(self, output_path, dtype='int32'):
         self.bin = open(output_path, 'wb', buffering=-1) # TODO test speed of buffering
         mapping = {'int32': torch.IntTensor,
@@ -53,6 +56,20 @@ class BinarySaver(BaseSaver):
         )) # TODO: solve possible "Argument list too long"
         if ret != 0:
             raise Exception(f'cat return code {ret}')
+
+    @classmethod
+    def merge_file_read(cls, files, output_path, overwrite=False):
+        merge_file = open(output_path, 'wb')
+
+        for file_path in tqdm(files):
+            size = os.path.getsize(file_path)
+            with open(file_path, 'rb') as data_file:
+                while size > cls.max_buffer_size:
+                    merge_file.write(data_file.read(cls.max_buffer_size))
+                    size -= cls.max_buffer_size
+                merge_file.write(data_file.read())
+
+        merge_file.close()
     
     @classmethod
     def split(cls, input_path, output_dir, n):
@@ -66,3 +83,23 @@ class BinarySaver(BaseSaver):
         ))
         if ret != 0:
             raise Exception(f'split return code {ret}')
+
+    @classmethod
+    def split_file_read(cls, input_path, output_dir, n, size):
+        with open(input_path, 'rb') as merge_file:
+            for i in tqdm(range(n - 1)):
+                left_size = size
+                merge_trunk = open(os.path.join(output_dir, os.path.split(input_path)[-1]+f".part{i}"), 'wb')
+                while left_size > cls.max_buffer_size:
+                    merge_trunk.write(merge_file.read(cls.max_buffer_size))
+                    left_size -= cls.max_buffer_size
+                merge_trunk.write(merge_file.read(left_size))
+                merge_trunk.close()
+
+            left_size = os.path.getsize(input_path) - size * (n - 1)
+            merge_trunk = open(os.path.join(output_dir, os.path.split(input_path)[-1]+f".part{n - 1}"), 'wb')
+            while left_size > cls.max_buffer_size:
+                merge_trunk.write(merge_file.read(cls.max_buffer_size))
+                left_size -= cls.max_buffer_size
+            merge_trunk.write(merge_file.read(left_size))            
+            merge_trunk.close()

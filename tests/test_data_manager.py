@@ -4,13 +4,18 @@ import os
 import sys
 import math
 import json
+import time
 import random
 import torch
+import shutil
 
 from cogdata.data_manager import DataManager
 
 def test_task_init_load():
     test_base_dir = 'test_base_dir'
+    if os.path.exists(test_base_dir):
+        shutil.rmtree(test_base_dir)
+
     os.makedirs(test_base_dir, exist_ok=False)
     manager = DataManager("test_base_dir")
 
@@ -169,6 +174,8 @@ def test_processed_merge_and_split():
         "task": "image_text_tokenization",
         "saver": "binary",
         "length_per_sample": 1,
+        "image_length": 0,
+        "txt_length": 0,
         "dtype": "int32"
     }
     with open(os.path.join(task_path, 'cogdata_config.json'), 'w') as config_file:
@@ -233,3 +240,69 @@ def test_processed_merge_and_split():
             data = data_file.read()
         # print(data)
         assert data == expected_data[i]
+
+def compare_merge_split():
+    test_base_dir = '/dataset/fd5061f6/test_base_dir'
+    manager = DataManager(test_base_dir)
+
+    # construct a test datasets structure
+    task_id = '1234'
+    task_path = os.path.join(test_base_dir, task_id)
+
+    # with open(os.path.join(task_path, 'cogdata_config.json'), 'r') as config_file:
+    #     config = json.load(config_file)
+    
+    # config['merged'] = False
+    # config['merge_split'] = 0
+    # config['length_per_sample'] = 1089
+
+    # with open(os.path.join(task_path, 'cogdata_config.json'), 'w') as config_file:
+    #     json.dump(config, config_file, indent = 4)
+
+    # manager.load_task(task_id)
+
+    # print('merging with shell...')
+    # start = time.time()
+    # manager.merge_shell()
+    # end = time.time()
+    # print('merge time:', end - start)
+
+    # assert manager.merged == True
+    
+    # print('splitting with shell...')
+    # start = time.time()
+    # manager.split_shell(10)
+    # end = time.time()
+    # print('split time:', end - start)
+
+    # assert manager.merged == True
+    # assert manager.merge_split == 10
+
+    with open(os.path.join(task_path, 'cogdata_config.json'), 'r') as config_file:
+        config = json.load(config_file)
+    
+    config['merged'] = False
+    config['merge_split'] = 0
+    config['length_per_sample'] = 1089
+
+    with open(os.path.join(task_path, 'cogdata_config.json'), 'w') as config_file:
+        json.dump(config, config_file, indent = 4)
+
+    manager.load_task(task_id)
+
+    print('merging...')
+    start = time.time()
+    manager.merge()
+    end = time.time()
+    print('merge time:', end - start)
+
+    assert manager.merged == True
+    
+    print('splitting...')
+    start = time.time()
+    manager.split(10)
+    end = time.time()
+    print('split time:', end - start)
+
+    assert manager.merged == True
+    assert manager.merge_split == 10
