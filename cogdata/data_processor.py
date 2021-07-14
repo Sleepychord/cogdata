@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+from threading import local
 import time
 import subprocess
 import os
@@ -9,6 +10,7 @@ from cogdata.utils.cogview.unified_tokenizer import get_tokenizer
 from cogdata.utils.logger import get_logger, set_logger
 from cogdata.datasets import BinaryDataset,  TarDataset, ZipDataset
 from cogdata.tasks.image_text_tokenization_task import ImageTextTokenizationTask
+from cogdata.eprogress import MultiProgressManager, LineProgress
 
 
 def _get_last_line(filename):
@@ -37,7 +39,6 @@ def _get_last_line(filename):
                 lines = fp.readlines()
                 return lines[-1]
     except FileNotFoundError:
-        print(filename + ' not found!')
         return None
 
 
@@ -71,14 +72,40 @@ class DataProcessor():
                    str(args_dict['nproc_per_node']), "tests/test_processor.py", "--args_dict", str(args_dict).replace("\'", "\"")]
         p = subprocess.Popen(command)
 
+        progress_manager = MultiProgressManager()
+        time.sleep(1)
+
+        world_size = int(args_dict['world_size'])
+        last_cnt = {}
+        print("total datasets:{}".format(world_size))
+
         try:
-            log_files = os.listdir(os.path.join(args_dict['log_dir'], "logs"))
-            while p.poll() is None:
-                for name in log_files:
-                    if name == 'rank_main.log':
-                        continue
+            # while p.poll() is None:
+            while True:
+                for i in range(world_size):
+                    name = "rank"+str(i)+".log"
                     last_line = _get_last_line(os.path.join(
                         os.getcwd(), args_dict['log_dir'], "logs", name))
+                    if last_line is None:
+                        continue
+                    last_line = last_line.decode("utf-8")
+                    log_info = last_line.strip().split(
+                        ":")[-1].split(" ")
+
+                    if log_info[0] == "files":
+                        if len(last_cnt) == 0:
+                            for i in range(world_size):
+                                last_cnt[i] = [0, 0]
+                                progress_manager.put(
+                                    str(i), LineProgress(total=100, width=100, title="rank"+str(i)+" dataset0"))
+                        cur, tot = [int(i) for i in log_info[1].split("/")]
+                        if last_cnt[i][0] > cur:
+                            last_cnt[i][1] += 1
+                            progress_manager._progress_dict[str(
+                                i)].title = "rank"+str(i)+" dataset"+str(last_cnt[i][1])
+                        progress_manager.update(str(i), (cur/tot)*100)
+                        last_cnt[i][0] = cur
+
                     get_logger().debug(last_line)
                 time.sleep(1)
         except Exception as e:
@@ -130,7 +157,8 @@ class DataProcessor():
             txt_mode = "dict"
             text_dict = self.read_text(txt_files, txt_mode)
             args_dict['text_dict'] = text_dict
+        args_dict['local_rank'] = local_rank
         for dataset_index, dataset in enumerate(datasets):
             get_logger().debug(
-                '{} begin:{}/{}'.format(image_folders[dataset_index], dataset_index, len(datasets)))
+                'rank{}:datasets {}/{}'.format(local_rank, dataset_index, len(datasets)))
             task.process(dataset_index, dataset, args_dict)

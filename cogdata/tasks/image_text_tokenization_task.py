@@ -109,7 +109,7 @@ class ImageTextTokenizationTask(BaseTask):
                 self.saver.save(data)
                 
                 if cnt % 20 == 0:
-                    get_logger()("{}/{}".format(cnt, total_cnt))
+                    get_logger().info("rank{}/{}".format(cnt, total_cnt))
             self.saver.commit()
 
     def read_text(self, txt_files, mode):

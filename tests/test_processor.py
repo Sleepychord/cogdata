@@ -1,12 +1,13 @@
 #!/usr/bin/env python
-
 import sys
 import json
 import os
 import argparse
 os.environ['MKL_THREADING_LAYER'] = 'GNU'
-sys.path.append('./')
-from cogdata.data_processor import DataProcessor
+
+if __name__ == "__main__":
+    sys.path.append('./')
+    from cogdata.data_processor import DataProcessor
 
 
 parser = argparse.ArgumentParser()
@@ -33,8 +34,8 @@ args_dict['output_dir'] = "test"
 args_dict['ratio'] = 1
 args_dict['log_dir'] = 'tmp'
 
-args_dict['world_size'] = 2
-args_dict['nproc_per_node'] = 2
+args_dict['world_size'] = 3
+args_dict['nproc_per_node'] = 3
 if local_rank == None:
     from cogdata.data_processor import DataProcessor
     proc = DataProcessor()
