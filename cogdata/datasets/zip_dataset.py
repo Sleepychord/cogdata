@@ -24,7 +24,7 @@ import torch.distributed as dist
 
 from torch.utils.data import Dataset, IterableDataset
 from PIL import Image
-from ..utils.logger import get_logger
+from cogdata.utils.logger import get_logger
 
 class ZipDataset(Dataset):
     def __init__(self, path, transform_fn=None):
