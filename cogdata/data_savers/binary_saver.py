@@ -14,22 +14,24 @@ import random
 import torch
 from .base_saver import BaseSaver
 
+
 class BinarySaver(BaseSaver):
     def __init__(self, output_path, dtype='int32'):
         self.bin = open(output_path, 'wb', buffering=-1) # TODO test speed of buffering
         mapping = {'int32': torch.IntTensor,
-            'int64': torch.LongTensor,
-            'float32': torch.FloatTensor,
-            'uint8': torch.ByteTensor,
-            'bool': torch.BoolTensor
-        }
+                   'int64': torch.LongTensor,
+                   'float32': torch.FloatTensor,
+                   'uint8': torch.ByteTensor,
+                   'bool': torch.BoolTensor
+                   }
         self.dtype = mapping[dtype]
+
     def save(self, data):
         '''
         Args:
             data: tensor.
         '''
-        self.bin.write(data.type(self.dtype).numpy().tobytes()) # TODO buffer
+        self.bin.write(data.type(self.dtype).numpy().tobytes())  # TODO buffer
 
     def commit(self):
         self.bin.flush()

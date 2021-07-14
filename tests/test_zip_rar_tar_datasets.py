@@ -25,20 +25,20 @@ def test_zip_dataset():
     global current_ds
     current_ds = 'zip'
     os.makedirs(os.path.join('tmp', current_ds), exist_ok=True)
-    ds = ZipDataset('downloads/testcase.zip', extract_fn)
+    ds = ZipDataset('downloads/testcase.zip', transform_fn=extract_fn)
     print([x for x in ds])
 
 def test_tar_dataset():
     global current_ds
     current_ds = 'tar'
     os.makedirs(os.path.join('tmp', current_ds), exist_ok=True)
-    ds = TarDataset('downloads/testcase.tar', extract_fn)
+    ds = TarDataset('downloads/testcase.tar', transform_fn=extract_fn)
     print([x for x in ds])
     
 def test_rar_dataset():
     global current_ds
     current_ds = 'rar'
     os.makedirs(os.path.join('tmp', current_ds), exist_ok=True)
-    ds = StreamingRarDataset('downloads/testcase.rar', extract_fn)
+    ds = StreamingRarDataset('downloads/testcase.rar', transform_fn=extract_fn)
     print([x for x in ds])
     

@@ -23,6 +23,6 @@ def test_tar_saver():
     def extract_fn(fp, full_filename, filesize):
         saver.save(fp, full_filename, filesize)
         return None
-    ds = ZipDataset('downloads/testcase.zip', extract_fn)
+    ds = ZipDataset('downloads/testcase.zip', transform_fn=extract_fn)
     print([x for x in ds])
     del saver

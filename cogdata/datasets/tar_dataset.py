@@ -15,20 +15,19 @@ from torch.utils.data import Dataset
 import tarfile
 import torch.distributed as dist
 
+
 class TarDataset(Dataset):
-    def __init__(self, path, transform_fn=None):
+    def __init__(self, path, world_size=1, rank=0, transform_fn=None):
         self.tar = tarfile.TarFile(path)
         self.members = [
             x for x in self.tar.getmembers()
             if x.isfile() and '__MACOSX' not in x.name
         ]
         # split by distributed
-        if dist.is_initialized():
-            num_replicas = dist.get_world_size()
-            rank = dist.get_rank()
+        if world_size > 1:
             self.members = [
-                x for i, x in enumerate(self.members) 
-                if i % num_replicas == rank
+                x for i, x in enumerate(self.members)
+                if i % world_size == rank
             ]
         self.transform_fn = transform_fn
 

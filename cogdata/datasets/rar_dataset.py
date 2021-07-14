@@ -7,6 +7,11 @@
 '''
 
 # here put the import lib
+from unrar.rarfile import _ReadIntoMemory
+from unrar import constants
+from unrar import unrarlib
+from unrar import rarfile
+import unrar
 import os
 import sys
 import math
@@ -24,7 +29,7 @@ from torchvision import datasets
 from PIL import Image
 import timeit
 import torch.distributed as dist
-from ..utils.logger import get_logger
+from utils.logger import get_logger
 
 
 local_unrarlib_path = os.path.join(
@@ -39,14 +44,9 @@ elif os.path.exists('/usr/local/lib/libunrar.so'):
 elif os.path.exists('/usr/lib/libunrar.so'):
     os.environ['UNRAR_LIB_PATH'] = '/usr/lib/libunrar.so'
 
-import unrar
-from unrar import rarfile
-from unrar import unrarlib
-from unrar import constants
-from unrar.rarfile import _ReadIntoMemory
 
 class StreamingRarDataset(IterableDataset):
-    def __init__(self, path, transform_fn=None):
+    def __init__(self, path, world_size=1, rank=0, transform_fn=None):
         self.rar = rarfile.RarFile(path)
         self.transform_fn = transform_fn
         # new handle
@@ -56,12 +56,10 @@ class StreamingRarDataset(IterableDataset):
             if x[-1] != os.sep and '__MACOSX' not in x
         ]
         # split by distributed
-        if dist.is_initialized():
-            num_replicas = dist.get_world_size()
-            rank = dist.get_rank()
+        if world_size > 1:
             self.raw_members = [
-                x for i, x in enumerate(self.raw_members) 
-                if i % num_replicas == rank
+                x for i, x in enumerate(self.raw_members)
+                if i % world_size == rank
             ]
 
     def __len__(self):
@@ -72,12 +70,12 @@ class StreamingRarDataset(IterableDataset):
             raise StopIteration()
         if self.handle == None:
             archive = unrarlib.RAROpenArchiveDataEx(
-            self.rar.filename, mode=constants.RAR_OM_EXTRACT)
+                self.rar.filename, mode=constants.RAR_OM_EXTRACT)
             self.handle = self.rar._open(archive)
         # callback to memory
         self.data_storage = _ReadIntoMemory()
         c_callback = unrarlib.UNRARCALLBACK(self.data_storage._callback)
-        unrarlib.RARSetCallback(self.handle, c_callback, 0)    
+        unrarlib.RARSetCallback(self.handle, c_callback, 0)
         handle = self.handle
         try:
             rarinfo = self.rar._read_header(handle)
@@ -115,7 +113,8 @@ class StreamingRarDataset(IterableDataset):
             all_members = self.raw_members
             num_workers = worker_info.num_workers
             worker_id = worker_info.id
-            self.members = [x for i, x in enumerate(all_members) if i % num_workers == worker_id]
+            self.members = [x for i, x in enumerate(
+                all_members) if i % num_workers == worker_id]
         self.pointer = 0
         return self
 

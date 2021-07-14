@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import torch
@@ -5,6 +6,7 @@ import torch
 sys.path.append('./')
 
 from cogdata.utils.logger import set_logger, get_logger
+
 
 def initialize_distributed(args):
     """Initialize torch.distributed."""
@@ -21,7 +23,7 @@ def initialize_distributed(args):
         world_size=args.world_size, rank=args.local_rank,
         init_method=init_method)
 
-import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--local_rank", type=int, default=None)
 parser.add_argument("--world_size", type=int, default=None)
