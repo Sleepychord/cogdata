@@ -93,6 +93,8 @@ class ImageTextTokenizationTask(BaseTask):
                     else:
                         get_logger().warning(f"deleted 1 damaged image.")
                 n = len(filenames) # valid num
+                if n == 0:
+                    continue
                 imgs = normfunc(buf_imgs[:n] / 255.)
 
                 buf_txts.fill_(-1)

@@ -1,22 +1,20 @@
 #!/usr/bin/env python
 
-import argparse
-import os
-import json
 import sys
-
+import json
+import os
+import argparse
+os.environ['MKL_THREADING_LAYER'] = 'GNU'
 sys.path.append('./')
-from cogdata.utils.logger import set_logger, get_logger
 from cogdata.data_processor import DataProcessor
-set_logger('tmp')
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--args_dict', type=str, default="{}")
 parser.add_argument("--local_rank", type=int, default=None)
 args = parser.parse_args()
+local_rank = os.getenv("LOCAL_RANK", None)
 
-get_logger().debug(args.args_dict)
 args_dict = json.loads(args.args_dict)  # Will return a dictionary
 
 image_list = os.listdir(
@@ -33,19 +31,22 @@ args_dict['img_size'] = 256
 args_dict['txt_len'] = 64
 args_dict['output_dir'] = "test"
 args_dict['ratio'] = 1
+args_dict['log_dir'] = 'tmp'
 
-# args_dict['world_size'] = 2
-# args_dict['nproc_per_node'] = 2
-# if args.local_rank == None:
-#     from cogdata.data_processor import DataProcessor
-#     proc = DataProcessor()
-#     proc.run_monitor(args_dict)
-# else:
-#     from cogdata.data_processor import DataProcessor
-#     proc = DataProcessor()
-#     proc.run_single(args.local_rank, args_dict)
+args_dict['world_size'] = 2
+args_dict['nproc_per_node'] = 2
+if local_rank == None:
+    from cogdata.data_processor import DataProcessor
+    proc = DataProcessor()
+    proc.run_monitor(args_dict)
+else:
+    print('-------------------')
+    print(args.local_rank)
+    from cogdata.data_processor import DataProcessor
+    proc = DataProcessor()
+    proc.run_single(int(local_rank), args_dict)
 
-if not os.path.exists(args_dict['output_dir']):
-    os.makedirs(args_dict['output_dir'])
-proc = DataProcessor()
-proc.run_single(args.local_rank, args_dict)
+# if not os.path.exists(args_dict['output_dir']):
+#     os.makedirs(args_dict['output_dir'])
+# proc = DataProcessor()
+# proc.run_single(args.local_rank, args_dict)
