@@ -62,12 +62,12 @@ class BinarySaver(BaseSaver):
         merge_file = open(output_path, 'wb')
 
         for file_path in tqdm(files):
-            size = os.path.getsize(file_path)
             with open(file_path, 'rb') as data_file:
-                while size > cls.max_buffer_size:
-                    merge_file.write(data_file.read(cls.max_buffer_size))
-                    size -= cls.max_buffer_size
-                merge_file.write(data_file.read())
+                while True:
+                    data = data_file.read(cls.max_buffer_size)
+                    if not data:
+                        break
+                    merge_file.write(data)
 
         merge_file.close()
     
@@ -96,10 +96,10 @@ class BinarySaver(BaseSaver):
                 merge_trunk.write(merge_file.read(left_size))
                 merge_trunk.close()
 
-            left_size = os.path.getsize(input_path) - size * (n - 1)
             merge_trunk = open(os.path.join(output_dir, os.path.split(input_path)[-1]+f".part{n - 1}"), 'wb')
-            while left_size > cls.max_buffer_size:
-                merge_trunk.write(merge_file.read(cls.max_buffer_size))
-                left_size -= cls.max_buffer_size
-            merge_trunk.write(merge_file.read(left_size))            
+            while True:
+                data = merge_file.read(cls.max_buffer_size)
+                if not data:
+                    break
+                merge_trunk.write(data)          
             merge_trunk.close()
