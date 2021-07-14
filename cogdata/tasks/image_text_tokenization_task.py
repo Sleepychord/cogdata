@@ -47,6 +47,22 @@ class ImageTextTokenizationTask(BaseTask):
             return img, filename
         return transform_fn
 
+    def write(self, raw_filenames, raw_imgs, text_dict, args_dict):
+        txts = []
+        txt_len = args_dict['txt_len']
+        for filename in raw_filenames:
+            txt = text_dict[filename].encode("utf-8")
+            if len(text_dict[filename]) < txt_len:
+                txt = txt.ljust(txt_len, b'\0')
+            else:
+                txt = txt[:txt_len]
+            txts.append(list(txt))
+        raw_imgs = raw_imgs[:len(txts), :]
+        txts = torch.tensor(txts)
+        codes = img2code(args_dict['model'], raw_imgs).cpu()
+        data = torch.cat((txts, codes), dim=1)
+        self.saver.save(data)
+
     def process(self, dataset_index, dataset, args_dict):
         text_dict = args_dict['text_dict']
         device = args_dict['device']
@@ -66,40 +82,29 @@ class ImageTextTokenizationTask(BaseTask):
                 raw_filenames = []
             raw_imgs[len(raw_filenames)] = raw_img.to(device)
             raw_filenames.append(raw_filename)
+            cnt += 1
             if len(raw_filenames) < 32:
                 continue
             raw_imgs = normfunc(raw_imgs)
-            cnt += 1
             if cnt > total_cnt * args_dict['ratio']:
                 break
             # imgs = []
-            filenames = []
             filter_ids = []
             for i, filename in enumerate(raw_filenames):
                 if filename != "not_a_image" and text_dict.__contains__(filename):
                     # imgs.append(raw_imgs[i])
-                    filenames.append(filename)
                     filter_ids.append(i)
                 else:
                     print("warning: deleted damaged image")
             # filtered_img = torch.stack(imgs)
             raw_imgs = raw_imgs[filter_ids]
+            if len(filter_ids) < len(raw_filenames):
+                raw_filenames.remove("not_a_image")
             try:
-                txts = []
-                for filename in filenames:
-                    txt = text_dict[filename].encode("utf-8")
-                    if len(text_dict[filename]) < txt_len:
-                        txt = txt.ljust(txt_len, b'\0')
-                    else:
-                        txt = txt[:txt_len]
-                    txts.append(list(txt))
-                txts = torch.tensor(txts)
-                codes = img2code(args_dict['model'], raw_imgs).cpu()
-                data = torch.cat((txts, codes), dim=1)
-                self.saver.save(data)
+                self.write(raw_filenames, raw_imgs, text_dict, args_dict)
             except KeyError:
-                print("warning: KeyError. The text cannot be find")
-                pass
-            if cnt % 1000 == 0:
-                get_logger()("{}/{}".format(cnt, total_cnt))
+                get_logger().warn("warning: KeyError. The text cannot be find")
+            get_logger().debug("{}/{}".format(cnt, total_cnt))
+        if len(raw_filenames) > 0:
+            self.write(raw_filenames, raw_imgs, text_dict, args_dict)
         self.saver.commit()
