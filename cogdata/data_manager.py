@@ -5,6 +5,7 @@ import sys
 import json
 import math
 import random
+from tqdm import tqdm
 
 from .data_processor import DataProcessor
 from .utils.helpers import format_file_size
@@ -361,16 +362,34 @@ class DataManager():
             for i in range(self.merge_split):
                 os.remove(os.path.join(self.current_dir, f"merge_{i}.bin"))
 
-        merge_file = open(os.path.join(self.current_dir, 'merge.bin'), 'wb')
+        merge_path = os.path.join(self.current_dir, 'merge.bin')
+        processed_datasets = self.fetch_processed_datasets(self.fetch_datasets())
+        data_paths = [os.path.join(os.path.join(self.current_dir, dataset), 'processed.bin') for dataset in processed_datasets]
+
+        BinarySaver.merge_file_read(data_paths, merge_path, True)
+        self.merged = True
+
+        config_path = os.path.join(self.current_dir, 'cogdata_config.json')
+        with open(config_path, 'r') as config_file:
+            config = json.load(config_file)
+        config['merged'] = True
+
+        with open(config_path, 'w') as config_file:
+            json.dump(config, config_file, indent = 4)
+
+    def merge_shell(self):
+        '''merge all current processed datasets.
+        '''
+        if self.merged is True and self.merge_split > 0:
+            for i in range(self.merge_split):
+                os.remove(os.path.join(self.current_dir, f"merge_{i}.bin"))
 
         processed_datasets = self.fetch_processed_datasets(self.fetch_datasets())
 
-        for dataset in processed_datasets:
-            processed_data_path = os.path.join(self.current_dir, dataset)
-            with open(os.path.join(processed_data_path, "processed.bin"), 'rb') as data_file:
-                merge_file.write(data_file.read())
+        data_paths = [os.path.join(os.path.join(self.current_dir, dataset), 'processed.bin') for dataset in processed_datasets]
+        output_path = os.path.join(self.current_dir, 'merge_shell.bin')
+        BinarySaver.merge(data_paths, output_path, True)
 
-        merge_file.close()
         self.merged = True
 
         config_path = os.path.join(self.current_dir, 'cogdata_config.json')
@@ -399,16 +418,8 @@ class DataManager():
 
             split_size = (sample_num + split_num - 1) // split_num
 
-            with open(merge_path, 'rb') as merge_file:
-                for i in range(split_num - 1):
-                    merge_trunk = open(os.path.join(self.current_dir, f"merge_{i}.bin"), 'wb')
-                    merge_trunk.write(merge_file.read(split_size * sample_size))
-                    merge_trunk.close()
-                merge_trunk = open(os.path.join(self.current_dir, f"merge_{split_num - 1}.bin"), 'wb')
-                merge_trunk.write(merge_file.read())
-                merge_trunk.close()
+            BinarySaver.split_file_read(merge_path, self.current_dir, split_num, split_size * sample_size)
 
-            os.remove(merge_path)
             self.merge_split = split_num
 
             config_path = os.path.join(self.current_dir, 'cogdata_config.json')            
@@ -423,6 +434,34 @@ class DataManager():
         else:
             print(f"Error: task {self.task} is already splitted.")
             return
+
+    def split_shell(self, split_num):
+        '''split the merged files into N parts.
+        '''
+        # split_num = 5
+
+        if not self.merged:
+            print(f"Error: task {self.task} not merged but receive a split request.")
+            return
+
+        if self.merge_split == 0:
+            merge_path = os.path.join(self.current_dir, 'merge_shell.bin')
+            BinarySaver.split(merge_path, self.current_dir, split_num)
+
+            self.merge_split = split_num
+
+            config_path = os.path.join(self.current_dir, 'cogdata_config.json')            
+            with open(config_path, 'r') as config_file:
+                config = json.load(config_file)
+            config['merge_split'] = split_num
+
+            with open(config_path, 'w') as config_file:
+                json.dump(config, config_file)
+
+            print(f"Split task {self.task} successully.")
+        else:
+            print(f"Error: task {self.task} is already splitted.")
+            return        
 
 if __name__ == '__main__':
     manager = DataManager('tests/test_base_dir')
