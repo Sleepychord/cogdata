@@ -26,19 +26,20 @@ from torch.utils.data import Dataset, IterableDataset
 from PIL import Image
 from ..utils.logger import get_logger
 
+
 class ZipDataset(Dataset):
     def __init__(self, path, transform_fn=None):
         self.zip = zipfile.ZipFile(path)
         self.members = [
-            info for info in self.zip.infolist() 
-                if info.filename[-1] != os.sep
+            info for info in self.zip.infolist()
+            if info.filename[-1] != os.sep
         ]
         # split by distributed
         if dist.is_initialized():
             num_replicas = dist.get_world_size()
             rank = dist.get_rank()
             self.members = [
-                x for i, x in enumerate(self.members) 
+                x for i, x in enumerate(self.members)
                 if i % num_replicas == rank
             ]
         self.transform_fn = transform_fn
@@ -59,6 +60,6 @@ class ZipDataset(Dataset):
             return self.transform_fn(fp, full_filename)
         else:
             return fp, full_filename
-    
+
     def __del__(self):
         self.zip.close()

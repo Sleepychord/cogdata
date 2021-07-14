@@ -9,8 +9,8 @@ from torchvision import transforms
 from PIL import Image
 
 from .base_task import BaseTask
-from ..utils.logger import get_logger
-from ..data_savers import BinarySaver
+from cogdata.utils.logger import get_logger
+from cogdata.data_savers import BinarySaver
 from cogdata.utils.logger import set_logger, get_logger
 from cogdata.utils.cogview.api import img2code
 import numpy as np
@@ -105,5 +105,4 @@ class ImageTextTokenizationTask(BaseTask):
                 pass
             if cnt % 1000 == 0:
                 get_logger()("{}/{}".format(cnt, total_cnt))
-        txt_saver.commit()
-        img_saver.commit()
+        self.saver.commit()

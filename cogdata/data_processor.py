@@ -4,23 +4,23 @@ import os
 import sys
 import math
 import random
+from numpy import array_split
 import torch
 from torchvision import transforms
 import torch.multiprocessing as mp
 import json
 
-from utils.cogview.unified_tokenizer import get_tokenizer
-from utils.logger import set_logger, get_logger
-from datasets import BinaryDataset,  TarDataset, ZipDataset
-from data_manager import DataManager
-from tasks.image_text_tokenization_task import ImageTextTokenizationTask
+from cogdata.utils.cogview.unified_tokenizer import get_tokenizer
+from cogdata.utils.logger import get_logger
+from cogdata.datasets import BinaryDataset,  TarDataset, ZipDataset
+from cogdata.tasks.image_text_tokenization_task import ImageTextTokenizationTask
 
 
 class DataProcessor():
-    def initialize_distributed(self, args):
+    def initialize_distributed(self, local_rank, args):
         """Initialize torch.distributed."""
-        if args['local_rank'] is not None:
-            device = args['local_rank']
+        if local_rank is not None:
+            device = local_rank
         torch.cuda.set_device(device)
         # Call the init process
         init_method = 'tcp://'
@@ -29,7 +29,7 @@ class DataProcessor():
         init_method += master_ip + ':' + master_port
         torch.distributed.init_process_group(
             backend='nccl',
-            world_size=args['world_size'], rank=args['local_rank'],
+            world_size=args['world_size'], rank=local_rank,
             init_method=init_method)
 
     def read_text(self, txt_files, mode):
@@ -96,13 +96,16 @@ class DataProcessor():
            Monitor all the progresses by outputs in tmp files, clean tmp files from previous runs at first. use utils.progress_record !
            Wait and merge k files (use the helper in saver).
         '''
-        os.system(
-            'python -m torch.distributed.launch cogdata/data_processor.py --args_dict={}'.format(args_dict))
+        command = "python -m torch.distributed.launch --nproc_per_node={} test_processor.py --args_dict='{}'".format(
+            args_dict['nproc_per_node'], str(args_dict).replace("\'", "\""))
+        print(command)
+        os.system(command)
 
-    def run_single(self, args_dict):
+    def run_single(self, local_rank, args_dict):
         '''really process, create datasets with task.transform_fn, iterating the dataloader and run task.process
         '''
-        self.initialize_distributed(args_dict)
+        self.initialize_distributed(local_rank, args_dict)
+
         image_folders = args_dict['image_folders']
         txt_files = args_dict['txt_files']
         task = args_dict['task']
@@ -142,14 +145,3 @@ class DataProcessor():
             task.process(dataset_index, dataset, args_dict)
             get_logger().debug(
                 '{} begin:{}/{}'.format(image_folders[dataset_index], dataset_index, len(datasets)))
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--args_dict', type=json.loads, default={})
-    parser.add_argument("--local_rank", type=int, default=None)
-    args = parser.parse_args()
-    args_dict = args.args_dict  # Will return a dictionary
-    args_dict['local_rank'] = args.local_rank
-    processor = DataProcessor(args_dict)
-    processor.run_single(args_dict)
