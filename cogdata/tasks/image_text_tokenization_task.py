@@ -104,7 +104,10 @@ class ImageTextTokenizationTask(BaseTask):
                 self.write(raw_filenames, raw_imgs, text_dict, args_dict)
             except KeyError:
                 get_logger().warn("warning: KeyError. The text cannot be find")
-            get_logger().debug("{}/{}".format(cnt, total_cnt))
+            get_logger().debug(
+                'rank{}:files {}/{}'.format(args_dict['local_rank'], cnt, total_cnt))
         if len(raw_filenames) > 0:
             self.write(raw_filenames, raw_imgs, text_dict, args_dict)
+        get_logger().debug(
+            'rank{}:files {}/{}'.format(args_dict['local_rank'], total_cnt, total_cnt))
         self.saver.commit()
