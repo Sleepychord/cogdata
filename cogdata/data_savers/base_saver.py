@@ -14,6 +14,10 @@ import random
 
 from abc import ABC, abstractmethod
 class BaseSaver(ABC):
+    suffix = '.dat'
+    @abstractmethod
+    def __init__(self, output_path, *args, **kwargs):
+        pass
     @abstractmethod
     def save(self, *args):
         '''

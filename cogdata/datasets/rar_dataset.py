@@ -7,11 +7,6 @@
 '''
 
 # here put the import lib
-from unrar.rarfile import _ReadIntoMemory
-from unrar import constants
-from unrar import unrarlib
-from unrar import rarfile
-import unrar
 import os
 import sys
 import math
@@ -29,8 +24,7 @@ from torchvision import datasets
 from PIL import Image
 import timeit
 import torch.distributed as dist
-from utils.logger import get_logger
-
+from cogdata.utils.logger import get_logger
 
 local_unrarlib_path = os.path.join(
     os.path.dirname(
@@ -44,7 +38,15 @@ elif os.path.exists('/usr/local/lib/libunrar.so'):
 elif os.path.exists('/usr/lib/libunrar.so'):
     os.environ['UNRAR_LIB_PATH'] = '/usr/lib/libunrar.so'
 
+from unrar.rarfile import _ReadIntoMemory
+from unrar import constants
+from unrar import unrarlib
+from unrar import rarfile
+import unrar
 
+from cogdata.utils.register import register
+
+@register
 class StreamingRarDataset(IterableDataset):
     def __init__(self, path, world_size=1, rank=0, transform_fn=None):
         self.rar = rarfile.RarFile(path)
@@ -119,4 +121,5 @@ class StreamingRarDataset(IterableDataset):
         return self
 
     def __del__(self):
-        self.rar._close(self.handle)
+        if self.handle is not None:
+            self.rar._close(self.handle)

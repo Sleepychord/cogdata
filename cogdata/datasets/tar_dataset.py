@@ -15,7 +15,9 @@ from torch.utils.data import Dataset
 import tarfile
 import torch.distributed as dist
 
+from cogdata.utils.register import register
 
+@register
 class TarDataset(Dataset):
     def __init__(self, path, world_size=1, rank=0, transform_fn=None):
         self.tar = tarfile.TarFile(path)

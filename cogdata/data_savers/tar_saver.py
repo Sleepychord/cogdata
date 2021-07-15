@@ -15,9 +15,12 @@ import time
 
 import tarfile
 from .base_saver import BaseSaver
+from cogdata.utils.register import register
 
+@register
 class TarSaver(BaseSaver):
-    def __init__(self, output_path, mode='w:'):
+    suffix = '.tar'
+    def __init__(self, output_path, mode='w:', **kwargs):
         self.tar = tarfile.open(output_path, mode, bufsize=16*1024*1024) # 64M
         
     def save(self, fp, full_filename, file_size):

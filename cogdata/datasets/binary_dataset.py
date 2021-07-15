@@ -14,9 +14,11 @@ import random
 import torch
 from torch.utils.data.dataset import Dataset
 import numpy as np
+from cogdata.utils.register import register
 
+@register
 class BinaryDataset(Dataset):
-    def __init__(self, path, length_per_sample, dtype='int32', preload=False):
+    def __init__(self, path, length_per_sample, dtype='int32', preload=False, **kwargs):
         self.length_per_sample = length_per_sample
         self.dtype = np.dtype(dtype)
         if preload:

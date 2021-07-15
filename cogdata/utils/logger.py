@@ -25,11 +25,12 @@ def set_logger(target_path=None):
         if dist.is_initialized():
             rank = dist.get_rank()
         else:
-            rank = '_main'
-        logfile = os.path.join(target_path, 'logs', f'rank{rank}.log')
+            raise NotImplementedError
+        logfile = os.path.join(target_path, 'logs', f'rank_{rank}.log')
         os.makedirs(os.path.dirname(logfile), exist_ok=True)
 
         fh = logging.FileHandler(logfile, mode='w')
+        # fh.setLevel(logging.DEBUG)
         formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
         fh.setFormatter(formatter)
 

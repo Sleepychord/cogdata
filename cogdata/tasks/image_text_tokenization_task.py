@@ -17,12 +17,15 @@ import numpy as np
 def img_collate_fn(data):
     imgs, filenames = zip(*data)
     return imgs, filenames
+    
+from cogdata.utils.register import register
 
+@register
 class ImageTextTokenizationTask(BaseTask):
     '''handle tokenization
     '''
-    def __init__(self, img_sizes, output_path) -> None:
-        self.saver = BinarySaver(output_path, "int32")
+    def __init__(self, saver, img_sizes, **kwargs) -> None:
+        self.saver = saver
         self.img_sizes = img_sizes # multi-scale
         self.img_size = max(img_sizes)
 
@@ -55,9 +58,14 @@ class ImageTextTokenizationTask(BaseTask):
             return img, filename
         return transform_fn
 
-    def process(self, sub_datasets, *args, **kwargs):
-        assert 'text_files' in kwargs and 'text_format' in kwargs, 'set to None if no associated text.'
-        text_dict = self.read_text(kwargs['text_files'], kwargs['text_format'])
+    def process(self, sub_datasets, progress_record=None, dataset_dir='', **kwargs):
+        if not ('text_files' in kwargs and 'text_format' in kwargs):
+            text_files = text_format = None
+        else:
+            text_files = [os.path.join(dataset_dir, tf) for tf in kwargs['text_files']]
+            text_format = kwargs['text_format']
+            
+        text_dict = self.read_text(text_files, text_format)
         device = kwargs.get('device', 'cuda')
         batch_size = kwargs.get('batch_size', 128)
         num_workers = kwargs.get('dataloader_num_workers', 2)
@@ -68,21 +76,21 @@ class ImageTextTokenizationTask(BaseTask):
         tokenizer = get_tokenizer(
             kwargs.get('model_path', 'downloads/vqvae_hard_biggerset_011.pt')
         )
-
         normfunc = transforms.Normalize([0.79093, 0.76271, 0.75340], [
                                         0.30379, 0.32279, 0.32800])
         # for vqvae_hard_011.pt
         buf_imgs = torch.zeros(batch_size, 3, self.img_size, self.img_size, device=device, dtype=torch.float) # buffer
         buf_txts = torch.zeros(batch_size, txt_len, device='cpu', dtype=torch.int) - 1
 
+        cnt, total_cnt = 0, sum([len(dataset) for dataset in sub_datasets])
+
         for dataset in sub_datasets:
-            cnt, total_cnt = 0, len(dataset)
             loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, collate_fn=img_collate_fn, pin_memory=True)
 
             for batch_imgs, raw_filenames in loader:
                 batch_imgs = [pil_to_tensor(x) for x in batch_imgs] # TODO test speed
 
-                cnt += 1
+                cnt += len(raw_filenames) # may not full batch
                 if cnt > total_cnt * ratio:
                     break
                 filenames = []
@@ -106,11 +114,14 @@ class ImageTextTokenizationTask(BaseTask):
 
                 codes_img = tokenizer.img_tokenizer.EncodeAsIds(imgs).type(torch.IntTensor)
                 data = torch.cat((codes_txt, codes_img), dim=1)
+
                 self.saver.save(data)
-                
-                if cnt % 20 == 0:
+                if cnt // batch_size % 20 == 0:
                     get_logger().info("rank{}/{}".format(cnt, total_cnt))
+                    if progress_record is not None:
+                        progress_record.update(cnt, total_cnt)
             self.saver.commit()
+        return 0
 
     def read_text(self, txt_files, mode):
         from collections import defaultdict

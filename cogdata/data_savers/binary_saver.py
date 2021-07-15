@@ -14,12 +14,14 @@ import random
 import torch
 from tqdm import tqdm
 from .base_saver import BaseSaver
+from cogdata.utils.register import register
 
-
+@register
 class BinarySaver(BaseSaver):
+    suffix = '.bin'
     max_buffer_size = 1024 * 1024 * 1024 * 10
 
-    def __init__(self, output_path, dtype='int32'):
+    def __init__(self, output_path, dtype='int32', **kwargs):
         self.bin = open(output_path, 'wb', buffering=-1) # TODO test speed of buffering
         mapping = {'int32': torch.IntTensor,
                    'int64': torch.LongTensor,

@@ -26,7 +26,9 @@ from torch.utils.data import Dataset, IterableDataset
 from PIL import Image
 from ..utils.logger import get_logger
 
+from cogdata.utils.register import register
 
+@register
 class ZipDataset(Dataset):
     def __init__(self, path, *args, world_size=1, rank=0, transform_fn=None):
         assert len(args) == 0, 'transform_fn is a kwarg.'

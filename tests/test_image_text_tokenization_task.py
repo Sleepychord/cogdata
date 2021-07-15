@@ -19,7 +19,8 @@ from cogdata.utils.cogview import get_tokenizer
 
 def test_image_text_tokenization_task():
     model_path = '/dataset/fd5061f6/cogview/vqvae_hard_biggerset_011.pt'
-    task = ImageTextTokenizationTask([256], 'tmp/testcase.bin')
+    saver = BinarySaver('tmp/testcase.bin')
+    task = ImageTextTokenizationTask(img_sizes=[256], saver=saver)
     ds = TarDataset('downloads/testcase.tar', 
         transform_fn=task.get_transform_fn()
     )

@@ -2,7 +2,7 @@
     "name": "example",
     "description": "Describe the dataset",
     "data_files": ["example.zip"],
-    "data_format": "zip",
-    "text_file": "example.json",
+    "data_format": "ZipDataset",
+    "text_files": ["example.json"],
     "text_format": "json"
 }
