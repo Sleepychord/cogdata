@@ -216,9 +216,7 @@ class DataManager():
         self.dtype = None
 
     def load_task(self, id):
-        id = str(id)
-
-        path = os.path.join(self.base_dir, id)
+        path = os.path.join(self.base_dir, f"cogdata_task_{id}")
         config_path = os.path.join(path, 'cogdata_config.json')
 
         if not (os.path.exists(path) and os.path.exists(config_path)):
@@ -250,9 +248,7 @@ class DataManager():
     def new_task(self, id, task, saver, length_per_sample, image_length, txt_length, dtype):
         '''create a cogdata_workspace subfolder and cogdata_config.json with configs in args.
         '''
-        id = str(id)
-
-        path = os.path.join(self.base_dir, id)
+        path = os.path.join(self.base_dir, f"cogdata_task_{id}")
         config_path = os.path.join(path, 'cogdata_config.json')
 
         if not os.path.exists(path):
