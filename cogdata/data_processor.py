@@ -10,7 +10,7 @@ from cogdata.utils.logger import get_logger, set_logger
 from cogdata.utils.progress_record import ProgressRecord
 from cogdata.eprogress import MultiProgressManager, LineProgress
 from cogdata.utils.helpers import get_registered_cls
-
+import logging
 def initialize_distributed(local_rank, world_size, rank=None, 
         master_addr=None, master_port=None):
     """Initialize torch.distributed."""
@@ -63,22 +63,23 @@ class DataProcessor():
             "--args_dict", json.dumps(args_dict)
         ]
         print(command)
+        progress_manager = MultiProgressManager()
 
         main_log_file = open(os.path.join(task_path, 'main_pid_{}.log'.format(os.getpid())), 'w')
-        p = subprocess.Popen(command, stdout=main_log_file, stderr=main_log_file)
-        get_logger().info("All datasets: {}".format(''.join(dataset_names))+"\n"*nproc)
-
-        
+        get_logger().info("All datasets: {}".format(' '.join(dataset_names)))
+        progress_manager.skip_upline()
         world_size = nproc # TODO: multi-node
-        progress_manager = MultiProgressManager()
         for i in range(world_size):
             progress_manager.put(f'rank_{i}', 
-                LineProgress(total=100, title=f'rank {i}')
-            )    
+                LineProgress(total=100, title=f'dataset: {dataset_names[0]}, rank {i}')
+            ) 
+
+        p = subprocess.Popen(command, stdout=main_log_file, stderr=main_log_file)
         try:
-            last_progress = [(0, 1)] * world_size
+            last_progress = [(0, 1, 0)] * world_size
             ds_idx = 0
-            get_logger().info(f'Processing {dataset_names[ds_idx]}' + "\n"*nproc)
+            get_logger().info(f'Processing {dataset_names[ds_idx]}')
+            progress_manager.skip_upline()
             # logs for current dataset
             log_dir = os.path.join(task_path, dataset_names[ds_idx], 'logs') 
             finished = True # last dataset finished, examine the next
@@ -89,15 +90,15 @@ class DataProcessor():
                     continue
                 # query progress
                 collected_progress = ProgressRecord.get_all(log_dir, world_size)
-                for i, (x, y) in enumerate(collected_progress):
+                for i, (x, y, z) in enumerate(collected_progress):
                     if x is not None:
-                        last_progress[i] = (x, y)
+                        last_progress[i] = (x, y, z)
                 # update bar
                 for i in range(world_size):
-                    x, y = last_progress[i]
-                    progress_manager.update(f'rank_{i}', x * 100. / y)
+                    x, y, z = last_progress[i]
+                    progress_manager.update(f'rank_{i}', x * 100. / y, speed=z)
                 # whether to next dataset
-                finished = all([x == y > 0 for x,y in last_progress])
+                finished = all([x == y > 0 for x,y,z in last_progress])
                 if finished:
                     # set the state to 1
                     meta_info_path = os.path.join(task_path, dataset_names[ds_idx], 'meta_info.json')
@@ -115,8 +116,11 @@ class DataProcessor():
                     else:
                         s = f'Processing {dataset_names[ds_idx]}'
                         log_dir = os.path.join(task_path, dataset_names[ds_idx], 'logs') 
-                    get_logger().info(s + "\n"*nproc)
-                    last_progress = [(0, 1)] * world_size
+                        for j in range(world_size):
+                            progress_manager.update_title(f'rank_{j}', f'dataset: {dataset_names[ds_idx]}, rank {j}')
+                    get_logger().info(s)
+                    progress_manager.skip_upline()
+                    last_progress = [(0, 1, 0)] * world_size
         except Exception as e:
             print(e)
             p.terminate()
@@ -137,17 +141,18 @@ class DataProcessor():
         task_path = args_dict.pop('_task_path')
         dataset_names = args_dict.pop('_dataset_names')
 
-        initialize_distributed(local_rank, world_size, rank=rank)
+        initialize_distributed(local_rank, world_size, rank=rank) # TODO arg
         for name in dataset_names:
+            start_time = time.time()
             output_dir = os.path.join(task_path, name)
             # setup logs
             log_dir = os.path.join(output_dir, 'logs')
-            set_logger(log_dir) # rank_{k}.log
+            set_logger(log_dir, rank=rank) # rank_{k}.log
             progress_record = ProgressRecord(log_dir, rank) # rank_{k}.progress
             # TODO check registered name when launch monitor
             # setup saver
             saver_cls = get_registered_cls(args_dict['saver_type'])
-            saver = saver_cls(os.path.join(output_dir, name + saver_cls.suffix), **args_dict)
+            saver = saver_cls(os.path.join(output_dir, name + f'part_{rank}' + saver_cls.suffix), **args_dict)
             # setup task
             task_cls = get_registered_cls(args_dict['task_type'])
             task = task_cls(saver=saver, **args_dict)
@@ -172,4 +177,6 @@ class DataProcessor():
                 dataset_dir=os.path.join(current_dir, name),
                 **args_dict, **ds_info)
             # if task forgot to record progress, set to 100% when finished
-            progress_record.update(100, 100)
+            end_time = time.time()
+            speed = sum([len(ds) for ds in sub_datasets]) / (end_time - start_time)
+            progress_record.update(100, 100, speed)

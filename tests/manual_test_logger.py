@@ -31,11 +31,11 @@ args = parser.parse_args()
 
 print(sys.argv)
 if args.local_rank is not None:
-    initialize_distributed(args)
+    pass
+    # initialize_distributed(args)
 else: # attention ! to avoid recursively launching
     os.system('python -m torch.distributed.launch --nproc_per_node=2 tests/manual_test_logger.py --world_size=2 > test.txt 2>&1')
 
-print(torch.distributed.is_initialized())
-set_logger('tmp')
+set_logger('tmp', rank=args.local_rank)
 get_logger().debug('debug')
 get_logger().warning('warning')
