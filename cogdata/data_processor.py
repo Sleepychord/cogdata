@@ -37,11 +37,13 @@ class DataProcessor():
     def __init__(self) -> None:
         pass
 
-    def run_monitor(self, current_dir, dataset_names, taskid, args):
+    def run_monitor(self, current_dir, taskid, args):
         '''Launch k run_single processes (by cmd, not multiprocess for dataloader)
            Monitor all the progresses by outputs in tmp files, clean tmp files from previous runs at first. use utils.progress_record !
            Wait and merge k files (use the helper in saver).
         '''
+        dataset_names = args.datasets
+        nproc = args.nproc
         task_path = os.path.join(current_dir, f'cogdata_task_{taskid}')
         script_path = 'manual_test_processor.py' # FIXME
         # already build meta_info, rm log dir from data_manager
@@ -49,12 +51,10 @@ class DataProcessor():
             log_dir = os.path.join(task_path, name, 'logs')
             os.makedirs(log_dir, exist_ok=False)
         del log_dir
-        nproc = args.nproc
-    
+        
         args_dict = vars(args)
         args_dict['_current_dir'] = current_dir
         args_dict['_task_path'] = task_path
-        args_dict['_dataset_names'] = dataset_names
 
         command = ["python", "-m", "torch.distributed.launch", 
             "--master_port", "30513", 
@@ -139,7 +139,7 @@ class DataProcessor():
         world_size = args_dict['nproc'] # TODO: multi-node
         current_dir = args_dict.pop('_current_dir')
         task_path = args_dict.pop('_task_path')
-        dataset_names = args_dict.pop('_dataset_names')
+        dataset_names = args_dict['datasets']
 
         initialize_distributed(local_rank, world_size, rank=rank) # TODO arg
         for name in dataset_names:
@@ -152,7 +152,7 @@ class DataProcessor():
             # TODO check registered name when launch monitor
             # setup saver
             saver_cls = get_registered_cls(args_dict['saver_type'])
-            saver = saver_cls(os.path.join(output_dir, name + f'part_{rank}' + saver_cls.suffix), **args_dict)
+            saver = saver_cls(os.path.join(output_dir, name + saver_cls.suffix + f'.part_{rank}.cogdata'), **args_dict)
             # setup task
             task_cls = get_registered_cls(args_dict['task_type'])
             task = task_cls(saver=saver, **args_dict)

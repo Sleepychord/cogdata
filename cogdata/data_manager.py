@@ -5,92 +5,65 @@ import sys
 import json
 import math
 import random
+import shutil
 from tqdm import tqdm
 
 from .data_processor import DataProcessor
-from .utils.helpers import format_file_size
+from .utils.helpers import format_file_size, dir_size, get_registered_cls
 from .data_savers import BinarySaver
-
-data_size = {
-    'int32': 4,
-}
 
 class DataManager():
 
-    def __init__(self, base_dir) -> None:
-        # base_dir = '/workspace/zwd/test_dir'
-        self.base_dir = base_dir
+    def __init__(self) -> None:
+        pass
 
-        self.current_dir = None
-        self.current_id = None
-
-        self.task = None
-        self.saver = None
-        self.length_per_sample = None
-        self.image_length = None
-        self.txt_length = None
-        self.dtype = None
-
-        self.merged = False
-        self.merge_split = 0
-
-        self.processer = DataProcessor(None)
-
-        # self.processor = DataProcessor(args)
-
-        # datasets = ["test_ds", "test_ds2"]
-        # for dataset in datasets:
-        #     folder_path = os.path.join(base_dir, dataset)
-        #     if not os.path.exists(folder_path):
-        #         os.mkdir(folder_path)
-        #     self.new_dataset(dataset, {
-        #         "name": "example",
-        #         "description": "Describe the dataset",
-        #         "data_files": ["example"],
-        #         "data_format": "zip",
-        #         "text_file": "example.json",
-        #         "text_format": "json"
-        #     })
-
-        # self.new_task("test_task", 
-        # {
-        #     "task": "image_text_tokenization",
-        #     "saver": "binary",
-        #     "length_per_sample": 1089,
-        #     "dtype": "int32"
-        # })
-    
-    def fetch_datasets(self):
+    @staticmethod
+    def fetch_datasets(base_dir):
         datasets = []
-
-        items = os.listdir(self.base_dir)
-        for item in items:
-            path = os.path.join(self.base_dir, item)
-            if not os.path.isdir(path) or path == self.current_dir:
+        for item in os.listdir(base_dir):
+            path = os.path.join(base_dir, item)
+            if not os.path.isdir(path):
                 continue
-            
             if os.path.exists(os.path.join(path, 'cogdata_info.json')):
                 datasets.append(item)
-        
         return datasets
         
-    def fetch_processed_datasets(self, datasets):
-        processed_datasets = []
-        
-        for dataset in datasets:
-            path = os.path.join(self.current_dir, dataset)
-            processed_path = os.path.join(path, 'processed.bin')
-            meta_info_path = os.path.join(path, 'meta_info.json')
-            if os.path.exists(meta_info_path) and os.path.exists(processed_path):
-                with open(meta_info_path, 'r') as meta_info_file:
-                    meta_info = json.load(meta_info_file)
+    @staticmethod
+    def fetch_datasets_states(base_dir, taskid):
+        all_datasets = DataManager.fetch_datasets(base_dir)
+        if task_id is None:
+            return all_datasets, None, None, None, None
+        processed, hanging, unprocessed = [], [], []
+        task_path = os.path.join(base_dir, f'cogdata_task_{taskid}')
+        for dataset in all_datasets:
+            fld_path = os.path.join(task_path, dataset)
+            meta_info_path = os.path.join(fld_path, 'meta_info.json')
+            if not (os.path.exists(fld_path) and os.path.exists(meta_info_path)):
+                unprocessed.append(dataset)
+                continue
+            with open(meta_info_path, 'r') as meta_info_file:
+                meta_info = json.load(meta_info_file)
                 state = meta_info.get('state', 0)
                 if state == 1:
-                    processed_datasets.append(dataset)
-        
-        return processed_datasets
+                    processed.append(dataset)
+                else:
+                    hanging.append(dataset)
+        additional = [] # only processed results, from migration 
+        for item in os.listdir(task_path):
+            path = os.path.join(task_path, item)
+            if not os.path.isdir(path):
+                continue
+            meta_info_path = os.path.join(path, 'meta_info.json')
+            if os.path.exists(meta_info_path):
+                with open(meta_info_path, 'r') as meta_info_file:
+                    meta_info = json.load(meta_info_file)
+                    state = meta_info.get('state', 0)
+                    if state == 1:
+                        additional.append(item)
+        return all_datasets, processed, hanging, unprocessed, additional
 
-    def list(self):
+    @staticmethod
+    def list(args):
         '''List all datasets in current dir.
 
         dataset1(233 MB) rar json processed(10MB)
@@ -100,87 +73,64 @@ class DataManager():
         number(2) raw(10.23GB) processed(10MB)
         unprocessed: dataset2 
         '''
-        datasets = self.fetch_datasets()
-        processed_datasets = self.fetch_processed_datasets(datasets)
+        base_dir = os.getcwd()
+        task_id = args.task_id
+        all_datasets, processed, hanging, unprocessed, additional = DataManager.fetch_datasets_states(base_dir, task_id)
 
-        unprocessed_names = []
-        size_sum = 0
-        processed_size_sum = 0
-        cnt = 0
+        name_size_pair, sum_size = [], 0
+        for dataset in all_datasets:
+            path = os.path.join(base_dir, dataset)
+            size = format_file_size(dir_size(path))
+            name_size_pair.append(size)
+            sum_size += size
+        nsdict = dict(name_size_pair)
 
-        for dataset in datasets:
-            info = None
-            path = os.path.join(self.base_dir, dataset)
-            try:
-                with open(os.path.join(path, 'cogdata_info.json'), 'r') as info_file:
-                    info = json.load(info_file)
+        print('ALL: ' + ' '.join([f'{x}({y})' for x, y in name_size_pair]))
 
-                assert 'name' in info and type(info['name']) is str
-                assert 'data_files' in info and type(info['data_files']) is list
-                assert 'data_format' in info and type(info['data_format']) is str
-                assert 'text_format' in info and type(info['text_format']) is str
-
-                print(info['name'], end = ' ')
-
-                size = 0
-                for file in info['data_files']:
-                    try:
-                        size += os.path.getsize(os.path.join(path, file))
-                    except:
-                        continue
-                print(f"({format_file_size(size)})", end = ' ')
-
-                print(info['data_format'], end = ' ')
-                print(info['text_format'], end = ' ')
-
-                processed_size = 0
-                if dataset in processed_datasets:
-                    path = os.path.join(self.current_dir, dataset)
-                    processed_path = os.path.join(path, 'processed.bin')
-                    processed_size = os.path.getsize(processed_path)
-                    print(f"processed({format_file_size(processed_size)})")
-                else:
-                    unprocessed_names.append(info['name'])
-                    print("unprocessed")
-
-                size_sum += size
-                processed_size_sum += processed_size
-                cnt += 1
-
-            except:
-                print(f"Error: bad info in {dataset}.")
+        if task_id is not None:
+            print(f"current taskname: {config['task']}")
+            task_path = os.path.join(base_dir, task_id)
         
         print('--------------- Summary ---------------')
-        
+        print(f'Total {len(name_size_pair)} datasets: total size: {format_file_size(sum_size)}')
         config = None
         try:
-            with open(os.path.join(self.current_dir, 'cogdata_config.json'), 'r') as config_file:
+            with open(os.path.join(task_path, 'cogdata_config.json'), 'r') as config_file:
                 config = json.load(config_file)
-
-            assert 'task' in config and type(config['task']) is str
-
-            print(f"current taskname: {config['task']}")
-
-            print(f"number({cnt})", end = ' ')
-            print(f"raw({format_file_size(size_sum)})", end = ' ')
-            print(f"processed({format_file_size(processed_size_sum)})")
-
-            if len(unprocessed_names) > 0:
-                print(f"unprocessed: {' '.join(unprocessed_names)}")
-            
+            assert 'task_type' in config and type(config['task_type']) is str
+            print(f"Task Id: {taskid}")
+            print(f"Task Type: {config['task_type']}")
+            print(f'Description: {config["description"]}')
+            print(f'Processed: dataset_name(raw_size => processed_size)')
+            for dataset in processed:
+                path = os.path.join(task_path, dataset)
+                size = format_file_size(dir_size(path))
+                print(f'{dataset}({nsdict[dataset]} => {size})', end=' ')
+            print('\nHanging: dataset_name(raw_size)[create_time]')
+            for dataset in hanging:
+                meta_info_path = os.path.join(task_path, dataset, 'meta_info.json')
+                with open(meta_info_path, 'r') as fin:
+                    info = json.load(fin)
+                print(f'{dataset}({nsdict[dataset]})[{info['create_time']}]', end=' ')
+            print('\nUnprocessed: dataset_name(raw_size)')
+            for dataset in unprocessed:
+                print(f'{dataset}({nsdict[dataset]})', end=' ')
+            print('\nAdditional: dataset_name(processed_size)')
+            for dataset in additional:
+                path = os.path.join(task_path, dataset)
+                size = format_file_size(dir_size(path))
+                print(f'{dataset}({size})', end=' ')
+            print('')
         except:
             print("Error: bad config.")
 
-    # def new_dataset(self, dataset_name, args):
-    def new_dataset(self, 
-                    dataset_name, description, 
-                    data_files, data_format,
-                    text_file, text_format):
+    @staticmethod
+    def new_dataset(args):
         '''Create a dataset subfolder and a template (cogdata_info.json) in it.
         One should manually handle the data files.
         '''
-
-        path = os.path.join(self.base_dir, dataset_name)
+        base_dir = os.getcwd()
+        path = os.path.join(base_dir, dataset_name)
         info_path = os.path.join(path, 'cogdata_info.json')
 
         if not os.path.exists(path):
@@ -195,271 +145,131 @@ class DataManager():
                 elif sign == 'n':
                     return
 
-        info_dic = {
-            "name": dataset_name,
-            "description": description,
-            "data_files": data_files,
-            "data_format": data_format,
-            "text_file": text_file,
-            "text_format": text_format
-        }
+        # info_dic = {
+        #     "name": dataset_name,
+        #     "description": description,
+        #     "data_files": data_files,
+        #     "data_format": data_format,
+        #     "text_files": text_files,
+        #     "text_format": text_format
+        # }
         with open(info_path, 'w') as info:
-            json.dump(info_dic, info, indent = 4)
+            json.dump(vars(args), info, indent = 4)
 
-    def clear(self):
-        self.current_dir = None
-        self.current_id = None
-
-        self.task = None
-        self.saver = None
-        self.length_per_sample = None
-        self.dtype = None
-
-    def load_task(self, id):
-        path = os.path.join(self.base_dir, f"cogdata_task_{id}")
+    @staticmethod
+    def load_task(base_dir, id):
+        path = os.path.join(base_dir, f"cogdata_task_{id}")
         config_path = os.path.join(path, 'cogdata_config.json')
 
         if not (os.path.exists(path) and os.path.exists(config_path)):
-            print(f"Error: task {id} not exist. Load failed.")
-            return False
-        
-        try:
-            self.current_dir = path
-            self.current_id = id
+            raise ValueError(f"Error: task {id} not exist. Load failed.")
 
-            with open(config_path, 'r') as config_file:
-                config = json.load(config_file)
+        with open(config_path, 'r') as config_file:
+            config = json.load(config_file)
+        if not ('task_type' in config and type(config['task_type']) is str):
+            raise ValueError(f"Error: task {id} has no task_type config. Load failed.")
+        return config
 
-            self.task = config['task']
-            self.saver = config['saver']
-            self.length_per_sample = config['length_per_sample']
-            self.image_length = config['image_length']
-            self.txt_length = config['txt_length']
-            self.dtype = config['dtype']
-
-            self.merged = config.get('merged', False)
-            self.merge_split = config.get('merged_split', 0)
-        except:
-            print(f"Error: Load task {id} failed with bad parameters.")
-            return False
-
-        return True
-
-    def new_task(self, id, task, saver, length_per_sample, image_length, txt_length, dtype):
+    @staticmethod
+    def new_task(args):
         '''create a cogdata_workspace subfolder and cogdata_config.json with configs in args.
         '''
-        path = os.path.join(self.base_dir, f"cogdata_task_{id}")
+        base_dir = os.getcwd()
+        id, task_type, saver_type = args.task_id, args.task_type, args.saver_type
+        path = os.path.join(base_dir, f"cogdata_task_{id}")
         config_path = os.path.join(path, 'cogdata_config.json')
 
         if not os.path.exists(path):
             os.mkdir(path)
         
         if os.path.exists(config_path):
-            if self.current_dir is None:
-                try:
-                    self.current_dir = path
-                    self.current_id = id
-
-                    with open(config_path, 'r') as config_file:
-                        config = json.load(config_file)
-
-                    self.task = config['task']
-                    self.saver = config['saver']
-                    self.length_per_sample = config['length_per_sample']
-                    self.image_length = config['image_length']
-                    self.txt_length = config['txt_length']
-                    self.dtype = config['dtype']
-                    
-                    self.merged = config.get('merged', False)
-                    self.merge_split = config.get('merged_split', 0)
-                except:
-                    pass
-            print(f"Error: Workspace {name} already existed. Setup failed.")
+            print(f"Error: Workspace {id} already existed. Setup failed.")
             return
 
-        self.task = task
-        self.saver = saver
-        self.length_per_sample = length_per_sample
-        self.dtype = dtype
-        self.image_length = image_length
-        self.txt_length = txt_length
+        config = vars(args).copy()
+        del config['task_id'] # enable changing by rename folder
+        with open(config_path, 'w') as config_file:
+            json.dump(config, config_file, indent = 4)   
 
-        self.merged = False
-        self.merge_split = 0
-
-        config_dic = {
-            "task": task,
-            "saver": saver,
-            "length_per_sample": length_per_sample,
-            "image_length": image_length,
-            "txt_length": txt_length,
-            "dtype": dtype,
-        }
-        with open(config_path, 'w') as config:
-            json.dump(config_dic, config, indent = 4)   
-
-        self.current_dir = path  
-        self.current_id = id  
-
-    def process_all(self, args_dict):
-        datasets = self.fetch_datasets()
-        processed_datasets = self.fetch_processed_datasets(datasets)
-
-        unprocessed_datasets = []
-        for dataset in datasets:
-            if not datasets in processed_datasets:
-                unprocessed_datasets.append(dataset)
-        
-        for dataset in unprocessed_datasets:
-            self.process(dataset, None, args_dict)
-
-    def process(self, dataset, local_rank, args_dict):
+    @staticmethod
+    def process(args):
         '''process one or some (in args) unprocessed dataset (detected).
         '''
+        base_dir = os.getcwd()
+        task_id = args.task_id
+        all_datasets, processed, hanging, unprocessed, additional = DataManager.fetch_datasets_states(base_dir, task_id)
 
-        if local_rank is None:
-            output_dir = os.path.join(self.current_dir, dataset)
-            if not os.path.exists(output_dir):
-                os.makedirs(output_dir)
+        if args.datasets is None: #
+            print('Processing all unprocessed datasets by default...')
+            args.datasets = unprocessed
 
-            processor.run_monitor(args_dict)
-
+        # check valid
+        loaded_task_args = DataManager.load_task(base_dir, task_id)
+        args.update(loaded_task_args)
+        task_path = os.path.join(base_dir, args.task_id)
+        for name in args.datasets:
+            assert name in unprocessed
+            path = os.path.join(task_path, name)
+            os.makedirs(path, exist_ok=True))
             meta_info = {
-                'name': dataset,
-                'state': 1
+                'create_time': time.strftime(
+                    "%Y-%m-%d %H:%M:%S %Z", time.localtime()),
+                'state': 0
             }
-            with open(os.path.join(output_dir, 'meta_info.json'), 'w') as meta_info_file:
+            with open(os.path.join(path, 'meta_info.json'), 'w') as meta_info_file:
                 json.dump(meta_info, meta_info_file, indent = 4)
+            shutil.rmtree(os.path.join(path, 'logs'))
+            
+        DataProcessor().run_monitor(base_dir, task_id, args)
 
-            # write meta_info
-        else:
-            args_dict['img_size'] = self.image_length
-            args_dict['txt_len'] = self.txt_length
-
-            data_path = os.path.join(self.base_dir, dataset)
-            output_dir = os.path.join(self.current_dir, dataset)
-            args_dict['output_dir'] = output_dir
-
-            with open(os.path.join(data_path, 'cogdata_info.json'), 'r') as info_file:
-                info = json.load(info_file)
-            args_dict['image_folders'] = [os.path.join(data_path, item) for item in info['data_files']]
-            args_dict['txt_files'] = [os.path.join(data_path, info['text_file'])]
-
-            args_dict['data_format'] = info['data_format']
-            args_dict['text_format'] = info['text_format']
-
-            processor.run_single(local_rank, args_dict)
-        # run process with data_processor api
-
-    def merge(self):
+    @staticmethod
+    def process_single(args):
+        DataProcessor().run_single(args.local_rank, json.loads(args.args_dict))
+    
+    @staticmethod
+    def merge(args): # TODO add additional target, not rm split
         '''merge all current processed datasets.
         '''
-        if self.merged is True and self.merge_split > 0:
-            for i in range(self.merge_split):
-                os.remove(os.path.join(self.current_dir, f"merge_{i}.bin"))
+        base_dir = os.getcwd()
+        task_id = args.task_id
+        saver_type = DataManager.load_task(base_dir, task_id)['saver_type']
+        task_path = os.path.join(base_dir, task_id)
+        split_path = os.path.join(task_path, 'split_merged_files')
+        if os.path.exists(split_path):
+            print('Removing previous split_merged_files...')
+            shutil.rmtree(split_path)
 
-        merge_path = os.path.join(self.current_dir, 'merge.bin')
-        processed_datasets = self.fetch_processed_datasets(self.fetch_datasets())
-        data_paths = [os.path.join(os.path.join(self.current_dir, dataset), 'processed.bin') for dataset in processed_datasets]
+        print('Merging...')
+        all_datasets, processed, hanging, unprocessed, additional = DataManager.fetch_datasets_states(base_dir, task_id)
+        merge_path = os.path.join(task_path, 'merge'+get_registered_cls(saver_type).suffix)
+
+        data_paths = []
+        for dataset in processed:
+            for item in os.listdir(os.path.join(task_path, dataset)):
+                if item.endswith('.cogdata'):
+                    data_paths.append(os.path.join(task_path, dataset, item))
 
         BinarySaver.merge_file_read(data_paths, merge_path, True)
-        self.merged = True
-
-        config_path = os.path.join(self.current_dir, 'cogdata_config.json')
-        with open(config_path, 'r') as config_file:
-            config = json.load(config_file)
-        config['merged'] = True
-
-        with open(config_path, 'w') as config_file:
-            json.dump(config, config_file, indent = 4)
-
-    def merge_shell(self):
-        '''merge all current processed datasets.
-        '''
-        if self.merged is True and self.merge_split > 0:
-            for i in range(self.merge_split):
-                os.remove(os.path.join(self.current_dir, f"merge_{i}.bin"))
-
-        processed_datasets = self.fetch_processed_datasets(self.fetch_datasets())
-
-        data_paths = [os.path.join(os.path.join(self.current_dir, dataset), 'processed.bin') for dataset in processed_datasets]
-        output_path = os.path.join(self.current_dir, 'merge_shell.bin')
-        BinarySaver.merge(data_paths, output_path, True)
-
-        self.merged = True
-
-        config_path = os.path.join(self.current_dir, 'cogdata_config.json')
-        with open(config_path, 'r') as config_file:
-            config = json.load(config_file)
-        config['merged'] = True
-
-        with open(config_path, 'w') as config_file:
-            json.dump(config, config_file, indent = 4)
-
-    def split(self, split_num):
+    
+    @staticmethod    
+    def split(args):
         '''split the merged files into N parts.
         '''
-        # split_num = 5
+        base_dir = os.getcwd()
+        task_id = args.task_id
+        task_config = DataManager.load_task(base_dir, task_id)
+        args.update(task_config)
+        saver_type = task_config['saver_type']
+        task_path = os.path.join(base_dir, task_id)
+        split_path = os.path.join(task_path, 'split_merged_files')
+        merge_path = os.path.join(task_path, 'merge'+get_registered_cls(saver_type).suffix)
+        if not os.path.exists(merge_path):
+            print('Merged file not found. Failed.')
+            return 
+        if os.path.exists(split_path):
+            print('Already split, mv or rm "split_merged_files" and try again for different N. Quitting...')
+            return 
+        os.makedirs(split_path, exist_ok=True)
+    
+        BinarySaver.split_file_read(merge_path, split_path, args.n, vars(args))
 
-        if not self.merged:
-            print(f"Error: task {self.task} not merged but receive a split request.")
-            return
-        
-        sample_size = self.length_per_sample * data_size[self.dtype]
-
-        if self.merge_split == 0:
-            merge_path = os.path.join(self.current_dir, 'merge.bin')
-            size = os.path.getsize(merge_path)
-            sample_num = size // sample_size
-
-            split_size = (sample_num + split_num - 1) // split_num
-
-            BinarySaver.split_file_read(merge_path, self.current_dir, split_num, split_size * sample_size)
-
-            self.merge_split = split_num
-
-            config_path = os.path.join(self.current_dir, 'cogdata_config.json')            
-            with open(config_path, 'r') as config_file:
-                config = json.load(config_file)
-            config['merge_split'] = split_num
-
-            with open(config_path, 'w') as config_file:
-                json.dump(config, config_file)
-
-            print(f"Split task {self.task} successully.")
-        else:
-            print(f"Error: task {self.task} is already splitted.")
-            return
-
-    def split_shell(self, split_num):
-        '''split the merged files into N parts.
-        '''
-        # split_num = 5
-
-        if not self.merged:
-            print(f"Error: task {self.task} not merged but receive a split request.")
-            return
-
-        if self.merge_split == 0:
-            merge_path = os.path.join(self.current_dir, 'merge_shell.bin')
-            BinarySaver.split(merge_path, self.current_dir, split_num)
-
-            self.merge_split = split_num
-
-            config_path = os.path.join(self.current_dir, 'cogdata_config.json')            
-            with open(config_path, 'r') as config_file:
-                config = json.load(config_file)
-            config['merge_split'] = split_num
-
-            with open(config_path, 'w') as config_file:
-                json.dump(config, config_file)
-
-            print(f"Split task {self.task} successully.")
-        else:
-            print(f"Error: task {self.task} is already splitted.")
-            return        
-
-if __name__ == '__main__':
-    manager = DataManager('tests/test_base_dir')
-    # manager.new_task('1234')
-    # manager.list()

@@ -24,4 +24,5 @@ def test_monitor():
     args.dataloader_num_workers = 8
     args.img_sizes = [256]
     args.model_path = '/dataset/fd5061f6/cogview/vqvae_hard_biggerset_011.pt'
-    dp.run_monitor(current_dir, dataset_names, taskid, args)
+    args.datasets = dataset_names
+    dp.run_monitor(current_dir, taskid, args)

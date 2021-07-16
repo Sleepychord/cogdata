@@ -13,6 +13,7 @@ import math
 import random
 import torch
 from tqdm import tqdm
+import numpy as np
 from .base_saver import BaseSaver
 from cogdata.utils.register import register
 
@@ -20,16 +21,16 @@ from cogdata.utils.register import register
 class BinarySaver(BaseSaver):
     suffix = '.bin'
     max_buffer_size = 1024 * 1024 * 1024 * 10
-
+    mapping = {
+                'int32': torch.IntTensor,
+                'int64': torch.LongTensor,
+                'float32': torch.FloatTensor,
+                'uint8': torch.ByteTensor,
+                'bool': torch.BoolTensor
+            }
     def __init__(self, output_path, dtype='int32', **kwargs):
         self.bin = open(output_path, 'wb', buffering=-1) # TODO test speed of buffering
-        mapping = {'int32': torch.IntTensor,
-                   'int64': torch.LongTensor,
-                   'float32': torch.FloatTensor,
-                   'uint8': torch.ByteTensor,
-                   'bool': torch.BoolTensor
-                   }
-        self.dtype = mapping[dtype]
+        self.dtype = self.mapping[dtype]
 
     def save(self, data):
         '''
@@ -89,7 +90,15 @@ class BinarySaver(BaseSaver):
             raise Exception(f'split return code {ret}')
 
     @classmethod
-    def split_file_read(cls, input_path, output_dir, n, size):
+    def split_file_read(cls, input_path, output_dir, n, **kwargs):
+        dtype = np.dtype(kwargs['dtype'])
+        sample_size = kwargs['length_per_sample'] * dtype.itemsize
+
+        merge_size = os.path.getsize(input_path)
+        sample_num = merge_size // sample_size
+        split_size = (sample_num + n - 1) // n
+        size = split_size * sample_size # bytes per part 
+
         with open(input_path, 'rb') as merge_file:
             for i in tqdm(range(n - 1)):
                 left_size = size

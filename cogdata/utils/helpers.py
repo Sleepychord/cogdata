@@ -7,7 +7,10 @@ def format_file_size(fileSize) :
         if fileSize > -1024.0 and fileSize < 1024.0:
             return "%3.1f %s" % (fileSize, count)
         fileSize /= 1024.0
-    return "%3.1f %s" % (fileSize, 'TB'), 
+    return "%3.1f %s" % (fileSize, 'TB')
+
+def dir_size(path):
+    return sum(d.stat().st_size for d in os.scandir(path) if d.is_file())
 
 def get_last_line(filename):
     """
