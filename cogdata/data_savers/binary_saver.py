@@ -95,10 +95,10 @@ class BinarySaver(BaseSaver):
         sample_size = kwargs['length_per_sample'] * dtype.itemsize
 
         merge_size = os.path.getsize(input_path)
+        assert merge_size % sample_size  == 0
         sample_num = merge_size // sample_size
         split_size = (sample_num + n - 1) // n
         size = split_size * sample_size # bytes per part 
-
         with open(input_path, 'rb') as merge_file:
             for i in tqdm(range(n - 1)):
                 left_size = size

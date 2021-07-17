@@ -32,8 +32,10 @@ def set_logger(target_path, rank='main'):
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 
-logger = logging.getLogger('root')
-logger.setLevel(logging.DEBUG)
+logger = logging.root
+logger.setLevel(logging.INFO)
+console = logging.StreamHandler()
+logger.addHandler(console)
 
 def get_logger():
     return logger

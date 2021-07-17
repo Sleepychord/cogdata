@@ -45,7 +45,7 @@ class DataProcessor():
         dataset_names = args.datasets
         nproc = args.nproc
         task_path = os.path.join(current_dir, f'cogdata_task_{taskid}')
-        script_path = 'manual_test_processor.py' # FIXME
+        script_path = os.path.join(os.path.dirname(__file__), 'process_single_entry.py') # FIXME
         # already build meta_info, rm log dir from data_manager
         for name in dataset_names:
             log_dir = os.path.join(task_path, name, 'logs')
@@ -59,7 +59,7 @@ class DataProcessor():
         command = ["python", "-m", "torch.distributed.launch", 
             "--master_port", "30513", 
             "--nproc_per_node", str(nproc), 
-            script_path, 
+            script_path,
             "--args_dict", json.dumps(args_dict)
         ]
         print(command)
@@ -141,7 +141,7 @@ class DataProcessor():
         task_path = args_dict.pop('_task_path')
         dataset_names = args_dict['datasets']
 
-        initialize_distributed(local_rank, world_size, rank=rank) # TODO arg
+        initialize_distributed(local_rank, world_size, rank=rank) # TODO arg, set device
         for name in dataset_names:
             start_time = time.time()
             output_dir = os.path.join(task_path, name)
@@ -173,9 +173,9 @@ class DataProcessor():
             ]
             get_logger().debug(f'process {name}...')
             # others in ds_info are for dataset or task
+            ds_info.update(args_dict)
             task.process(sub_datasets, progress_record=progress_record, 
-                dataset_dir=os.path.join(current_dir, name),
-                **args_dict, **ds_info)
+                dataset_dir=os.path.join(current_dir, name), **ds_info)
             # if task forgot to record progress, set to 100% when finished
             end_time = time.time()
             speed = sum([len(ds) for ds in sub_datasets]) / (end_time - start_time)

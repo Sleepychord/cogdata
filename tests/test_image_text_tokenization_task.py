@@ -28,7 +28,7 @@ def test_image_text_tokenization_task():
         text_files=['downloads/testcase.json'], 
         text_format='json_ks',
         device='cuda',
-        num_workers=0,
+        dataloader_num_workers=2,
         txt_len=64,
         ratio=1,
         model_path=model_path

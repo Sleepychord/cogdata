@@ -6,12 +6,13 @@ import json
 import math
 import random
 import shutil
+import time
 from tqdm import tqdm
 
 from .data_processor import DataProcessor
 from .utils.helpers import format_file_size, dir_size, get_registered_cls
 from .data_savers import BinarySaver
-
+from .utils.logger import get_logger
 class DataManager():
 
     def __init__(self) -> None:
@@ -29,12 +30,12 @@ class DataManager():
         return datasets
         
     @staticmethod
-    def fetch_datasets_states(base_dir, taskid):
+    def fetch_datasets_states(base_dir, task_id):
         all_datasets = DataManager.fetch_datasets(base_dir)
         if task_id is None:
             return all_datasets, None, None, None, None
         processed, hanging, unprocessed = [], [], []
-        task_path = os.path.join(base_dir, f'cogdata_task_{taskid}')
+        task_path = os.path.join(base_dir, f'cogdata_task_{task_id}')
         for dataset in all_datasets:
             fld_path = os.path.join(task_path, dataset)
             meta_info_path = os.path.join(fld_path, 'meta_info.json')
@@ -58,7 +59,7 @@ class DataManager():
                 with open(meta_info_path, 'r') as meta_info_file:
                     meta_info = json.load(meta_info_file)
                     state = meta_info.get('state', 0)
-                    if state == 1:
+                    if state == 1 and item not in processed:
                         additional.append(item)
         return all_datasets, processed, hanging, unprocessed, additional
 
@@ -80,48 +81,50 @@ class DataManager():
         name_size_pair, sum_size = [], 0
         for dataset in all_datasets:
             path = os.path.join(base_dir, dataset)
-            size = format_file_size(dir_size(path))
-            name_size_pair.append(size)
+            size = dir_size(path)
+            name_size_pair.append((dataset, format_file_size(size)))
             sum_size += size
         nsdict = dict(name_size_pair)
-
-        print('ALL: ' + ' '.join([f'{x}({y})' for x, y in name_size_pair]))
-
-        if task_id is not None:
-            print(f"current taskname: {config['task']}")
-            task_path = os.path.join(base_dir, task_id)
+        print('\n--------------------------- All Raw Datasets --------------------------    ')
+        print(' '.join([f'{x}({y})' for x, y in name_size_pair]))
         
-        print('--------------- Summary ---------------')
-        print(f'Total {len(name_size_pair)} datasets: total size: {format_file_size(sum_size)}')
-        config = None
+        print('------------------------------- Summary -------------------------------')
+        print(f'Total {len(name_size_pair)} datasets\nTotal size: {format_file_size(sum_size)}')
+        
+        if task_id is None:
+            return 
+        print('------------------------------ Task Info ------------------------------')
+
+        task_path = os.path.join(base_dir, f'cogdata_task_{task_id}')
         try:
             with open(os.path.join(task_path, 'cogdata_config.json'), 'r') as config_file:
                 config = json.load(config_file)
             assert 'task_type' in config and type(config['task_type']) is str
-            print(f"Task Id: {taskid}")
+            print(f"Task Id: {task_id}")
             print(f"Task Type: {config['task_type']}")
             print(f'Description: {config["description"]}')
-            print(f'Processed: dataset_name(raw_size => processed_size)')
+            print(f'\033[1;32mProcessed\033[0m:  FORMAT: dataset_name(raw_size => processed_size)')
             for dataset in processed:
                 path = os.path.join(task_path, dataset)
                 size = format_file_size(dir_size(path))
                 print(f'{dataset}({nsdict[dataset]} => {size})', end=' ')
-            print('\nHanging: dataset_name(raw_size)[create_time]')
+            print('\n\033[1;33mHanging\033[0m:  FORMAT: dataset_name(raw_size)[create_time]')
             for dataset in hanging:
                 meta_info_path = os.path.join(task_path, dataset, 'meta_info.json')
                 with open(meta_info_path, 'r') as fin:
                     info = json.load(fin)
-                print(f'{dataset}({nsdict[dataset]})[{info['create_time']}]', end=' ')
-            print('\nUnprocessed: dataset_name(raw_size)')
-            for dataset in unprocessed:
-                print(f'{dataset}({nsdict[dataset]})', end=' ')
-            print('\nAdditional: dataset_name(processed_size)')
+                print(f'{dataset}({nsdict[dataset]})[{info["create_time"]}]', end=' ')
+            print('\nAdditional:  FORMAT: dataset_name(processed_size)')
             for dataset in additional:
                 path = os.path.join(task_path, dataset)
                 size = format_file_size(dir_size(path))
                 print(f'{dataset}({size})', end=' ')
+            print('\n\033[1;31mUnprocessed\033[0m:  FORMAT: dataset_name(raw_size)')
+            for dataset in unprocessed:
+                print(f'{dataset}({nsdict[dataset]})', end=' ')
             print('')
-        except:
+        except Exception as e:
+            print(e)
             print("Error: bad config.")
 
     @staticmethod
@@ -130,7 +133,7 @@ class DataManager():
         One should manually handle the data files.
         '''
         base_dir = os.getcwd()
-        path = os.path.join(base_dir, dataset_name)
+        path = os.path.join(base_dir, args.name)
         info_path = os.path.join(path, 'cogdata_info.json')
 
         if not os.path.exists(path):
@@ -138,14 +141,13 @@ class DataManager():
         
         if os.path.exists(info_path):
             while True:
-                sign = input(f"Warning: dataset {dataset_name} already existed. Rewrite?(y/n)")
+                sign = input(f"Warning: dataset {args.name} already existed. Rewrite?(y/n)")
                 sign = sign.strip(' ').lower()
                 if sign == 'y':
                     break
                 elif sign == 'n':
                     return
-
-        # info_dic = {
+        # vars(args) = {
         #     "name": dataset_name,
         #     "description": description,
         #     "data_files": data_files,
@@ -154,7 +156,9 @@ class DataManager():
         #     "text_format": text_format
         # }
         with open(info_path, 'w') as info:
-            json.dump(vars(args), info, indent = 4)
+            info_dict = vars(args).copy()
+            info_dict.pop('func', None)
+            json.dump(info_dict, info, indent = 4)
 
     @staticmethod
     def load_task(base_dir, id):
@@ -187,7 +191,8 @@ class DataManager():
             return
 
         config = vars(args).copy()
-        del config['task_id'] # enable changing by rename folder
+        config.pop('task_id', None)
+        config.pop('func', None)
         with open(config_path, 'w') as config_file:
             json.dump(config, config_file, indent = 4)   
 
@@ -199,18 +204,21 @@ class DataManager():
         task_id = args.task_id
         all_datasets, processed, hanging, unprocessed, additional = DataManager.fetch_datasets_states(base_dir, task_id)
 
-        if args.datasets is None: #
+        if args.datasets is None or len(args.datasets) == 0: #
             print('Processing all unprocessed datasets by default...')
             args.datasets = unprocessed
+            if len(args.datasets) == 0:
+                get_logger().warning('All datasets have been processed!')
+                return
 
         # check valid
         loaded_task_args = DataManager.load_task(base_dir, task_id)
-        args.update(loaded_task_args)
-        task_path = os.path.join(base_dir, args.task_id)
+        args.__dict__.update(loaded_task_args)
+        task_path = os.path.join(base_dir, f'cogdata_task_{args.task_id}')
         for name in args.datasets:
             assert name in unprocessed
             path = os.path.join(task_path, name)
-            os.makedirs(path, exist_ok=True))
+            os.makedirs(path, exist_ok=True)
             meta_info = {
                 'create_time': time.strftime(
                     "%Y-%m-%d %H:%M:%S %Z", time.localtime()),
@@ -218,8 +226,10 @@ class DataManager():
             }
             with open(os.path.join(path, 'meta_info.json'), 'w') as meta_info_file:
                 json.dump(meta_info, meta_info_file, indent = 4)
-            shutil.rmtree(os.path.join(path, 'logs'))
-            
+            if os.path.exists(os.path.join(path, 'logs')):
+                shutil.rmtree(os.path.join(path, 'logs'))
+        if hasattr(args, 'func'): # no copy, may change later
+            del args.func    
         DataProcessor().run_monitor(base_dir, task_id, args)
 
     @staticmethod
@@ -233,7 +243,7 @@ class DataManager():
         base_dir = os.getcwd()
         task_id = args.task_id
         saver_type = DataManager.load_task(base_dir, task_id)['saver_type']
-        task_path = os.path.join(base_dir, task_id)
+        task_path = os.path.join(base_dir, f'cogdata_task_{task_id}')
         split_path = os.path.join(task_path, 'split_merged_files')
         if os.path.exists(split_path):
             print('Removing previous split_merged_files...')
@@ -258,9 +268,11 @@ class DataManager():
         base_dir = os.getcwd()
         task_id = args.task_id
         task_config = DataManager.load_task(base_dir, task_id)
-        args.update(task_config)
+        task_config.update(args.__dict__)
+        task_config.pop('n', None)
+        task_config.pop('func', None)
         saver_type = task_config['saver_type']
-        task_path = os.path.join(base_dir, task_id)
+        task_path = os.path.join(base_dir, f'cogdata_task_{task_id}')
         split_path = os.path.join(task_path, 'split_merged_files')
         merge_path = os.path.join(task_path, 'merge'+get_registered_cls(saver_type).suffix)
         if not os.path.exists(merge_path):
@@ -271,5 +283,15 @@ class DataManager():
             return 
         os.makedirs(split_path, exist_ok=True)
     
-        BinarySaver.split_file_read(merge_path, split_path, args.n, vars(args))
+        BinarySaver.split_file_read(merge_path, split_path, args.n, **task_config)
 
+    @staticmethod
+    def clean(args):
+        base_dir = os.getcwd()
+        task_id = args.task_id
+        all_datasets, processed, hanging, unprocessed, additional = DataManager.fetch_datasets_states(base_dir, task_id)
+        task_path = os.path.join(base_dir, f'cogdata_task_{task_id}')
+        for dataset in hanging:
+            shutil.rmtree(os.path.join(task_path, dataset))
+        if len(hanging) > 0:
+            get_logger().info(f'Remove (damaged) results of {" ".join(hanging)}!')
