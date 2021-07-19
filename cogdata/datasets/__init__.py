@@ -1,7 +1,7 @@
 from .zip_dataset import ZipDataset
 from .tar_dataset import TarDataset
 from .binary_dataset import BinaryDataset
-from ..utils.logger import get_logger
+from cogdata.utils.logger import get_logger
 try:
     from .rar_dataset import StreamingRarDataset
 except LookupError:

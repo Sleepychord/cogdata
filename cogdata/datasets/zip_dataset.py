@@ -24,7 +24,7 @@ import torch.distributed as dist
 
 from torch.utils.data import Dataset, IterableDataset
 from PIL import Image
-from ..utils.logger import get_logger
+from cogdata.utils.logger import get_logger
 
 from cogdata.utils.register import register
 
