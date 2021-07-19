@@ -20,11 +20,12 @@ setup(
     long_description=Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     install_requires=_requirements(),
-    entry_points={"console_scripts": ["cogdata = cogdata.cli:cli"]},
+    entry_points={"console_scripts": ["cogdata = cogdata.cli:main"]},
     packages=find_packages(),
     url="https://github.com/Sleepychord/cogdata",
     author="Ming Ding, Yuxiang Chen, Wendi Zheng",
-    maintainer_email="dm_thu@qq.com",
+    author_email="dm_thu@qq.com",
     scripts={"scripts/install_unrarlib.sh"},
-    python_requires=">=3.4"
+    python_requires=">=3.5",
+    license="MIT license"
 )

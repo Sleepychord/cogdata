@@ -23,3 +23,6 @@ tmp/
 test.*
 test/
 bigtest/
+smalltest/
+mantest
+*.log

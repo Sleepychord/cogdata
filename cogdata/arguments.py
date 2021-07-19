@@ -1,4 +1,5 @@
 import argparse
+import sys
 from cogdata.data_savers import BinarySaver
 from cogdata.data_manager import DataManager
 from cogdata.utils.logger import get_logger
@@ -64,5 +65,9 @@ def get_args():
     # subparser.add_argument('--display_num', type=int, default=0, help='number of samples to randomly display')
 
     args = parser.parse_args()
+    if not hasattr(args, 'func'):
+        sys.stderr.write('error: at least select a subcommand. see help.\n')
+        parser.print_help()
+        return None
     get_logger().debug(args)
     return args

@@ -44,7 +44,7 @@ def get_last_line(filename):
 from .register import ALLCLASSES
 from cogdata.data_savers import *
 from cogdata.datasets import *
-from cogdata.tasks import *
+from cogdata.tasks import * 
 
 def get_registered_cls(name):
     return ALLCLASSES[name]
