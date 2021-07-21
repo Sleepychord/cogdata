@@ -8,14 +8,14 @@ import json
 from pathlib import Path
 
 from setuptools import find_packages, setup
-
+from cogdata.version import __version__
 
 def _requirements():
     return Path("requirements.txt").read_text()
 
 setup(
     name="cogdata",
-    version="0.0.0",
+    version=__version__,
     description="A lightweight data management and preprocessing tool.",
     long_description=Path("README.md").read_text(),
     long_description_content_type="text/markdown",
@@ -26,6 +26,7 @@ setup(
     author="Ming Ding, Yuxiang Chen, Wendi Zheng",
     author_email="dm_thu@qq.com",
     scripts={"scripts/install_unrarlib.sh"},
+    include_package_data=True,
     python_requires=">=3.5",
     license="MIT license"
 )

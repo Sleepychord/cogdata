@@ -20,7 +20,7 @@ from cogdata.utils.cogview import get_tokenizer
 def test_image_text_tokenization_task():
     model_path = '/dataset/fd5061f6/cogview/vqvae_hard_biggerset_011.pt'
     saver = BinarySaver('tmp/testcase.bin')
-    task = ImageTextTokenizationTask(img_sizes=[256], saver=saver)
+    task = ImageTextTokenizationTask(img_sizes=[256, 512, 128], saver=saver)
     ds = TarDataset('downloads/testcase.tar', 
         transform_fn=task.get_transform_fn()
     )
@@ -34,7 +34,7 @@ def test_image_text_tokenization_task():
         model_path=model_path
         )
 
-    bin_ds = BinaryDataset('tmp/testcase.bin', length_per_sample=32*32+64, dtype='int32', preload=True)
+    bin_ds = BinaryDataset('tmp/testcase.bin', length_per_sample=64*64+32*32+16*16+64, dtype='int32', preload=True)
     tokenizer = get_tokenizer()
     x = 0
     while bin_ds[0][x] != -1 and x < 64:
@@ -47,6 +47,9 @@ def test_image_text_tokenization_task():
     assert "佛山禅城祖庙古典风景摄影" == tokenizer.DecodeIds(bin_ds[2][:x])[0][0]
 
     from torchvision.utils import save_image
-    print(bin_ds[0][64:])
-    imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[64:].to('cuda')) for x in bin_ds], dim=0)
-    save_image(imgs, 'tmp/testcase.jpg', normalize=True)
+    imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[64:64+64**2].to('cuda')) for x in bin_ds], dim=0)
+    save_image(imgs, 'tmp/testcase512.jpg', normalize=True)
+    imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[64+64**2:64+64**2+32**2].to('cuda')) for x in bin_ds], dim=0)
+    save_image(imgs, 'tmp/testcase256.jpg', normalize=True)
+    imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[64+64**2+32**2:].to('cuda')) for x in bin_ds], dim=0)
+    save_image(imgs, 'tmp/testcase128.jpg', normalize=True)

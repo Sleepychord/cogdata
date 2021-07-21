@@ -8,7 +8,7 @@ from torchvision import transforms
 from cogdata.utils.cogview.unified_tokenizer import get_tokenizer
 from cogdata.utils.logger import get_logger, set_logger
 from cogdata.utils.progress_record import ProgressRecord
-from cogdata.eprogress import MultiProgressManager, LineProgress
+from cogdata.utils.eprogress import MultiProgressManager, LineProgress
 from cogdata.utils.helpers import get_registered_cls
 import logging
 def initialize_distributed(local_rank, world_size, rank=None, 

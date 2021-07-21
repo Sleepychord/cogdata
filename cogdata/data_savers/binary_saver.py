@@ -46,24 +46,24 @@ class BinarySaver(BaseSaver):
         self.commit()
         self.bin.close()
 
-    @classmethod
-    def merge(cls, files, output_path, overwrite=False):
-        '''
-        Merge files into one.
-        '''
-        if os.path.exists(output_path):
-            if overwrite:
-                os.remove(output_path)
-            else:
-                raise FileExistsError
-        ret = os.system('cat {} >> {}'.format(
-            ' '.join(files), output_path
-        )) # TODO: solve possible "Argument list too long"
-        if ret != 0:
-            raise Exception(f'cat return code {ret}')
+    # @classmethod
+    # def merge(cls, files, output_path, overwrite=False):
+    #     '''
+    #     Merge files into one.
+    #     '''
+    #     if os.path.exists(output_path):
+    #         if overwrite:
+    #             os.remove(output_path)
+    #         else:
+    #             raise FileExistsError
+    #     ret = os.system('cat {} >> {}'.format(
+    #         ' '.join(files), output_path
+    #     )) # TODO: solve possible "Argument list too long"
+    #     if ret != 0:
+    #         raise Exception(f'cat return code {ret}')
 
     @classmethod
-    def merge_file_read(cls, files, output_path, overwrite=False):
+    def merge(cls, files, output_path, overwrite=False):
         merge_file = open(output_path, 'wb')
 
         for file_path in tqdm(files):
@@ -76,21 +76,21 @@ class BinarySaver(BaseSaver):
 
         merge_file.close()
     
-    @classmethod
-    def split(cls, input_path, output_dir, n):
-        '''
-        Split input_path into n files in output_path.
-        '''
-        os.makedirs(output_dir, exist_ok=True)
-        prefix = os.path.join(output_dir, os.path.split(input_path)[-1]+'.part')
-        ret = os.system('split -d {} -n {} {} -a 3'.format(
-            input_path, n, prefix
-        ))
-        if ret != 0:
-            raise Exception(f'split return code {ret}')
+    # @classmethod
+    # def split(cls, input_path, output_dir, n):
+    #     '''
+    #     Split input_path into n files in output_path.
+    #     '''
+    #     os.makedirs(output_dir, exist_ok=True)
+    #     prefix = os.path.join(output_dir, os.path.split(input_path)[-1]+'.part')
+    #     ret = os.system('split -d {} -n {} {} -a 3'.format(
+    #         input_path, n, prefix
+    #     ))
+    #     if ret != 0:
+    #         raise Exception(f'split return code {ret}')
 
     @classmethod
-    def split_file_read(cls, input_path, output_dir, n, **kwargs):
+    def split(cls, input_path, output_dir, n, **kwargs):
         dtype = np.dtype(kwargs['dtype'])
         sample_size = kwargs['length_per_sample'] * dtype.itemsize
 

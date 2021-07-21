@@ -26,7 +26,7 @@ class ImageTextTokenizationTask(BaseTask):
     '''
     def __init__(self, saver, img_sizes, **kwargs) -> None:
         self.saver = saver
-        self.img_sizes = img_sizes # multi-scale
+        self.img_sizes = sorted(img_sizes, reverse=True) # multi-scale
         self.img_size = max(img_sizes)
 
     def get_transform_fn(self, transform=None):
@@ -103,7 +103,6 @@ class ImageTextTokenizationTask(BaseTask):
                 n = len(filenames) # valid num
                 if n == 0:
                     continue
-                imgs = normfunc(buf_imgs[:n] / 255.)
 
                 buf_txts.fill_(-1)
                 for i, filename in enumerate(filenames):
@@ -112,8 +111,15 @@ class ImageTextTokenizationTask(BaseTask):
                     buf_txts[i, :len(code_txt)] = torch.tensor(code_txt, dtype=torch.int)
                 codes_txt = buf_txts[:n]
 
-                codes_img = tokenizer.img_tokenizer.EncodeAsIds(imgs).type(torch.IntTensor)
-                data = torch.cat((codes_txt, codes_img), dim=1)
+                imgs = normfunc(buf_imgs[:n] / 255.)
+                codes_img = []
+                for i, img_size in enumerate(img_sizes):
+                    if i > 0:
+                        tmp_imgs = torch.nn.functional.interpolate(imgs, (img_size, img_size), mode='bilinear')
+                    else:
+                        tmp_imgs = imgs
+                    codes_img.append(tokenizer.img_tokenizer.EncodeAsIds(tmp_imgs).type(torch.IntTensor))
+                data = torch.cat((codes_txt, *codes_img), dim=1)
 
                 self.saver.save(data)
                 if cnt // batch_size % 20 == 0:

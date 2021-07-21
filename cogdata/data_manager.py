@@ -11,8 +11,8 @@ from tqdm import tqdm
 
 from .data_processor import DataProcessor
 from .utils.helpers import format_file_size, dir_size, get_registered_cls
-from .data_savers import BinarySaver
 from .utils.logger import get_logger
+
 class DataManager():
 
     def __init__(self) -> None:
@@ -259,7 +259,7 @@ class DataManager():
                 if item.endswith('.cogdata'):
                     data_paths.append(os.path.join(task_path, dataset, item))
 
-        BinarySaver.merge_file_read(data_paths, merge_path, True)
+        get_registered_cls(saver_type).merge(data_paths, merge_path, True)
     
     @staticmethod    
     def split(args):
@@ -283,7 +283,7 @@ class DataManager():
             return 
         os.makedirs(split_path, exist_ok=True)
     
-        BinarySaver.split_file_read(merge_path, split_path, args.n, **task_config)
+        get_registered_cls(saver_type).split(merge_path, split_path, args.n, **task_config)
 
     @staticmethod
     def clean(args):

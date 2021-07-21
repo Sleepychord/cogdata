@@ -1,18 +1,24 @@
 # Cogdata
-## 目录结构
+
+## Install
+```
+pip install cogdata --index-url https://test.pypi.org/simple
+sudo install_unrarlib.sh
+```
+## Directory Structure
 ```
 .
-├── cogdata_workspace
-│   ├── cogdata_config.json
+├── cogdata_task_task1
+│   ├── cogdata_config.json (indicating a task path)
 │   ├── merged.bin
 │   ├── dataset1
-│   │   ├── processed.bin
+│   │   ├── dataset1.bin
 │   │   └── meta_info.json
 │   └── dataset2
-│       ├── processed.bin
+│       ├── dataset2.bin
 │       └── meta_info.json
 ├── dataset1
-│   ├── cogdata_info.json
+│   ├── cogdata_info.json (indicating a dataset path)
 │   ├── dataset1.json
 │   └── dataset1.rar
 └── dataset2
@@ -21,10 +27,34 @@
     └── dataset2.zip
 ```
 
-子目录cogdata_config.json 代表这个子目录有一个数据集。cogdata_workspace 是存放处理过的数据的地方，也代表这里有一个活跃的预处理task。
+## Pipeline
+The motivation of this project is to provide lightweight APIs for large-scale NN-based data-processing, e.g. ImageTokenization. The abstraction has 3 parts:
+* **Dataset**: Raw dataset from other organization in various formats, e.g. rar, zip, etc. The information are recorded at `cogdata_info.json` in its split folder. 
+* **Task**: A task is a collection of "configs, results for different datsets, logs, merged results, and evenly split results". The config of a task are recorded in `cogdata_info.json`. The states (processed, hanging/running, unprocessed)of a dataset in this tasks are in `meta_info.json`.
+* **DataSaver**: The format of saved results. The first option is our `BinSaver`, which saves plain bytes with fixed length. It can be read or memmap very fast. The config of DataSaver are also with the task in `cogdata_info.json`. 
 
-为了灵活支持多种task，我们抽离了task和process过程，但是为了避免引起混淆，同时只能进行一种task，其信息存在于`cogdata_workspace/cogdata_config.json`。将`cogdata_workspace`目录移走可以通过创建新task。
+### Commands
+```
+cogdata create_dataset  [-h] [--description DESCRIPTION] --data_files DATA_FILES [DATA_FILES ...] --data_format DATA_FORMAT [--text_files TEXT_FILES [TEXT_FILES ...]] [--text_format TEXT_FORMAT] name
+```
+Alias: `cogdata data ...`. `data_format` is chosen from class names in cogdata.datasets, e.g. `StreamingRarDataset`. Texts related options are optional for text-image datasets.
 
-运行方法是`./cogdata/cli.py`。
+```
+cogdata create_task [-h] [--description DESCRIPTION] --task_type TASK_TYPE --saver_type SAVER_TYPE [--length_per_sample LENGTH_PER_SAMPLE] [--img_sizes IMG_SIZES [IMG_SIZES ...]] [--txt_len TXT_LEN]
+                           [--dtype {int32,int64,float32,uint8,bool}]
+                           task_id
+```
 
-需要写的逻辑都已经有描述了。
+
+## TODO List
+
+* 验证create task任务对应task和saver的参数是否传全且合理 [wendi]
+* 将现有的cogview数据纳入管理，并测试 [zhuoyi]
+* [x] 增加tokenization task中多个imgsize的处理 [mingding]
+* 增加在不修改源代码的基础上register args task saver dataset的功能 [mingding]
+* 上传至真实的pypi，公开仓库 [mingding]
+* sphinx 注释文档撰写 [yuxiang]
+* 整理单元测试，只使用小的testcase [wendi]
+* PPT [yuxiang]
+* 视频介绍 [yuxiang]
+
