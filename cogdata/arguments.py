@@ -1,8 +1,10 @@
 import argparse
 import sys
+import os
 from cogdata.data_savers import BinarySaver
 from cogdata.data_manager import DataManager
 from cogdata.utils.logger import get_logger
+from cogdata.utils.helpers import get_registered_cls
 
 def need_datasets(p):
     p.add_argument('datasets', type=str, nargs='*', help='dataset names, None means all possible datasets.')
@@ -10,7 +12,27 @@ def need_datasets(p):
 def need_taskid(p, required=True):
     p.add_argument('--task_id', '-t', type=str, help='id of the handling task.',required=required)
 
+def exec_full(filepath):
+    global_namespace = {
+        "__file__": filepath,
+        "__name__": "cogdata.extra_code",
+    }
+    with open(filepath, 'rb') as file:
+        exec(compile(file.read(), filepath, 'exec'), global_namespace)
+
+def load_code(path):
+    if os.path.exists(path):
+        exec_full(path)
+    else:
+        get_logger().error('The extra code file {} does not exist. Skipping.'.format(path))
+
 def get_args():
+    py_parser = argparse.ArgumentParser(add_help=False)
+    py_parser.add_argument('--extra_code', type=str, default=None)
+    known, args_list = py_parser.parse_known_args()
+    if known.extra_code is not None:
+        load_code(known.extra_code)
+
     parser = argparse.ArgumentParser(prog='cogdata')
     subparsers = parser.add_subparsers()
 
@@ -64,7 +86,7 @@ def get_args():
     subparser.set_defaults(func=DataManager.clean)
     # subparser.add_argument('--display_num', type=int, default=0, help='number of samples to randomly display')
 
-    args = parser.parse_args()
+    args = parser.parse_args(args_list)
     if not hasattr(args, 'func'):
         sys.stderr.write('error: at least select a subcommand. see help.\n')
         parser.print_help()
