@@ -16,11 +16,15 @@ import torch
 from cogdata.utils.helpers import get_registered_cls
 
 def test_register():
+    test_dir = 'tmp/test_register'
+    if os.path.exists(test_dir):
+        shutil.rmtree(test_dir)
+    os.makedirs(test_dir)
+
     bin_saver_cls = get_registered_cls('BinarySaver')
     bin_ds_cls = get_registered_cls('BinaryDataset')
     
-    os.makedirs('tmp', exist_ok=True)
-    output_path = 'tmp/fake_register.bin'
+    output_path = os.path.join(test_dir, 'fake_register.bin')
     saver = bin_saver_cls(output_path, dtype='int32')
     d = torch.arange(100)
     saver.save(d)

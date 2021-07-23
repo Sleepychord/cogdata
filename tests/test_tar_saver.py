@@ -17,12 +17,17 @@ from cogdata.datasets import ZipDataset
 from cogdata.data_savers import TarSaver
 
 def test_tar_saver():
-    output_path = os.path.join('tmp', 'tar_saver')
-    os.makedirs(output_path, exist_ok=True)
+    test_dir = 'tmp/test_tar_saver'
+    case_dir = 'downloads/testcase/test_tar_saver'
+    if os.path.exists(test_dir):
+        shutil.rmtree(test_dir)
+    os.makedirs(test_dir)
+
+    output_path = test_dir
     saver = TarSaver(os.path.join(output_path, 'conv.tar'))
     def extract_fn(fp, full_filename, filesize):
         saver.save(fp, full_filename, filesize)
         return None
-    ds = ZipDataset('downloads/testcase.zip', transform_fn=extract_fn)
+    ds = ZipDataset(os.path.join(case_dir, 'testcase.zip'), transform_fn=extract_fn)
     print([x for x in ds])
     del saver

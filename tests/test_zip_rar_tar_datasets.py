@@ -23,22 +23,34 @@ def extract_fn(fp, full_filename, *args):
 
 def test_zip_dataset():
     global current_ds
-    current_ds = 'zip'
-    os.makedirs(os.path.join('tmp', current_ds), exist_ok=True)
-    ds = ZipDataset('downloads/testcase.zip', transform_fn=extract_fn)
+    current_ds = 'test_zip_datasets'
+    test_dir = os.path.join('tmp', current_ds)
+    if os.path.exists(test_dir):
+        shutil.rmtree(test_dir)
+    os.makedirs(test_dir)
+
+    ds = ZipDataset('downloads/testcase/test_zip_rar_tar_datasets/testcase.zip', transform_fn=extract_fn)
     print([x for x in ds])
 
 def test_tar_dataset():
     global current_ds
-    current_ds = 'tar'
-    os.makedirs(os.path.join('tmp', current_ds), exist_ok=True)
-    ds = TarDataset('downloads/testcase.tar', transform_fn=extract_fn)
+    current_ds = 'test_tar_datasets'
+    test_dir = os.path.join('tmp', current_ds)
+    if os.path.exists(test_dir):
+        shutil.rmtree(test_dir)
+    os.makedirs(test_dir)
+
+    ds = TarDataset('downloads/testcase/test_zip_rar_tar_datasets/testcase.tar', transform_fn=extract_fn)
     print([x for x in ds])
     
 def test_rar_dataset():
     global current_ds
-    current_ds = 'rar'
-    os.makedirs(os.path.join('tmp', current_ds), exist_ok=True)
-    ds = StreamingRarDataset('downloads/testcase.rar', transform_fn=extract_fn)
+    current_ds = 'test_rar_datasets'
+    test_dir = os.path.join('tmp', current_ds)
+    if os.path.exists(test_dir):
+        shutil.rmtree(test_dir)
+    os.makedirs(test_dir)
+
+    ds = StreamingRarDataset('downloads/testcase/test_zip_rar_tar_datasets/testcase.rar', transform_fn=extract_fn)
     print([x for x in ds])
     

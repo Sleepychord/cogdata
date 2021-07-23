@@ -126,7 +126,7 @@ class DataProcessor():
             p.terminate()
         finally:
             main_log_file.close()
-        if p.returncode > 0:
+        if p.returncode is not None and p.returncode > 0:
             get_logger().error(f'torch.launch returns code {p.returncode}')
         
         
