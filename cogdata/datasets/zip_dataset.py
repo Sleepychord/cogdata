@@ -32,6 +32,7 @@ from cogdata.utils.register import register
 class ZipDataset(Dataset):
     def __init__(self, path, *args, world_size=1, rank=0, transform_fn=None):
         assert len(args) == 0, 'transform_fn is a kwarg.'
+        self.path = path
         self.zip = zipfile.ZipFile(path)
         self.members = [
             info for info in self.zip.infolist() 
@@ -44,11 +45,15 @@ class ZipDataset(Dataset):
                 if i % world_size == rank
             ]
         self.transform_fn = transform_fn
+        self.zip.close()
+        self.zip = None
 
     def __len__(self):
         return len(self.members)
 
     def __getitem__(self, idx):
+        if self.zip is None:
+            self.zip = zipfile.ZipFile(self.path)
         target_info = self.members[idx]
         full_filename = self.members[idx].filename
         file_size = self.members[idx].file_size

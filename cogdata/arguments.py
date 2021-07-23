@@ -57,6 +57,8 @@ def get_args():
     subparser.add_argument('--txt_len', type=int, default=64, help='length of text in one sample.')
     subparser.add_argument('--dtype', type=str, default='int32', help='data type of samples.', choices=list(BinarySaver.mapping.keys()))
     subparser.set_defaults(func=DataManager.new_task)
+    subparser.add_argument('--model_path', type=str, default='', help='model_path', required=False)
+
     # TODO how to customize?
 
     subparser = subparsers.add_parser("list")
