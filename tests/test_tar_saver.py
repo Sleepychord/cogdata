@@ -10,6 +10,7 @@
 import os
 import sys
 import math
+import shutil
 import random
 
 from cogdata.datasets import ZipDataset

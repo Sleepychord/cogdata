@@ -10,6 +10,7 @@
 import os
 import sys
 import math
+import shutil
 import random
 import PIL
 
@@ -25,32 +26,35 @@ def test_zip_dataset():
     global current_ds
     current_ds = 'test_zip_datasets'
     test_dir = os.path.join('tmp', current_ds)
+    case_dir = 'downloads/testcase/test_zip_rar_tar_datasets'
     if os.path.exists(test_dir):
         shutil.rmtree(test_dir)
     os.makedirs(test_dir)
 
-    ds = ZipDataset('downloads/testcase/test_zip_rar_tar_datasets/testcase.zip', transform_fn=extract_fn)
+    ds = ZipDataset(os.path.join(case_dir, 'testcase.zip'), transform_fn=extract_fn)
     print([x for x in ds])
 
 def test_tar_dataset():
     global current_ds
     current_ds = 'test_tar_datasets'
     test_dir = os.path.join('tmp', current_ds)
+    case_dir = 'downloads/testcase/test_zip_rar_tar_datasets'
     if os.path.exists(test_dir):
         shutil.rmtree(test_dir)
     os.makedirs(test_dir)
 
-    ds = TarDataset('downloads/testcase/test_zip_rar_tar_datasets/testcase.tar', transform_fn=extract_fn)
+    ds = TarDataset(os.path.join(case_dir, 'testcase.tar'), transform_fn=extract_fn)
     print([x for x in ds])
     
 def test_rar_dataset():
     global current_ds
     current_ds = 'test_rar_datasets'
     test_dir = os.path.join('tmp', current_ds)
+    case_dir = 'downloads/testcase/test_zip_rar_tar_datasets'
     if os.path.exists(test_dir):
         shutil.rmtree(test_dir)
     os.makedirs(test_dir)
 
-    ds = StreamingRarDataset('downloads/testcase/test_zip_rar_tar_datasets/testcase.rar', transform_fn=extract_fn)
+    ds = StreamingRarDataset(os.path.join(case_dir, 'testcase.rar'), transform_fn=extract_fn)
     print([x for x in ds])
     

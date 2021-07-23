@@ -11,6 +11,7 @@ import os
 import sys
 import math
 import json
+import shutil
 import random
 import torch
 from cogdata.datasets import TarDataset, BinaryDataset

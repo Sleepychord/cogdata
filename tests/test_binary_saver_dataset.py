@@ -10,6 +10,7 @@
 import os
 import sys
 import math
+import shutil
 import random
 import torch
 from cogdata.datasets import BinaryDataset
