@@ -197,13 +197,14 @@ class UnifiedTokenizer(object):
         return ret
 
 
-def get_tokenizer(args=None):
+def get_tokenizer(img_tokenizer_path=None):
     if not hasattr(get_tokenizer, 'tokenizer'):
+        assert img_tokenizer_path is not None, 'First time to call, must specify the path'
         # the first time to load the tokenizer, specify img_tokenizer_path
         get_tokenizer.tokenizer = UnifiedTokenizer(
-            args.img_tokenizer_path,
+            img_tokenizer_path,
             device=torch.cuda.current_device(),
-            img_tokenizer_num_tokens=args.img_tokenizer_num_tokens
+            img_tokenizer_num_tokens=8192
         )
     return get_tokenizer.tokenizer
 

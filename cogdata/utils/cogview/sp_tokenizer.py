@@ -19,7 +19,11 @@ or  git clone https://github.com/google/sentencepiece.git
 python setup.py install
 
 """
-PRETRAINED_MODEL_FILE = "chinese_sentencepiece/cog-pretrain.model"
+import os
+PRETRAINED_MODEL_FILE = os.path.join(
+    os.path.dirname(__file__), 
+    "chinese_sentencepiece", "cog-pretrain.model"
+)
 
 
 def get_pairs(word):

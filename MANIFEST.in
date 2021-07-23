@@ -1,0 +1,3 @@
+include requirements.txt
+global-exclude __pycache__/*
+recursive-include cogdata cog-pretrain.model

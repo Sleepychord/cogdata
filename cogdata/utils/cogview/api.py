@@ -28,7 +28,7 @@ def new_model():
 #     return VQVAE()
 
 def pretrained_url():
-    return 'http://zh-pretrain.oss-cn-zhangjiakou.aliyuncs.com/vqvae_ckpt_set/vqvae_hard_018.pt'
+    return 'https://cloud.tsinghua.edu.cn/f/71607a5dca69417baa8c/?dl=1'
 
 def img2code(model, img):
     '''Convert a batch of img to code
