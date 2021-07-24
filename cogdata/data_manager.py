@@ -216,7 +216,7 @@ class DataManager():
 
     @staticmethod
     def load_task(base_dir, id):
-        """Load task config by task id
+        """Load task config(json) by task id
 
         Parameters
         ---------
@@ -329,7 +329,7 @@ class DataManager():
         Parameters
         ----------
         args:argparse.Namespace
-            Argument provided by the console
+            Arguments provided by the console
         """
         base_dir = os.getcwd()
         task_id = args.task_id
