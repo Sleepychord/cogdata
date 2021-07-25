@@ -10,4 +10,4 @@ Welcome to Cogdata-doc's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-modules
+   modules
