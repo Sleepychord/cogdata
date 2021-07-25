@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+"""This file defines DataProcessor
+"""
 import os
 import json
 import time
@@ -49,6 +51,8 @@ def initialize_distributed(local_rank, world_size, rank=None,
 
 
 class DataProcessor():
+    """Multiple GPUs processor
+    """
 
     def __init__(self) -> None:
         pass

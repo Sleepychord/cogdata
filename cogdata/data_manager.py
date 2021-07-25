@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+"""This file defines DataManager.
+"""
 
 import os
 import sys
@@ -15,6 +17,8 @@ from .utils.logger import get_logger
 
 
 class DataManager():
+    """A manager of all datasets.
+    """
 
     def __init__(self) -> None:
         pass
@@ -26,7 +30,7 @@ class DataManager():
         Parameters
         ----------
         base_dir : str
-            the root folder path 
+            The root folder path 
         Returns
         -------
         datasets:list[str]
@@ -48,7 +52,7 @@ class DataManager():
         Parameters
         ----------
         base_dir : str
-            the root folder path 
+            The root folder path 
         task_id : str 
             An ID of an exist task.
 
@@ -62,7 +66,7 @@ class DataManager():
             A list of processing dataset names.
         unprocessed:list[str]
             A list of unprocessed dataset names.
-        additional:
+        additional:list[str]
             A list of only processed dataset names, from migration.
         """
         all_datasets = DataManager.fetch_datasets(base_dir)
@@ -99,7 +103,8 @@ class DataManager():
 
     @staticmethod
     def list(args):
-        """List all datasets in current dir.
+        """List all datasets in current dir
+
         Parameters
         ----------
         args:argparse.Namespace
@@ -221,7 +226,7 @@ class DataManager():
         Parameters
         ---------
         base_dir:str
-            the root folder path 
+            The root folder path 
         id:str 
             An ID of an exist task.
 
