@@ -51,11 +51,3 @@ cogdata.utils.register module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: cogdata.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:

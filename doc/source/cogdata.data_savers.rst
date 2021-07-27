@@ -27,11 +27,3 @@ cogdata.data\_savers.tar\_saver module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: cogdata.data_savers
-   :members:
-   :undoc-members:
-   :show-inheritance:

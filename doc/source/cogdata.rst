@@ -50,23 +50,5 @@ cogdata.data\_processor module
 cogdata.process\_single\_entry module
 -------------------------------------
 
-.. automodule:: cogdata.process_single_entry
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-cogdata.version module
-----------------------
-
-.. automodule:: cogdata.version
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: cogdata
-   :members:
-   :undoc-members:
-   :show-inheritance:
+This file is the entry of ``DataProcessor.run_single``,
+called by ``DataProcessor.run_monitor`` 

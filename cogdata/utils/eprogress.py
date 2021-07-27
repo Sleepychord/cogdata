@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Created on 2017/7/21
 
-"""
-Created on 2017/7/21
-
-"""
 __author__ = 'HomgWu & Ming Ding'
 
-import sys, re, abc, threading
+import sys
+import re
+import abc
+import threading
 
 CLEAR_TO_END = "\033[K"
 UP_ONE_LINE = "\033[F"
@@ -16,6 +16,7 @@ UP_ONE_LINE = "\033[F"
 class ProgressBar(object, metaclass=abc.ABCMeta):
     """ Base module of all types of process bar.
     """
+
     def __init__(self, width=25, title=''):
         self.width = width
         self.title = ProgressBar.filter_str(title)
@@ -72,6 +73,7 @@ class ProgressBar(object, metaclass=abc.ABCMeta):
 class LineProgress(ProgressBar):
     """Normal Line progress bars.
     """
+
     def __init__(self, total=100, symbol='#', width=25, title=''):
         """
         Arguments
@@ -103,9 +105,11 @@ class LineProgress(ProgressBar):
             if progress > 0:
                 self._current_progress = progress
             sys.stdout.write('\r' + CLEAR_TO_END)
-            hashes = '#' * int(self._current_progress / self.total * self.width)
+            hashes = '#' * int(self._current_progress /
+                               self.total * self.width)
             spaces = ' ' * (self.width - len(hashes))
-            sys.stdout.write("\r%s:[%s] %d%%  Speed: %.2f samples/s" % (self.title, hashes + spaces, self._current_progress, speed))
+            sys.stdout.write("\r%s:[%s] %d%%  Speed: %.2f samples/s" %
+                             (self.title, hashes + spaces, self._current_progress, speed))
             # sys.stdout.flush()
 
 
@@ -158,7 +162,8 @@ class MultiProgressManager(object):
             if self.need_skip:
                 self.need_skip = False
             else:
-                sys.stdout.write(UP_ONE_LINE * delta_line if delta_line > 0 else '')
+                sys.stdout.write(
+                    UP_ONE_LINE * delta_line if delta_line > 0 else '')
             for tmp_key in self._progress_dict.keys():
                 progress_bar = self._progress_dict.get(tmp_key)
                 tmp_progress = 0
@@ -166,6 +171,7 @@ class MultiProgressManager(object):
                     tmp_progress = progress
                 progress_bar.update(tmp_progress, speed=speed)
                 sys.stdout.write('\n')
+
     def update_title(self, key, title):
         """Update the title of a progress bar
         Arguments
@@ -178,5 +184,6 @@ class MultiProgressManager(object):
         progress_bar = self._progress_dict.get(key, None)
         if progress_bar is not None:
             progress_bar.title = title
+
     def skip_upline(self):
         self.need_skip = True

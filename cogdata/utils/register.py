@@ -8,6 +8,7 @@
 
 ALLCLASSES = {}
 
+
 def register(cls):
     if hasattr(cls, 'REGISTER_NAME'):
         name = cls.REGISTER_NAME

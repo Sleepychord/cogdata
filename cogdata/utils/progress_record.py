@@ -68,8 +68,8 @@ class ProgressRecord():
 
         Returns
         -------
-            ret:[(int,int,int)]
-                [(current progress, total progress, average speed)]
+        [(int,int,int)]
+            [(current progress, total progress, average speed)]
         """
         ret = []
         for rank in range(n):

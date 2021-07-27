@@ -33,7 +33,7 @@ class DataManager():
             The root folder path 
         Returns
         -------
-        datasets:list[str]
+        list[str]
             A list of created dataset names.
         """
         datasets = []
@@ -49,25 +49,18 @@ class DataManager():
     def fetch_datasets_states(base_dir, task_id):
         """Get datasets status(dataset with ```config.json```) in the task which id is ```task_id```
 
-        Parameters
-        ----------
-        base_dir : str
-            The root folder path 
-        task_id : str 
-            An ID of an exist task.
+        Args:
+            base_dir(str): The root folder path 
+            task_id(str): An ID of an exist task.
 
-        Returns
-        -------
-        all_datasets:list[str]
-            A list of created dataset names.
-        processed:list[str]
-            A list of processed dataset names.
-        hanging:list[str]
-            A list of processing dataset names.
-        unprocessed:list[str]
-            A list of unprocessed dataset names.
-        additional:list[str]
-            A list of only processed dataset names, from migration.
+
+        Returns:
+            tuple: a tuple containing:
+                - all_datasets([str]): A list of created dataset names.
+                - processed([str]): A list of processed dataset names.
+                - hanging([str]): A list of processing dataset names.
+                - unprocessed:([str]): A list of unprocessed dataset names.
+                - additional:([str]) A list of only processed dataset names, from migration.
         """
         all_datasets = DataManager.fetch_datasets(base_dir)
         if task_id is None:
@@ -232,7 +225,7 @@ class DataManager():
 
         Returns
         -------
-        config:dict
+        dict
             Config json of the task
         """
         path = os.path.join(base_dir, f"cogdata_task_{id}")

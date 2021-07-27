@@ -43,11 +43,3 @@ cogdata.utils.cogview.vqvae\_zc module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: cogdata.utils.cogview
-   :members:
-   :undoc-members:
-   :show-inheritance:

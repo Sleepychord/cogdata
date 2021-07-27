@@ -19,11 +19,3 @@ cogdata.tasks.image\_text\_tokenization\_task module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: cogdata.tasks
-   :members:
-   :undoc-members:
-   :show-inheritance:

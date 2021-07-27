@@ -11,6 +11,7 @@ cogdata.datasets.binary\_dataset module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__, __len__, __getitem__ 
 
 cogdata.datasets.rar\_dataset module
 ------------------------------------
@@ -19,6 +20,7 @@ cogdata.datasets.rar\_dataset module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__, __len__, __next__, __iter__, __del__
 
 cogdata.datasets.tar\_dataset module
 ------------------------------------
@@ -27,6 +29,7 @@ cogdata.datasets.tar\_dataset module
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__, __len__, __getitem__ 
 
 cogdata.datasets.zip\_dataset module
 ------------------------------------
@@ -35,11 +38,4 @@ cogdata.datasets.zip\_dataset module
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: cogdata.datasets
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   :special-members: __init__, __len__, __getitem__ 
