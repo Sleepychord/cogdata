@@ -1,9 +1,6 @@
 cogdata.datasets package
 ========================
 
-Submodules
-----------
-
 cogdata.datasets.binary\_dataset module
 ---------------------------------------
 

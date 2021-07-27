@@ -32,7 +32,7 @@ class ProgressBar(object, metaclass=abc.ABCMeta):
 
     @staticmethod
     def filter_str(pending_str):
-        """去掉字符串中的\r、\t、\n"""
+        """Filter \r、\t、\n"""
         return re.sub(pattern=r'\r|\t|\n', repl='', string=pending_str)
 
 

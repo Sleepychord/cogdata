@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-"""
-Example
--------
+"""This module defines the entry of console commend.
 """
 import sys
 

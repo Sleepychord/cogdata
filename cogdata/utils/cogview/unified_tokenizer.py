@@ -1,10 +1,8 @@
 # -*- encoding: utf-8 -*-
-'''
-@File    :   unified_tokenizer.py
-@Time    :   2021/01/11 16:36:33
-@Author  :   Ming Ding 
-@Contact :   dm18@mails.tsinghua.edu.cn
-'''
+# @File    :   unified_tokenizer.py
+# @Time    :   2021/01/11 16:36:33
+# @Author  :   Ming Ding 
+# @Contact :   dm18@mails.tsinghua.edu.cn
 
 # here put the import lib
 import numpy as np
@@ -198,6 +196,9 @@ class UnifiedTokenizer(object):
 
 
 def get_tokenizer(img_tokenizer_path=None):
+    """Singlton
+
+    Return an image tokenizer"""
     if not hasattr(get_tokenizer, 'tokenizer'):
         assert img_tokenizer_path is not None, 'First time to call, must specify the path'
         # the first time to load the tokenizer, specify img_tokenizer_path

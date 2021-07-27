@@ -1,5 +1,5 @@
-cogdata package
-===============
+cogdata
+=======
 
 Subpackages
 -----------
@@ -12,24 +12,15 @@ Subpackages
    cogdata.tasks
    cogdata.utils
 
-Submodules
-----------
-
 cogdata.arguments module
 ------------------------
 
-.. automodule:: cogdata.arguments
-   :members:
-   :undoc-members:
-   :show-inheritance:
+This module defines functions for parsing console arguments.
 
 cogdata.cli module
 ------------------
 
-.. automodule:: cogdata.cli
-   :members:
-   :undoc-members:
-   :show-inheritance:
+This module is the entry of console commend.
 
 cogdata.data\_manager module
 ----------------------------
@@ -50,5 +41,5 @@ cogdata.data\_processor module
 cogdata.process\_single\_entry module
 -------------------------------------
 
-This file is the entry of ``DataProcessor.run_single``,
+This module is the entry of ``DataProcessor.run_single``,
 called by ``DataProcessor.run_monitor`` 

@@ -27,8 +27,9 @@ def new_model():
 #     '''
 #     return VQVAE()
 
-def pretrained_url():
-    return 'https://cloud.tsinghua.edu.cn/f/71607a5dca69417baa8c/?dl=1'
+# def pretrained_url():
+#     """Pretrained model download url"""
+#     return 'https://cloud.tsinghua.edu.cn/f/71607a5dca69417baa8c/?dl=1'
 
 def img2code(model, img):
     '''Convert a batch of img to code

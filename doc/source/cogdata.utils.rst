@@ -9,9 +9,6 @@ Subpackages
 
    cogdata.utils.cogview
 
-Submodules
-----------
-
 cogdata.utils.eprogress module
 ------------------------------
 

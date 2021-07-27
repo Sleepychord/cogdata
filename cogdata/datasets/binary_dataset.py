@@ -1,10 +1,8 @@
 # -*- encoding: utf-8 -*-
-'''
-@File    :   binary_dataset.py
-@Time    :   2021/07/10 23:39:23
-@Author  :   Ming Ding 
-@Contact :   dm18@mail.tsinghua.edu.cn
-'''
+# @File    :   binary_dataset.py
+# @Time    :   2021/07/10 23:39:23
+# @Author  :   Ming Ding 
+# @Contact :   dm18@mail.tsinghua.edu.cn
 
 # here put the import lib
 import os

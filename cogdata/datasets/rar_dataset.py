@@ -1,10 +1,8 @@
 # -*- encoding: utf-8 -*-
-'''
-@File    :   rar_dataset.py
-@Time    :   2021/07/10 16:00:15
-@Author  :   Ming Ding 
-@Contact :   dm18@mail.tsinghua.edu.cn
-'''
+# @File    :   rar_dataset.py
+# @Time    :   2021/07/10 16:00:15
+# @Author  :   Ming Ding 
+# @Contact :   dm18@mail.tsinghua.edu.cn
 
 # here put the import lib
 from cogdata.utils.register import register

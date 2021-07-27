@@ -1,9 +1,6 @@
 cogdata.data\_savers package
 ============================
 
-Submodules
-----------
-
 cogdata.data\_savers.base\_saver module
 ---------------------------------------
 

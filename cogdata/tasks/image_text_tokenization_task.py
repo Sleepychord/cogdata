@@ -27,6 +27,8 @@ class ImageTextTokenizationTask(BaseTask):
     '''
 
     def __init__(self, saver, img_sizes, **kwargs) -> None:
+        """config saver
+        """
         self.saver = saver
         self.img_sizes = sorted(img_sizes, reverse=True)  # multi-scale
         self.img_size = max(img_sizes)
@@ -52,7 +54,8 @@ class ImageTextTokenizationTask(BaseTask):
             )
 
         def transform_fn(fp, full_filename, *args, local_transform=transform):
-            '''file obj to (PIL.Image, filename w/o suffix)
+            '''file obj to (PIL.Image, filename w/o suffix),
+            Run in dataloader subprocess
 
             Parameters
             ----------
@@ -86,7 +89,10 @@ class ImageTextTokenizationTask(BaseTask):
         return transform_fn
 
     def process(self, sub_datasets, progress_record=None, dataset_dir='', **kwargs):
-        """Process all datasets
+        """ Use cuda to process batch data from dataloader,
+            save via Saver,
+            report progress every 1/5000 ?
+            final commit saver
 
         Parameters
         ----------

@@ -1,10 +1,8 @@
 # -*- encoding: utf-8 -*-
-'''
-@File    :   logger.py
-@Time    :   2021/07/10 21:16:05
-@Author  :   Ming Ding 
-@Contact :   dm18@mail.tsinghua.edu.cn
-'''
+# @File    :   logger.py
+# @Time    :   2021/07/10 21:16:05
+# @Author  :   Ming Ding 
+# @Contact :   dm18@mail.tsinghua.edu.cn
 
 # here put the import lib
 import os

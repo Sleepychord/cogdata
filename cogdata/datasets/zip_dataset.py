@@ -49,6 +49,7 @@ class ZipDataset(Dataset):
             Used in __getitem__
         """
         assert len(args) == 0, 'transform_fn is a kwarg.'
+        self.path = path
         self.zip = zipfile.ZipFile(path)
         self.members = [
             info for info in self.zip.infolist()
@@ -61,6 +62,8 @@ class ZipDataset(Dataset):
                 if i % world_size == rank
             ]
         self.transform_fn = transform_fn
+        self.zip.close()
+        self.zip = None
 
     def __len__(self):
         """Get the total number of the valid samples.
@@ -88,6 +91,8 @@ class ZipDataset(Dataset):
                 - full_filename(str): filename of the image.
                 - file_size: The size of a raw file in the zip file.
         """
+        if self.zip is None:
+            self.zip = zipfile.ZipFile(self.path)
         target_info = self.members[idx]
         full_filename = self.members[idx].filename
         file_size = self.members[idx].file_size
