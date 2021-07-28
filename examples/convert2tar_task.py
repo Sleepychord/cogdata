@@ -16,9 +16,7 @@ from cogdata.utils.register import register
 from cogdata.tasks import BaseTask
 from torch.utils.data import DataLoader
 
-
-def file_collate_fn(data):
-    return data
+from convert2tar_helpers import file_collate_fn
 
 
 @register
