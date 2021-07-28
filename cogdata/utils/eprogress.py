@@ -76,7 +76,8 @@ class LineProgress(ProgressBar):
 
     def __init__(self, total=100, symbol='#', width=25, title=''):
         """
-        Arguments
+
+        Parameters
         ---------
         total:int
             The max number on progress bar
@@ -94,7 +95,8 @@ class LineProgress(ProgressBar):
 
     def update(self, progress=0, speed=0):
         """
-        Arguments
+        
+        Parameters
         ---------
         progress:int
             Current progress
@@ -127,7 +129,8 @@ class MultiProgressManager(object):
 
     def put(self, key, progress_bar):
         """Add a progress bar
-        Arguments
+
+        Parameters
         ---------
         key:str
             The key of the new bar
@@ -146,7 +149,8 @@ class MultiProgressManager(object):
 
     def update(self, key, progress, speed=0):
         """Update status of progress bars and repaint
-        Arguments
+
+        Parameters
         ---------
         key:str
             The key of the progress bar that need to update
@@ -174,7 +178,8 @@ class MultiProgressManager(object):
 
     def update_title(self, key, title):
         """Update the title of a progress bar
-        Arguments
+        
+        Parameters
         ---------
         key:str
             The key of the progress bar that need to update title
