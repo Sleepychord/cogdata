@@ -142,5 +142,6 @@ class StreamingRarDataset(IterableDataset):
         return self
 
     def __del__(self):
+        """Close the rar file"""
         if self.handle is not None:
             self.rar._close(self.handle)
