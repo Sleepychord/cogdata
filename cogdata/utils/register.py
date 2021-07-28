@@ -1,14 +1,15 @@
 # -*- encoding: utf-8 -*-
-'''
-@File    :   register.py
-@Time    :   2021/07/15 21:21:49
-@Author  :   Ming Ding 
-@Contact :   dm18@mail.tsinghua.edu.cn
-'''
+# @File    :   register.py
+# @Time    :   2021/07/15 21:21:49
+# @Author  :   Ming Ding 
+# @Contact :   dm18@mail.tsinghua.edu.cn
 
 ALLCLASSES = {}
 
+
 def register(cls):
+    """Registers for Dataset, Task and Saver
+    """
     if hasattr(cls, 'REGISTER_NAME'):
         name = cls.REGISTER_NAME
     else:

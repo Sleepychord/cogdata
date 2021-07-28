@@ -1,10 +1,8 @@
 # -*- encoding: utf-8 -*-
-'''
-@File    :   vqvae_tokenizer.py
-@Time    :   2021/01/11 17:57:43
-@Author  :   Ming Ding 
-@Contact :   dm18@mails.tsinghua.edu.cn
-'''
+# @File    :   vqvae_tokenizer.py
+# @Time    :   2021/01/11 17:57:43
+# @Author  :   Ming Ding 
+# @Contact :   dm18@mails.tsinghua.edu.cn
 
 # here put the import lib
 import math
@@ -48,6 +46,7 @@ class VQVAETokenizer(object):
         self.device = device
         self.image_tokens = model.quantize_t.n_embed
         self.num_tokens = model.quantize_t.n_embed
+        del ckpt
 
     def __len__(self):
         return self.num_tokens

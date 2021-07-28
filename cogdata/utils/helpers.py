@@ -3,6 +3,13 @@ import os
 import json
 
 def format_file_size(fileSize) :
+    """Translate file size into B,KB,MB,GB
+
+    Returns
+    -------
+    str
+        a human-read size.
+    """
     for count in ['Bytes','KB','MB','GB']:
         if fileSize > -1024.0 and fileSize < 1024.0:
             return "%3.1f%s" % (fileSize, count)
@@ -10,13 +17,27 @@ def format_file_size(fileSize) :
     return "%3.1f%s" % (fileSize, 'TB')
 
 def dir_size(path):
+    """Sum all files' size in a directory
+    
+    Returns
+    -------
+    int
+        The total size of all files in the directory.
+    """
     return sum(d.stat().st_size for d in os.scandir(path) if d.is_file())
 
 def get_last_line(filename):
-    """
-    get last line of a file
-    :param filename: file name
-    :return: last line or None for empty file
+    """ get last line of a file
+
+    Parameters
+    ----------
+    filename:str
+        file name
+
+    Returns
+    -------
+    str or None
+        last line or None for empty file
     """
     try:
         filesize = os.path.getsize(filename)

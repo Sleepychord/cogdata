@@ -1,12 +1,11 @@
 # -*- encoding: utf-8 -*-
-'''
-@File    :   rar_dataset.py
-@Time    :   2021/07/10 16:00:15
-@Author  :   Ming Ding 
-@Contact :   dm18@mail.tsinghua.edu.cn
-'''
+# @File    :   rar_dataset.py
+# @Time    :   2021/07/10 16:00:15
+# @Author  :   Ming Ding 
+# @Contact :   dm18@mail.tsinghua.edu.cn
 
 # here put the import lib
+import unrar
 import os
 import sys
 import math
@@ -38,17 +37,28 @@ elif os.path.exists('/usr/local/lib/libunrar.so'):
 elif os.path.exists('/usr/lib/libunrar.so'):
     os.environ['UNRAR_LIB_PATH'] = '/usr/lib/libunrar.so'
 
-from unrar.rarfile import _ReadIntoMemory
-from unrar import constants
-from unrar import unrarlib
 from unrar import rarfile
-import unrar
-
+from unrar import unrarlib
+from unrar import constants
+from unrar.rarfile import _ReadIntoMemory
 from cogdata.utils.register import register
 
 @register
 class StreamingRarDataset(IterableDataset):
     def __init__(self, path, world_size=1, rank=0, transform_fn=None):
+        """Split data for multiple process, Get the file pointer and filenames of valid samples, set transform function.
+
+        Parameters
+        ----------
+        path:str
+            The path of the zip file.
+        world_size:int
+            The total number of GPUs
+        rank:int
+            The local rank of current process
+        transform_fn:function
+            Used in __getitem__
+        """
         self.rar = rarfile.RarFile(path)
         self.transform_fn = transform_fn
         # new handle
@@ -65,9 +75,18 @@ class StreamingRarDataset(IterableDataset):
             ]
 
     def __len__(self):
+        """Get the total number of the valid samples.
+
+        Returns
+        -------
+        int
+            The total number of the valid samples.
+        """
         return len(self.raw_members)
 
     def __next__(self):
+        """Returns the next sample in the dataset
+        """
         if self.pointer >= len(self.members):
             raise StopIteration()
         if self.handle == None:
@@ -108,6 +127,8 @@ class StreamingRarDataset(IterableDataset):
         return ret, full_filename, file_size
 
     def __iter__(self):
+        """StreamingRarDataset is iterable
+        """
         worker_info = torch.utils.data.get_worker_info()
         if worker_info is None:
             self.members = self.raw_members

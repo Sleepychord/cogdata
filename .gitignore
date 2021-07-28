@@ -26,3 +26,5 @@ bigtest/
 smalltest/
 mantest
 *.log
+doc/build
+data

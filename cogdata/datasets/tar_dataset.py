@@ -1,10 +1,8 @@
 # -*- encoding: utf-8 -*-
-'''
-@File    :   tar_dataset.py
-@Time    :   2021/07/10 23:31:21
-@Author  :   Ming Ding 
-@Contact :   dm18@mail.tsinghua.edu.cn
-'''
+# @File    :   tar_dataset.py
+# @Time    :   2021/07/10 23:31:21
+# @Author  :   Ming Ding 
+# @Contact :   dm18@mail.tsinghua.edu.cn
 
 # here put the import lib
 import os
@@ -16,6 +14,7 @@ import tarfile
 import torch.distributed as dist
 
 from cogdata.utils.register import register
+
 
 @register
 class TarDataset(Dataset):

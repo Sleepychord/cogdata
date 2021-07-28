@@ -1,11 +1,10 @@
-"""
-from https://github.com/openai/gpt-2/, changed for chinese
-"""
 import json
 import os
 import sentencepiece as spm
 
 """
+from https://github.com/openai/gpt-2/, changed for chinese
+
 SentencePiece is an unsupervised text tokenizer and detokenizer mainly for Neural Network-based text generation 
 systems where the vocabulary size is predetermined prior to the neural model training. SentencePiece implements 
 subword units (e.g., byte-pair-encoding (BPE) [Sennrich et al.]) and unigram language model [Kudo.]) with the 
@@ -17,8 +16,8 @@ pip install sentencepiece
 
 or  git clone https://github.com/google/sentencepiece.git
 python setup.py install
-
 """
+
 import os
 PRETRAINED_MODEL_FILE = os.path.join(
     os.path.dirname(__file__), 
