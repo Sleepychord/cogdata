@@ -44,7 +44,8 @@ cogdata create_task [-h] [--description DESCRIPTION] --task_type TASK_TYPE --sav
                            [--dtype {int32,int64,float32,uint8,bool}]
                            task_id
 ```
-
+### Customized Tasks
+Add `--extra_code PATH_TO_CODE` after `cogdata `(e.g., `cogdata --extra_code ../examples/convert2tar_task.py [task or process]` to execute and register your own task before running the command. See `examples/` for details. 
 
 ## TODO List
 
@@ -53,8 +54,8 @@ cogdata create_task [-h] [--description DESCRIPTION] --task_type TASK_TYPE --sav
 * [x] 增加tokenization task中多个imgsize的处理 [mingding]
 * 增加在不修改源代码的基础上register args task saver dataset的功能 [mingding]
 * 上传至真实的pypi，公开仓库 [mingding]
-* sphinx 注释文档撰写 [yuxiang]
-* 整理单元测试，只使用小的testcase [wendi]
+* [x] sphinx 注释文档撰写 [yuxiang]
+* [x] 整理单元测试，只使用小的testcase [wendi]
 * PPT [yuxiang]
 * 视频介绍 [yuxiang]
 
