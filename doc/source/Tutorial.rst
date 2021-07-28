@@ -4,9 +4,11 @@ A simple example about usage of ``cogdata``.
 
 Installation
 ------------
-pip::
+::
 
     pip install cogdata --index-url https://test.pypi.org/simple
+    sudo install_unrarlib.sh
+
 
 Initialization 
 --------------
