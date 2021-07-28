@@ -5,7 +5,8 @@ A simple example about usage of ``cogdata``.
 Installation
 ------------
 pip::
-    pip install ...
+
+    pip install cogdata --index-url https://test.pypi.org/simple
 
 Initialization 
 --------------
