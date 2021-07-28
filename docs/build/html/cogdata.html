@@ -1,0 +1,558 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>cogdata &mdash; Cogdata-doc 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cogdata.data_savers package" href="cogdata.data_savers.html" />
+    <link rel="prev" title="Quick Start" href="Tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Cogdata-doc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Tutorial.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#initialization">Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#create-dataset">Create Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#create-task">Create Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#check-datasets-and-tasks">Check Datasets and Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#process">Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#merge">Merge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#split">Split</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#clean">Clean</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">cogdata</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.data_savers.html">cogdata.data_savers package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.base_saver">cogdata.data_savers.base_saver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.binary_saver">cogdata.data_savers.binary_saver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.tar_saver">cogdata.data_savers.tar_saver module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.datasets.html">cogdata.datasets package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.binary_dataset">cogdata.datasets.binary_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.rar_dataset">cogdata.datasets.rar_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.tar_dataset">cogdata.datasets.tar_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.zip_dataset">cogdata.datasets.zip_dataset module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.tasks.html">cogdata.tasks package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.tasks.html#module-cogdata.tasks.image_text_tokenization_task">cogdata.tasks.image_text_tokenization_task module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.utils.html">cogdata.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cogdata.utils.cogview.html">cogdata.utils.cogview package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.api">cogdata.utils.cogview.api module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-sp-tokenizer-module">cogdata.utils.cogview.sp_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.unified_tokenizer">cogdata.utils.cogview.unified_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-tokenizer-module">cogdata.utils.cogview.vqvae_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-zc-module">cogdata.utils.cogview.vqvae_zc module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.eprogress">cogdata.utils.eprogress module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.helpers">cogdata.utils.helpers module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.logger">cogdata.utils.logger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.progress_record">cogdata.utils.progress_record module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.register">cogdata.utils.register module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cogdata-arguments-module">cogdata.arguments module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cogdata-cli-module">cogdata.cli module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-cogdata.data_manager">cogdata.data_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-cogdata.data_processor">cogdata.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cogdata-process-single-entry-module">cogdata.process_single_entry module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Cogdata-doc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>cogdata</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/cogdata.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cogdata">
+<h1>cogdata<a class="headerlink" href="#cogdata" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cogdata.data_savers.html">cogdata.data_savers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.base_saver">cogdata.data_savers.base_saver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.binary_saver">cogdata.data_savers.binary_saver module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.tar_saver">cogdata.data_savers.tar_saver module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cogdata.datasets.html">cogdata.datasets package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.binary_dataset">cogdata.datasets.binary_dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.rar_dataset">cogdata.datasets.rar_dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.tar_dataset">cogdata.datasets.tar_dataset module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.zip_dataset">cogdata.datasets.zip_dataset module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cogdata.tasks.html">cogdata.tasks package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.tasks.html#module-cogdata.tasks.image_text_tokenization_task">cogdata.tasks.image_text_tokenization_task module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cogdata.utils.html">cogdata.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.utils.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.utils.cogview.html">cogdata.utils.cogview package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.api">cogdata.utils.cogview.api module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-sp-tokenizer-module">cogdata.utils.cogview.sp_tokenizer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.unified_tokenizer">cogdata.utils.cogview.unified_tokenizer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-tokenizer-module">cogdata.utils.cogview.vqvae_tokenizer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-zc-module">cogdata.utils.cogview.vqvae_zc module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.eprogress">cogdata.utils.eprogress module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.helpers">cogdata.utils.helpers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.logger">cogdata.utils.logger module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.progress_record">cogdata.utils.progress_record module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.register">cogdata.utils.register module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="cogdata-arguments-module">
+<h2>cogdata.arguments module<a class="headerlink" href="#cogdata-arguments-module" title="Permalink to this headline">¶</a></h2>
+<p>This module defines functions for parsing console arguments.</p>
+</div>
+<div class="section" id="cogdata-cli-module">
+<h2>cogdata.cli module<a class="headerlink" href="#cogdata-cli-module" title="Permalink to this headline">¶</a></h2>
+<p>This module is the entry of console commend.</p>
+</div>
+<div class="section" id="module-cogdata.data_manager">
+<span id="cogdata-data-manager-module"></span><h2>cogdata.data_manager module<a class="headerlink" href="#module-cogdata.data_manager" title="Permalink to this headline">¶</a></h2>
+<p>This file defines DataManager.</p>
+<dl class="py class">
+<dt id="cogdata.data_manager.DataManager">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">cogdata.data_manager.</span></code><code class="sig-name descname"><span class="pre">DataManager</span></code><a class="headerlink" href="#cogdata.data_manager.DataManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A manager of all datasets.</p>
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.clean">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">clean</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clean all files in a task subfolder</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Argument provided by the console</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.fetch_datasets">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">fetch_datasets</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.fetch_datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all names of created datasets(dataset with <code class="docutils literal notranslate"><span class="pre">`config.json`</span></code>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>base_dir</strong> (<em>str</em>) – The root folder path</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of created dataset names.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.fetch_datasets_states">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">fetch_datasets_states</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.fetch_datasets_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get datasets status(dataset with <code class="docutils literal notranslate"><span class="pre">`config.json`</span></code>) in the task which id is <code class="docutils literal notranslate"><span class="pre">`task_id`</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_dir</strong> (<em>str</em>) – The root folder path</p></li>
+<li><p><strong>task_id</strong> (<em>str</em>) – An ID of an exist task.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>a tuple containing:</dt><dd><ul class="simple">
+<li><p>all_datasets([str]): A list of created dataset names.</p></li>
+<li><p>processed([str]): A list of processed dataset names.</p></li>
+<li><p>hanging([str]): A list of processing dataset names.</p></li>
+<li><p>unprocessed:([str]): A list of unprocessed dataset names.</p></li>
+<li><p>additional:([str]) A list of only processed dataset names, from migration.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.list">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>List all datasets in current dir</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Arguments provided by the console</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>dataset1(233 MB) rar json processed(10MB)
+dataset2(10 GB) zip json_ks unprocessed</p>
+<p>current taskname: image_text_tokenization
+number(2) raw(10.23GB) processed(10MB)
+unprocessed: dataset2</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.load_task">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">load_task</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.load_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load task config(json) by task id</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_dir</strong> (<em>str</em>) – The root folder path</p></li>
+<li><p><strong>id</strong> (<em>str</em>) – An ID of an exist task.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Config json of the task</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.merge">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>merge all current processed datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Arguments provided by the console</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.new_dataset">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">new_dataset</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.new_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a dataset subfolder and a template (cogdata_info.json) in it.
+One should manually handle the data files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Arguments provided by the console</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.new_task">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">new_task</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.new_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>create a cogdata_workspace subfolder and cogdata_config.json with configs in args.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Arguments provided by the console</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.process">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">process</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>process one or some (in args) unprocessed dataset (detected).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Arguments provided by the console</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.process_single">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">process_single</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.process_single" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Arguments provided by the console</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_manager.DataManager.split">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">split</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_manager.DataManager.split" title="Permalink to this definition">¶</a></dt>
+<dd><p>split the merged files into N parts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Argument provided by the console</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-cogdata.data_processor">
+<span id="cogdata-data-processor-module"></span><h2>cogdata.data_processor module<a class="headerlink" href="#module-cogdata.data_processor" title="Permalink to this headline">¶</a></h2>
+<p>This file defines DataProcessor</p>
+<dl class="py class">
+<dt id="cogdata.data_processor.DataProcessor">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">cogdata.data_processor.</span></code><code class="sig-name descname"><span class="pre">DataProcessor</span></code><a class="headerlink" href="#cogdata.data_processor.DataProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Multiple GPUs processor</p>
+<dl class="py method">
+<dt id="cogdata.data_processor.DataProcessor.run_monitor">
+<code class="sig-name descname"><span class="pre">run_monitor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taskid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_processor.DataProcessor.run_monitor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Launch k run_single processes (by cmd, not multiprocess for dataloader)</dt><dd><p>Monitor all the progresses by outputs in tmp files, clean tmp files from previous runs at first. use utils.progress_record !
+Wait and merge k files (use the helper in saver).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>current_dir</strong> (<em>str</em>) – Task folder created by DataManager.new_task</p></li>
+<li><p><strong>taskid</strong> (<em>str</em>) – ID of the on going task</p></li>
+<li><p><strong>args</strong> (<em>argparse.Namespace</em>) – Arguments provided by console</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_processor.DataProcessor.run_single">
+<code class="sig-name descname"><span class="pre">run_single</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_rank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_processor.DataProcessor.run_single" title="Permalink to this definition">¶</a></dt>
+<dd><p>really process, create datasets with task.transform_fn, iterating the dataloader and run task.process</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>local_rank</strong> (<em>int</em>) – Local rank set by torch.distributed.launch</p></li>
+<li><p><strong>args_dict</strong> (<em>dict</em>) – Parse from a string provided by console</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="cogdata.data_processor.initialize_distributed">
+<code class="sig-prename descclassname"><span class="pre">cogdata.data_processor.</span></code><code class="sig-name descname"><span class="pre">initialize_distributed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_rank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">world_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_addr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master_port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_processor.initialize_distributed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize torch.distributed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>local_rank</strong> (<em>int</em>) – Local rank set by torch.distributed.launch</p></li>
+<li><p><strong>world_size</strong> (<em>int</em>) – The number of available GPUs</p></li>
+<li><p><strong>rank</strong> (<em>int</em>) – The real rank which considers both local rank and global rank</p></li>
+<li><p><strong>master_addr</strong> (<em>str</em>) – IP address for torch.distributed TCP connection</p></li>
+<li><p><strong>master_port</strong> (<em>str</em>) – Port for torch.distributed TCP connection</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="cogdata-process-single-entry-module">
+<h2>cogdata.process_single_entry module<a class="headerlink" href="#cogdata-process-single-entry-module" title="Permalink to this headline">¶</a></h2>
+<p>This module is the entry of <code class="docutils literal notranslate"><span class="pre">DataProcessor.run_single</span></code>,
+called by <code class="docutils literal notranslate"><span class="pre">DataProcessor.run_monitor</span></code></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="cogdata.data_savers.html" class="btn btn-neutral float-right" title="cogdata.data_savers package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Tutorial.html" class="btn btn-neutral float-left" title="Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Chen Yuxiang.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

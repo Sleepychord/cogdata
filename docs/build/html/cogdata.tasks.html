@@ -1,0 +1,341 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>cogdata.tasks package &mdash; Cogdata-doc 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cogdata.utils package" href="cogdata.utils.html" />
+    <link rel="prev" title="cogdata.datasets package" href="cogdata.datasets.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Cogdata-doc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Tutorial.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#initialization">Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#create-dataset">Create Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#create-task">Create Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#check-datasets-and-tasks">Check Datasets and Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#process">Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#merge">Merge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#split">Split</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#clean">Clean</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="cogdata.html">cogdata</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="cogdata.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cogdata.data_savers.html">cogdata.data_savers package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.base_saver">cogdata.data_savers.base_saver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.binary_saver">cogdata.data_savers.binary_saver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.tar_saver">cogdata.data_savers.tar_saver module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.datasets.html">cogdata.datasets package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.binary_dataset">cogdata.datasets.binary_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.rar_dataset">cogdata.datasets.rar_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.tar_dataset">cogdata.datasets.tar_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.zip_dataset">cogdata.datasets.zip_dataset module</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cogdata.tasks package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-cogdata.tasks.image_text_tokenization_task">cogdata.tasks.image_text_tokenization_task module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.utils.html">cogdata.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cogdata.utils.cogview.html">cogdata.utils.cogview package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.api">cogdata.utils.cogview.api module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-sp-tokenizer-module">cogdata.utils.cogview.sp_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.unified_tokenizer">cogdata.utils.cogview.unified_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-tokenizer-module">cogdata.utils.cogview.vqvae_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-zc-module">cogdata.utils.cogview.vqvae_zc module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.eprogress">cogdata.utils.eprogress module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.helpers">cogdata.utils.helpers module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.logger">cogdata.utils.logger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.progress_record">cogdata.utils.progress_record module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.register">cogdata.utils.register module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-arguments-module">cogdata.arguments module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-cli-module">cogdata.cli module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#module-cogdata.data_manager">cogdata.data_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#module-cogdata.data_processor">cogdata.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-process-single-entry-module">cogdata.process_single_entry module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Cogdata-doc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="cogdata.html">cogdata</a> &raquo;</li>
+        
+      <li>cogdata.tasks package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/cogdata.tasks.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cogdata-tasks-package">
+<h1>cogdata.tasks package<a class="headerlink" href="#cogdata-tasks-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-cogdata.tasks.image_text_tokenization_task">
+<span id="cogdata-tasks-image-text-tokenization-task-module"></span><h2>cogdata.tasks.image_text_tokenization_task module<a class="headerlink" href="#module-cogdata.tasks.image_text_tokenization_task" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="cogdata.tasks.image_text_tokenization_task.ImageTextTokenizationTask">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">cogdata.tasks.image_text_tokenization_task.</span></code><code class="sig-name descname"><span class="pre">ImageTextTokenizationTask</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">saver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_sizes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.tasks.image_text_tokenization_task.ImageTextTokenizationTask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">cogdata.tasks.base_task.BaseTask</span></code></p>
+<p>handle tokenization</p>
+<dl class="py method">
+<dt id="cogdata.tasks.image_text_tokenization_task.ImageTextTokenizationTask.__init__">
+<code class="sig-name descname"><span class="pre">__init__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">saver</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_sizes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#cogdata.tasks.image_text_tokenization_task.ImageTextTokenizationTask.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>config saver</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.tasks.image_text_tokenization_task.ImageTextTokenizationTask.get_transform_fn">
+<code class="sig-name descname"><span class="pre">get_transform_fn</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.tasks.image_text_tokenization_task.ImageTextTokenizationTask.get_transform_fn" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>transform</strong> (<em>torchvision.transforms</em>) – a transform in torchvision, do not use ToTensor().</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A transform function for images</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.tasks.image_text_tokenization_task.ImageTextTokenizationTask.process">
+<code class="sig-name descname"><span class="pre">process</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_datasets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_record</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.tasks.image_text_tokenization_task.ImageTextTokenizationTask.process" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Use cuda to process batch data from dataloader,</dt><dd><p>save via Saver,
+report progress every 1/5000 ?
+final commit saver</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sub_datasets</strong> (<em>[</em><em>Dataset</em><em>]</em>) – All datasets in processing list</p></li>
+<li><p><strong>progress_record</strong> (<a class="reference internal" href="cogdata.utils.html#cogdata.utils.eprogress.ProgressBar" title="cogdata.utils.eprogress.ProgressBar"><em>ProgressBar</em></a>) – The progress bar for this task</p></li>
+<li><p><strong>dataset_dir</strong> (<em>str</em>) – The path of the dataset folder</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>0 - Process successfully</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.tasks.image_text_tokenization_task.ImageTextTokenizationTask.read_text">
+<code class="sig-name descname"><span class="pre">read_text</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">txt_files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.tasks.image_text_tokenization_task.ImageTextTokenizationTask.read_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read text dict from text files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>txt_files</strong> (<em>[</em><em>str</em><em>]</em>) – All names of the text files</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – The mode of the text, including json,txt,json_ks,tsv,dict</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="cogdata.utils.html" class="btn btn-neutral float-right" title="cogdata.utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cogdata.datasets.html" class="btn btn-neutral float-left" title="cogdata.datasets package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Chen Yuxiang.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

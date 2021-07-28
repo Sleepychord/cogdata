@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Welcome to Cogdata’s documentation! &mdash; Cogdata-doc 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quick Start" href="Tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> Cogdata-doc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#initialization">Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#create-dataset">Create Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#create-task">Create Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#check-datasets-and-tasks">Check Datasets and Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#process">Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#merge">Merge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#split">Split</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#clean">Clean</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cogdata.html">cogdata</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.data_savers.html">cogdata.data_savers package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.base_saver">cogdata.data_savers.base_saver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.binary_saver">cogdata.data_savers.binary_saver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.tar_saver">cogdata.data_savers.tar_saver module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.datasets.html">cogdata.datasets package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.binary_dataset">cogdata.datasets.binary_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.rar_dataset">cogdata.datasets.rar_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.tar_dataset">cogdata.datasets.tar_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.zip_dataset">cogdata.datasets.zip_dataset module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.tasks.html">cogdata.tasks package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.tasks.html#module-cogdata.tasks.image_text_tokenization_task">cogdata.tasks.image_text_tokenization_task module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.utils.html">cogdata.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cogdata.utils.cogview.html">cogdata.utils.cogview package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.api">cogdata.utils.cogview.api module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-sp-tokenizer-module">cogdata.utils.cogview.sp_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.unified_tokenizer">cogdata.utils.cogview.unified_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-tokenizer-module">cogdata.utils.cogview.vqvae_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-zc-module">cogdata.utils.cogview.vqvae_zc module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.eprogress">cogdata.utils.eprogress module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.helpers">cogdata.utils.helpers module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.logger">cogdata.utils.logger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.progress_record">cogdata.utils.progress_record module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.register">cogdata.utils.register module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-arguments-module">cogdata.arguments module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-cli-module">cogdata.cli module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#module-cogdata.data_manager">cogdata.data_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#module-cogdata.data_processor">cogdata.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-process-single-entry-module">cogdata.process_single_entry module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Cogdata-doc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Welcome to Cogdata’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-cogdata-s-documentation">
+<h1>Welcome to Cogdata’s documentation!<a class="headerlink" href="#welcome-to-cogdata-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Cogdata is an very efficient manager for large amount of data.</p>
+<p>The two main features are data multi-process processing and data grouping management.
+With very little additional code, you can use cogdata to manage and run custom tasks</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tutorial.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#initialization">Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#create-dataset">Create Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#create-task">Create Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#check-datasets-and-tasks">Check Datasets and Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#process">Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#merge">Merge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#split">Split</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#clean">Clean</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cogdata.html">cogdata</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.data_savers.html">cogdata.data_savers package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.base_saver">cogdata.data_savers.base_saver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.binary_saver">cogdata.data_savers.binary_saver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.data_savers.html#module-cogdata.data_savers.tar_saver">cogdata.data_savers.tar_saver module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.datasets.html">cogdata.datasets package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.binary_dataset">cogdata.datasets.binary_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.rar_dataset">cogdata.datasets.rar_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.tar_dataset">cogdata.datasets.tar_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.zip_dataset">cogdata.datasets.zip_dataset module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.tasks.html">cogdata.tasks package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.tasks.html#module-cogdata.tasks.image_text_tokenization_task">cogdata.tasks.image_text_tokenization_task module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.utils.html">cogdata.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cogdata.utils.cogview.html">cogdata.utils.cogview package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.api">cogdata.utils.cogview.api module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-sp-tokenizer-module">cogdata.utils.cogview.sp_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.unified_tokenizer">cogdata.utils.cogview.unified_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-tokenizer-module">cogdata.utils.cogview.vqvae_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-zc-module">cogdata.utils.cogview.vqvae_zc module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.eprogress">cogdata.utils.eprogress module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.helpers">cogdata.utils.helpers module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.logger">cogdata.utils.logger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.progress_record">cogdata.utils.progress_record module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.register">cogdata.utils.register module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-arguments-module">cogdata.arguments module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-cli-module">cogdata.cli module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#module-cogdata.data_manager">cogdata.data_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#module-cogdata.data_processor">cogdata.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-process-single-entry-module">cogdata.process_single_entry module</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="Tutorial.html" class="btn btn-neutral float-right" title="Quick Start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Chen Yuxiang.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

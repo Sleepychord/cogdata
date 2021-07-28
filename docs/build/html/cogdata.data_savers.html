@@ -1,0 +1,438 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>cogdata.data_savers package &mdash; Cogdata-doc 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cogdata.datasets package" href="cogdata.datasets.html" />
+    <link rel="prev" title="cogdata" href="cogdata.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Cogdata-doc
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Tutorial.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#initialization">Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#create-dataset">Create Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#create-task">Create Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#check-datasets-and-tasks">Check Datasets and Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#process">Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#merge">Merge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#split">Split</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Tutorial.html#clean">Clean</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="cogdata.html">cogdata</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="cogdata.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cogdata.data_savers package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-cogdata.data_savers.base_saver">cogdata.data_savers.base_saver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cogdata.data_savers.binary_saver">cogdata.data_savers.binary_saver module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-cogdata.data_savers.tar_saver">cogdata.data_savers.tar_saver module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.datasets.html">cogdata.datasets package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.binary_dataset">cogdata.datasets.binary_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.rar_dataset">cogdata.datasets.rar_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.tar_dataset">cogdata.datasets.tar_dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.datasets.html#module-cogdata.datasets.zip_dataset">cogdata.datasets.zip_dataset module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.tasks.html">cogdata.tasks package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.tasks.html#module-cogdata.tasks.image_text_tokenization_task">cogdata.tasks.image_text_tokenization_task module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cogdata.utils.html">cogdata.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cogdata.utils.cogview.html">cogdata.utils.cogview package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.api">cogdata.utils.cogview.api module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-sp-tokenizer-module">cogdata.utils.cogview.sp_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#module-cogdata.utils.cogview.unified_tokenizer">cogdata.utils.cogview.unified_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-tokenizer-module">cogdata.utils.cogview.vqvae_tokenizer module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="cogdata.utils.cogview.html#cogdata-utils-cogview-vqvae-zc-module">cogdata.utils.cogview.vqvae_zc module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.eprogress">cogdata.utils.eprogress module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.helpers">cogdata.utils.helpers module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.logger">cogdata.utils.logger module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.progress_record">cogdata.utils.progress_record module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="cogdata.utils.html#module-cogdata.utils.register">cogdata.utils.register module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-arguments-module">cogdata.arguments module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-cli-module">cogdata.cli module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#module-cogdata.data_manager">cogdata.data_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#module-cogdata.data_processor">cogdata.data_processor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cogdata.html#cogdata-process-single-entry-module">cogdata.process_single_entry module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Cogdata-doc</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="cogdata.html">cogdata</a> &raquo;</li>
+        
+      <li>cogdata.data_savers package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/cogdata.data_savers.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cogdata-data-savers-package">
+<h1>cogdata.data_savers package<a class="headerlink" href="#cogdata-data-savers-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-cogdata.data_savers.base_saver">
+<span id="cogdata-data-savers-base-saver-module"></span><h2>cogdata.data_savers.base_saver module<a class="headerlink" href="#module-cogdata.data_savers.base_saver" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="cogdata.data_savers.base_saver.BaseSaver">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">cogdata.data_savers.base_saver.</span></code><code class="sig-name descname"><span class="pre">BaseSaver</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.base_saver.BaseSaver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<dl class="py method">
+<dt id="cogdata.data_savers.base_saver.BaseSaver.commit">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">commit</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.base_saver.BaseSaver.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit all buffered samples.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_savers.base_saver.BaseSaver.merge">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.base_saver.BaseSaver.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge files into one.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_savers.base_saver.BaseSaver.save">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">save</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.base_saver.BaseSaver.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a sample, can be buffered.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_savers.base_saver.BaseSaver.split">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">split</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.base_saver.BaseSaver.split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split input_path into n files in output_path.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="cogdata.data_savers.base_saver.BaseSaver.suffix">
+<code class="sig-name descname"><span class="pre">suffix</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'.dat'</span></em><a class="headerlink" href="#cogdata.data_savers.base_saver.BaseSaver.suffix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-cogdata.data_savers.binary_saver">
+<span id="cogdata-data-savers-binary-saver-module"></span><h2>cogdata.data_savers.binary_saver module<a class="headerlink" href="#module-cogdata.data_savers.binary_saver" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="cogdata.data_savers.binary_saver.BinarySaver">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">cogdata.data_savers.binary_saver.</span></code><code class="sig-name descname"><span class="pre">BinarySaver</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'int32'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.binary_saver.BinarySaver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cogdata.data_savers.base_saver.BaseSaver" title="cogdata.data_savers.base_saver.BaseSaver"><code class="xref py py-class docutils literal notranslate"><span class="pre">cogdata.data_savers.base_saver.BaseSaver</span></code></a></p>
+<p>Save data as binary files</p>
+<dl class="py method">
+<dt id="cogdata.data_savers.binary_saver.BinarySaver.commit">
+<code class="sig-name descname"><span class="pre">commit</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.binary_saver.BinarySaver.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit all buffered samples.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="cogdata.data_savers.binary_saver.BinarySaver.mapping">
+<code class="sig-name descname"><span class="pre">mapping</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'bool':</span> <span class="pre">&lt;class</span> <span class="pre">'torch.BoolTensor'&gt;,</span> <span class="pre">'float32':</span> <span class="pre">&lt;class</span> <span class="pre">'torch.FloatTensor'&gt;,</span> <span class="pre">'int32':</span> <span class="pre">&lt;class</span> <span class="pre">'torch.IntTensor'&gt;,</span> <span class="pre">'int64':</span> <span class="pre">&lt;class</span> <span class="pre">'torch.LongTensor'&gt;,</span> <span class="pre">'uint8':</span> <span class="pre">&lt;class</span> <span class="pre">'torch.ByteTensor'&gt;}</span></em><a class="headerlink" href="#cogdata.data_savers.binary_saver.BinarySaver.mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="cogdata.data_savers.binary_saver.BinarySaver.max_buffer_size">
+<code class="sig-name descname"><span class="pre">max_buffer_size</span></code><em class="property"> <span class="pre">=</span> <span class="pre">10737418240</span></em><a class="headerlink" href="#cogdata.data_savers.binary_saver.BinarySaver.max_buffer_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_savers.binary_saver.BinarySaver.merge">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.binary_saver.BinarySaver.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge files into one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>files</strong> (<em>[</em><em>file pointer</em><em>]</em>) – Files which need to merge</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Path of output file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_savers.binary_saver.BinarySaver.save">
+<code class="sig-name descname"><span class="pre">save</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.binary_saver.BinarySaver.save" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Tensor</em>) – write in a binary file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_savers.binary_saver.BinarySaver.split">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">split</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.binary_saver.BinarySaver.split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split input_path into n files in output_path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<em>str</em>) – The path of the input binary file.</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – The root folder of n output files.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="cogdata.data_savers.binary_saver.BinarySaver.suffix">
+<code class="sig-name descname"><span class="pre">suffix</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'.bin'</span></em><a class="headerlink" href="#cogdata.data_savers.binary_saver.BinarySaver.suffix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-cogdata.data_savers.tar_saver">
+<span id="cogdata-data-savers-tar-saver-module"></span><h2>cogdata.data_savers.tar_saver module<a class="headerlink" href="#module-cogdata.data_savers.tar_saver" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="cogdata.data_savers.tar_saver.TarSaver">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">cogdata.data_savers.tar_saver.</span></code><code class="sig-name descname"><span class="pre">TarSaver</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w:'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.tar_saver.TarSaver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cogdata.data_savers.base_saver.BaseSaver" title="cogdata.data_savers.base_saver.BaseSaver"><code class="xref py py-class docutils literal notranslate"><span class="pre">cogdata.data_savers.base_saver.BaseSaver</span></code></a></p>
+<p>Save data as tar files</p>
+<dl class="py method">
+<dt id="cogdata.data_savers.tar_saver.TarSaver.commit">
+<code class="sig-name descname"><span class="pre">commit</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.tar_saver.TarSaver.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Commit all buffered samples.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_savers.tar_saver.TarSaver.merge">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.tar_saver.TarSaver.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge files into one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>files</strong> (<em>[</em><em>file pointer</em><em>]</em>) – Files which need to merge</p></li>
+<li><p><strong>output_path</strong> (<em>str</em>) – Path of output file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_savers.tar_saver.TarSaver.save">
+<code class="sig-name descname"><span class="pre">save</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.tar_saver.TarSaver.save" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fp</strong> (<em>file pointer</em>) – Processed data files</p></li>
+<li><p><strong>full_filename</strong> (<em>str</em>) – The name of <code class="docutils literal notranslate"><span class="pre">fp</span></code> in tar files</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="cogdata.data_savers.tar_saver.TarSaver.split">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">split</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cogdata.data_savers.tar_saver.TarSaver.split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split input_path into n files in output_path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_path</strong> (<em>str</em>) – The path of the input tar file.</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – The root folder of n output files.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="cogdata.data_savers.tar_saver.TarSaver.suffix">
+<code class="sig-name descname"><span class="pre">suffix</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'.tar'</span></em><a class="headerlink" href="#cogdata.data_savers.tar_saver.TarSaver.suffix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="cogdata.datasets.html" class="btn btn-neutral float-right" title="cogdata.datasets package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cogdata.html" class="btn btn-neutral float-left" title="cogdata" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Chen Yuxiang.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
