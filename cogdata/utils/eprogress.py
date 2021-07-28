@@ -186,4 +186,5 @@ class MultiProgressManager(object):
             progress_bar.title = title
 
     def skip_upline(self):
+        """Skip the first data line if True"""
         self.need_skip = True

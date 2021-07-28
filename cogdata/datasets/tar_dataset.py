@@ -19,6 +19,20 @@ from cogdata.utils.register import register
 @register
 class TarDataset(Dataset):
     def __init__(self, path, world_size=1, rank=0, transform_fn=None):
+        """Split data for multiple process, Get the file pointer and filenames of valid samples, set transform function.
+
+        Parameters
+        ----------
+        path:str
+            The path of the zip file.
+        world_size:int
+            The total number of GPUs
+        rank:int
+            The local rank of current process
+        transform_fn:function
+            Used in __getitem__
+        """
+
         self.tar = tarfile.TarFile(path)
         self.members = [
             x for x in self.tar.getmembers()
@@ -33,9 +47,23 @@ class TarDataset(Dataset):
         self.transform_fn = transform_fn
 
     def __len__(self):
+        """Get the total number of the valid samples."""
         return len(self.members)
 
     def __getitem__(self, idx):
+        """Get a item by index
+
+        Parameters
+        ----------
+        idx:int
+            The selected item's index.
+
+        Returns
+        -------
+        item:Tensor
+            A torch tensor built from numpy array
+        """
+
         target_info = self.members[idx]
         fp = self.tar.extractfile(target_info)
         full_filename = self.members[idx].name
