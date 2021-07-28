@@ -13,7 +13,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 *.so
 __pycache__/
 .vscode
@@ -26,5 +25,5 @@ bigtest/
 smalltest/
 mantest
 *.log
-doc/build
+docs/build
 data
