@@ -16,6 +16,7 @@ import random
 import shutil
 import argparse
 from cogdata.data_processor import DataProcessor
+from cogdata.utils.logger import get_logger
 def test_monitor():
     test_dir = 'tmp/test_monitor'
     case_dir = 'downloads/testcase/test_monitor'
@@ -25,7 +26,12 @@ def test_monitor():
     current_dir, taskid = test_dir, '0'
 
     task_dir = os.path.join(current_dir, f"cogdata_task_{taskid}")
-    dataset_names = ['colorhub', '88tph', 'bizhiku']
+    if os.path.exists(case_dir): 
+        dataset_names = ['colorhub', '88tph', 'bizhiku']
+    else:
+        dataset_names = []
+        get_logger().warning('Big test not exist, skipping...')
+
     for name in dataset_names:
         shutil.copytree(os.path.join(case_dir, name), os.path.join(current_dir, name))
         

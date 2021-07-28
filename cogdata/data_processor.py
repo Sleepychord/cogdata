@@ -47,6 +47,9 @@ class DataProcessor():
         task_path = os.path.join(current_dir, f'cogdata_task_{taskid}')
         script_path = os.path.join(os.path.dirname(__file__), 'process_single_entry.py') # FIXME
         # already build meta_info, rm log dir from data_manager
+        if len(dataset_names) == 0:
+            get_logger().warning('No dataset is to process!')
+            return
         for name in dataset_names:
             log_dir = os.path.join(task_path, name, 'logs')
             os.makedirs(log_dir, exist_ok=False)
