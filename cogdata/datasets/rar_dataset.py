@@ -5,12 +5,7 @@
 # @Contact :   dm18@mail.tsinghua.edu.cn
 
 # here put the import lib
-from cogdata.utils.register import register
 import unrar
-from unrar import rarfile
-from unrar import unrarlib
-from unrar import constants
-from unrar.rarfile import _ReadIntoMemory
 import os
 import sys
 import math
@@ -42,6 +37,11 @@ elif os.path.exists('/usr/local/lib/libunrar.so'):
 elif os.path.exists('/usr/lib/libunrar.so'):
     os.environ['UNRAR_LIB_PATH'] = '/usr/lib/libunrar.so'
 
+from unrar import rarfile
+from unrar import unrarlib
+from unrar import constants
+from unrar.rarfile import _ReadIntoMemory
+from cogdata.utils.register import register
 
 @register
 class StreamingRarDataset(IterableDataset):
