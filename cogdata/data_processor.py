@@ -95,6 +95,8 @@ class DataProcessor():
                    script_path,
                    "--args_dict", json.dumps(args_dict)
                    ]
+        if hasattr(args, 'extra_code'):
+            command.extend(['--extra_code', args.extra_code])
         print(command)
         progress_manager = MultiProgressManager()
 

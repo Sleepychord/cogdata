@@ -1,0 +1,12 @@
+{
+    "description": "example task",
+    "task_type": "ImageTextTokenizationTask",
+    "saver_type": "BinarySaver",
+    "length_per_sample": 1088,
+    "img_sizes": [
+        256
+    ],
+    "txt_len": 64,
+    "dtype": "int32",
+    "model_path": "downloads/vqvae_hard_biggerset_011.pt"
+}

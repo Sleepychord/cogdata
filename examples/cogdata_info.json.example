@@ -1,0 +1,12 @@
+{
+    "name": "testcase",
+    "description": "example dataset",
+    "data_files": [
+        "testcase.tar"
+    ],
+    "data_format": "TarDataset",
+    "text_files": [
+        "testcase.json"
+    ],
+    "text_format": "json_ks"
+}

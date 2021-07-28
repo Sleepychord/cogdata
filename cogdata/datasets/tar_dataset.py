@@ -32,7 +32,7 @@ class TarDataset(Dataset):
         transform_fn:function
             Used in __getitem__
         """
-
+        self.path = path
         self.tar = tarfile.TarFile(path)
         self.members = [
             x for x in self.tar.getmembers()
@@ -45,6 +45,7 @@ class TarDataset(Dataset):
                 if i % world_size == rank
             ]
         self.transform_fn = transform_fn
+        self.tar = None
 
     def __len__(self):
         """Get the total number of the valid samples."""
@@ -63,7 +64,8 @@ class TarDataset(Dataset):
         item:Tensor
             A torch tensor built from numpy array
         """
-
+        if self.tar is None:
+            self.tar = tarfile.TarFile(self.path)
         target_info = self.members[idx]
         fp = self.tar.extractfile(target_info)
         full_filename = self.members[idx].name
@@ -71,4 +73,4 @@ class TarDataset(Dataset):
         if self.transform_fn is not None:
             return self.transform_fn(fp, full_filename, file_size)
         else:
-            return fp, full_filename
+            return fp, full_filename, file_size

@@ -6,7 +6,7 @@ import os
 from cogdata.data_savers import BinarySaver
 from cogdata.data_manager import DataManager
 from cogdata.utils.logger import get_logger
-from cogdata.utils.helpers import get_registered_cls
+from cogdata.utils.helpers import get_registered_cls, load_code
 
 
 def need_datasets(p):
@@ -17,21 +17,6 @@ def need_datasets(p):
 def need_taskid(p, required=True):
     p.add_argument('--task_id', '-t', type=str,
                    help='id of the handling task.', required=required)
-
-
-def exec_full(filepath):
-    global_namespace = {
-        "__file__": filepath,
-        "__name__": "cogdata.extra_code",
-    }
-    with open(filepath, 'rb') as file:
-        exec(compile(file.read(), filepath, 'exec'), global_namespace)
-
-def load_code(path):
-    if os.path.exists(path):
-        exec_full(path)
-    else:
-        get_logger().error('The extra code file {} does not exist. Skipping.'.format(path))
 
 def get_args():
     py_parser = argparse.ArgumentParser(add_help=False)
@@ -117,4 +102,22 @@ def get_args():
         parser.print_help()
         return None
     get_logger().debug(args)
+    
+    if known.extra_code is not None:
+        args.extra_code = known.extra_code
+
+    try: # is this necessary? load current registered dict and make choices TODO
+        post_check(args)
+    except KeyError as e:
+        return None
     return args
+
+def post_check(args):
+    type_args = ['data_format', 'saver_type', 'task_type']
+    for tp in type_args:
+        if hasattr(args, tp):
+            try:
+                _cls = get_registered_cls(getattr(args, tp))
+            except KeyError as e:
+                sys.stderr.write(f'error: {tp} "{getattr(args, tp)}" is not found -- it is not registered.\n')
+                raise e     

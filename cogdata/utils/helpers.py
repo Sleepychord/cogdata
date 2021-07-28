@@ -61,6 +61,21 @@ def get_last_line(filename):
     except FileNotFoundError:
         return None
 
+def exec_full(filepath):
+    global_namespace = {
+        "__file__": filepath,
+        "__name__": "cogdata.extra_code",
+    }
+    with open(filepath, 'rb') as file:
+        sys.path.append(os.path.split(filepath)[0])
+        exec(compile(file.read(), filepath, 'exec'), global_namespace)
+
+def load_code(path):
+    if os.path.exists(path):
+        exec_full(path)
+    else:
+        get_logger().error('The extra code file {} does not exist. Skipping.'.format(path))
+
 
 from .register import ALLCLASSES
 from cogdata.data_savers import *
