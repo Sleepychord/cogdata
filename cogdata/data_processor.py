@@ -100,8 +100,9 @@ class DataProcessor():
         print(command)
         progress_manager = MultiProgressManager()
 
-        main_log_file = open(os.path.join(
-            task_path, 'main_pid_{}.log'.format(os.getpid())), 'w')
+        main_log_path = os.path.join(
+            task_path, 'main_pid_{}.log'.format(os.getpid()))
+        main_log_file = open(main_log_path, 'w')
         get_logger().info("All datasets: {}".format(' '.join(dataset_names)))
         progress_manager.skip_upline()
         world_size = nproc  # TODO: multi-node
@@ -113,6 +114,8 @@ class DataProcessor():
 
         p = subprocess.Popen(command, stdout=main_log_file,
                              stderr=main_log_file)
+        print(f'Please view log via `tail -f {main_log_path}`.')
+        progress_manager.skip_upline()
         try:
             last_progress = [(0, 1, 0)] * world_size
             ds_idx = 0

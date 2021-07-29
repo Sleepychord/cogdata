@@ -57,10 +57,7 @@ class ZipDataset(Dataset):
         ]
         # split by distributed
         if world_size > 1:
-            self.members = [
-                x for i, x in enumerate(self.members)
-                if i % world_size == rank
-            ]
+            self.members = self.members[rank::world_size]
         self.transform_fn = transform_fn
         self.zip.close()
         self.zip = None

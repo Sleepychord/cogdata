@@ -69,10 +69,7 @@ class StreamingRarDataset(IterableDataset):
         ]
         # split by distributed
         if world_size > 1:
-            self.raw_members = [
-                x for i, x in enumerate(self.raw_members)
-                if i % world_size == rank
-            ]
+            self.raw_members = self.raw_members[rank::world_size]
 
     def __len__(self):
         """Get the total number of the valid samples.
@@ -136,8 +133,7 @@ class StreamingRarDataset(IterableDataset):
             all_members = self.raw_members
             num_workers = worker_info.num_workers
             worker_id = worker_info.id
-            self.members = [x for i, x in enumerate(
-                all_members) if i % num_workers == worker_id]
+            self.members = all_members[worker_id::num_workers]
         self.pointer = 0
         return self
 
