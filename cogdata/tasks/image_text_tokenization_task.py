@@ -77,7 +77,7 @@ class ImageTextTokenizationTask(BaseTask):
                 if fp is None:
                     raise ValueError('')
                 img = Image.open(fp).convert('RGB')
-            except (OSError, PIL.UnidentifiedImageError, Image.DecompressionBombError, ValueError) as e:
+            except (OSError, PIL.UnidentifiedImageError, Image.DecompressionBombError, ValueError, RuntimeError) as e:
                 if not isinstance(e, ValueError):
                     get_logger().warning(f'Image {full_filename} is damaged.')
                 return Image.new('RGB', (self.img_size, self.img_size), (255, 255, 255)), "not_a_image"
@@ -116,7 +116,6 @@ class ImageTextTokenizationTask(BaseTask):
                           for tf in kwargs['text_files']]
             text_format = kwargs['text_format']
         text_dict = self.read_text(text_files, text_format)
-
         device = kwargs.get('device', 'cuda')
         batch_size = kwargs.get('batch_size', 128)
         num_workers = kwargs.get('dataloader_num_workers', 2)
@@ -136,18 +135,16 @@ class ImageTextTokenizationTask(BaseTask):
                                device='cpu', dtype=torch.int) - 1
 
         cnt, total_cnt = 0, sum([len(dataset) for dataset in sub_datasets])
-
         for dataset in sub_datasets:
             loader = DataLoader(dataset, batch_size=batch_size, shuffle=False,
                                 num_workers=num_workers, collate_fn=img_collate_fn, pin_memory=True)
-
             for batch_imgs, raw_filenames in loader:
                 batch_imgs = [pil_to_tensor(x)
                               for x in batch_imgs]  # TODO test speed
 
                 cnt += len(raw_filenames)  # may not full batch
                 if cnt > total_cnt * ratio:
-                    break
+                    breakq
                 filenames = []
                 for i, filename in enumerate(raw_filenames):
                     if filename != "not_a_image" and filename in text_dict:
@@ -155,7 +152,8 @@ class ImageTextTokenizationTask(BaseTask):
                             device)  # TODO test pack to
                         filenames.append(filename)
                     else:
-                        get_logger().warning(f"deleted 1 damaged image.")
+                        pass
+                        # get_logger().warning(f"deleted 1 damaged image.")
                 n = len(filenames)  # valid num
                 if n == 0:
                     continue
@@ -182,7 +180,7 @@ class ImageTextTokenizationTask(BaseTask):
 
                 self.saver.save(data)
                 if cnt // batch_size % 20 == 0:
-                    get_logger().info("rank{}/{}".format(cnt, total_cnt))
+                    get_logger().info("progress {}/{}".format(cnt, total_cnt))
                     if progress_record is not None:
                         progress_record.update(cnt, total_cnt)
             self.saver.commit()

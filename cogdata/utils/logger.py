@@ -27,8 +27,8 @@ def set_logger(target_path, rank='main'):
     """
     global logger
     if target_path is not None:
-        logger = logging.getLogger(f'cogdata rank_{rank}')
-        logger.setLevel(logging.DEBUG)
+        logger = logging.getLogger(f'cogdata rank_{rank} {target_path}')
+        logger.setLevel(logging.INFO)
         # logger.propagate = False
 
         logfile = os.path.join(target_path, f'rank_{rank}.log')
@@ -43,7 +43,7 @@ def set_logger(target_path, rank='main'):
 
 
 logger = logging.root
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 console = logging.StreamHandler()
 logger.addHandler(console)
 

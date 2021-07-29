@@ -76,6 +76,8 @@ def get_args():
                            help='number of processes to launch.')
     subparser.add_argument('--dataloader_num_workers', type=int, default=2,
                            help='number of processes for dataloader per computational process.')
+    subparser.add_argument('--batch_size', type=int, default=128,
+                           help='batch size.')                        
     subparser.add_argument('--ratio', type=float, default=1,
                            help='ratio of data to process')
     # subparser.add_argument('--device', type=str, default='cuda')

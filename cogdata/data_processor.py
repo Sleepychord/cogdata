@@ -213,14 +213,23 @@ class DataProcessor():
             assert ds_info['name'] == name
             ds_cls = get_registered_cls(
                 ds_info['data_format'])  # e.g. ZipDataset
+
+            if len(ds_info['data_files']) >= world_size * 2: # subdatasets-level parallel
+                start, intv = rank, world_size
+                _ds_world_size = 1
+                _ds_rank = 0
+            else:
+                start, intv = 0, 1
+                _ds_world_size = world_size
+                _ds_rank = rank
             sub_datasets = [
                 ds_cls(
                     path=os.path.join(current_dir, name, sub_dataset_name),
-                    world_size=world_size,
-                    rank=rank,
+                    world_size=_ds_world_size,
+                    rank=_ds_rank,
                     transform_fn=transform_fn
                 )
-                for sub_dataset_name in ds_info['data_files']
+                for sub_dataset_name in ds_info['data_files'][start::intv]
             ]
             get_logger().debug(f'process {name}...')
             # others in ds_info are for dataset or task

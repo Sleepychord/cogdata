@@ -92,6 +92,7 @@ class LineProgress(ProgressBar):
         self.total = total
         self.symbol = symbol
         self._current_progress = 0
+        self._current_speed = 0
 
     def update(self, progress=0, speed=0):
         """
@@ -104,14 +105,15 @@ class LineProgress(ProgressBar):
             Average process speed(samples/s)
         """
         with self.lock:
-            if progress > 0:
+            if progress >= 0:
                 self._current_progress = progress
+                self._current_speed = speed
             sys.stdout.write('\r' + CLEAR_TO_END)
             hashes = '#' * int(self._current_progress /
                                self.total * self.width)
             spaces = ' ' * (self.width - len(hashes))
             sys.stdout.write("\r%s:[%s] %d%%  Speed: %.2f samples/s" %
-                             (self.title, hashes + spaces, self._current_progress, speed))
+                             (self.title, hashes + spaces, self._current_progress, self._current_speed))
             # sys.stdout.flush()
 
 
@@ -170,7 +172,7 @@ class MultiProgressManager(object):
                     UP_ONE_LINE * delta_line if delta_line > 0 else '')
             for tmp_key in self._progress_dict.keys():
                 progress_bar = self._progress_dict.get(tmp_key)
-                tmp_progress = 0
+                tmp_progress = -1
                 if key == tmp_key:
                     tmp_progress = progress
                 progress_bar.update(tmp_progress, speed=speed)

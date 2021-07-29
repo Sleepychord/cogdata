@@ -33,7 +33,7 @@ class BinarySaver(BaseSaver):
 
     def __init__(self, output_path, dtype='int32', **kwargs):
         # TODO test speed of buffering
-        self.bin = open(output_path, 'wb', buffering=-1)
+        self.bin = open(output_path, 'wb', buffering=128*1024*1024)
         self.dtype = self.mapping[dtype]
 
     def save(self, data):
