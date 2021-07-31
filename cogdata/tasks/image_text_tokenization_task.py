@@ -80,7 +80,7 @@ class ImageTextTokenizationTask(BaseTask):
             except (OSError, PIL.UnidentifiedImageError, Image.DecompressionBombError, ValueError, RuntimeError) as e:
                 if not isinstance(e, ValueError):
                     get_logger().warning(f'Image {full_filename} is damaged.')
-                return Image.new('RGB', (self.img_size, self.img_size), (255, 255, 255)), "not_a_image"
+                return Image.new('RGB', (self.img_size, self.img_size), (255, 255, 255)), f"not_a_image {full_filename}"
             dirs, filename = os.path.split(full_filename)
             filename = filename.split('.')[0]
             if local_transform is not None:
@@ -147,13 +147,12 @@ class ImageTextTokenizationTask(BaseTask):
                     breakq
                 filenames = []
                 for i, filename in enumerate(raw_filenames):
-                    if filename != "not_a_image" and filename in text_dict:
+                    if filename[:11] != "not_a_image" and filename in text_dict:
                         buf_imgs[len(filenames)] = batch_imgs[i].to(
                             device)  # TODO test pack to
                         filenames.append(filename)
                     else:
-                        pass
-                        # get_logger().warning(f"deleted 1 damaged image.")
+                        pass # filename[:12] is the name, already logged in transform_fn
                 n = len(filenames)  # valid num
                 if n == 0:
                     continue
@@ -231,7 +230,7 @@ class ImageTextTokenizationTask(BaseTask):
             tmp = []
             for v in txt_list:
                 if 'cnShortText' not in v or len(v['cnShortText']) <= 1:
-                    get_logger().warning("some item do not have cnShortText")
+                    get_logger().warning(f"{v['uniqueKey']} do not have cnShortText")
                     continue
                 tmp.append((v['uniqueKey'], v['cnShortText']))
             text_dict = dict(tmp)

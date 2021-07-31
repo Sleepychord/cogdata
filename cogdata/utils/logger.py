@@ -44,8 +44,8 @@ def set_logger(target_path, rank='main'):
 
 logger = logging.root
 logger.setLevel(logging.INFO)
-console = logging.StreamHandler()
-logger.addHandler(console)
+# console = logging.StreamHandler()
+# logger.addHandler(console)
 
 
 def get_logger():

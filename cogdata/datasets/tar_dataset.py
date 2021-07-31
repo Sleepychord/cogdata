@@ -43,6 +43,7 @@ class TarDataset(Dataset):
             self.members = self.members[rank::world_size]
 
         self.transform_fn = transform_fn
+        self.tar.close()
         self.tar = None
 
     def __len__(self):
@@ -72,3 +73,7 @@ class TarDataset(Dataset):
             return self.transform_fn(fp, full_filename, file_size)
         else:
             return fp, full_filename, file_size
+
+    def __del__(self):
+        if self.tar is not None:
+            self.tar.close()

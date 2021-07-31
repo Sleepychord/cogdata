@@ -106,4 +106,5 @@ class ZipDataset(Dataset):
 
     def __del__(self):
         """Delete the Dataset. Close the zip files"""
-        self.zip.close()
+        if self.zip is not None:
+            self.zip.close()
