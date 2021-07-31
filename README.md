@@ -3,7 +3,7 @@
 ## Install
 ```
 pip install cogdata
-sudo install_unrarlib.sh
+sudo `which install_unrarlib.sh`
 ```
 ## Directory Structure
 ```
