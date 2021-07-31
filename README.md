@@ -2,7 +2,7 @@
 
 ## Install
 ```
-pip install cogdata --index-url https://test.pypi.org/simple
+pip install cogdata
 sudo install_unrarlib.sh
 ```
 ## Directory Structure
