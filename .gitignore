@@ -16,6 +16,7 @@ wheels/
 *.so
 __pycache__/
 .vscode
+.cache
 outputs/
 vqvae_hard_biggerset_011.pt
 tmp/
