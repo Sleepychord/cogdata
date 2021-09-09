@@ -144,7 +144,7 @@ class ImageTextTokenizationTask(BaseTask):
 
                 cnt += len(raw_filenames)  # may not full batch
                 if cnt > total_cnt * ratio:
-                    breakq
+                    break
                 filenames = []
                 for i, filename in enumerate(raw_filenames):
                     if filename[:11] != "not_a_image" and filename in text_dict:
@@ -175,6 +175,7 @@ class ImageTextTokenizationTask(BaseTask):
                         tmp_imgs = imgs
                     codes_img.append(tokenizer.img_tokenizer.EncodeAsIds(
                         tmp_imgs).type(torch.IntTensor))
+                codes_img.reverse()
                 data = torch.cat((codes_txt, *codes_img), dim=1)
 
                 self.saver.save(data)

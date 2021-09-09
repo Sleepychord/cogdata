@@ -60,9 +60,9 @@ def test_image_text_tokenization_task():
     assert text2 == tokenizer.DecodeIds(bin_ds[2][:x])[0][0]
 
     from torchvision.utils import save_image
-    imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[64:64+64**2].to('cuda')) for x in bin_ds], dim=0)
-    save_image(imgs, os.path.join(test_dir, 'testcase512.jpg'), normalize=True)
-    imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[64+64**2:64+64**2+32**2].to('cuda')) for x in bin_ds], dim=0)
-    save_image(imgs, os.path.join(test_dir, 'testcase256.jpg'), normalize=True)
-    imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[64+64**2+32**2:].to('cuda')) for x in bin_ds], dim=0)
+    imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[64:64+16**2].to('cuda')) for x in bin_ds], dim=0)
     save_image(imgs, os.path.join(test_dir, 'testcase128.jpg'), normalize=True)
+    imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[64+16**2:64+16**2+32**2].to('cuda')) for x in bin_ds], dim=0)
+    save_image(imgs, os.path.join(test_dir, 'testcase256.jpg'), normalize=True)
+    imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[64+16**2+32**2:].to('cuda')) for x in bin_ds], dim=0)
+    save_image(imgs, os.path.join(test_dir, 'testcase512.jpg'), normalize=True)
