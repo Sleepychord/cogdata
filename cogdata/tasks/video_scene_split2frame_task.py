@@ -24,7 +24,7 @@ def video_collate_fn(data):
     return videos, filenames
 
 @register
-class VideoSceneTextTokenizationTask(BaseTask):
+class VideoSceneSplit2FrameTask(BaseTask):
     def __init__(self, saver, img_sizes, **kwargs) -> None:
         """config saver
         """
@@ -42,13 +42,14 @@ class VideoSceneTextTokenizationTask(BaseTask):
         if 'interval' in kwargs and kwargs['threshold'] > 0:
             self.threshold = kwargs['threshold']
         else:
-            self.threshold = 45.0
+            # self.threshold = 45.0
+            self.threshold = 30
         if 'max_clip_per_video' in kwargs and kwargs['max_clip_per_video'] > 0:
             self.max_clip_per_video = kwargs['max_clip_per_video']
         else:
             # tmp!!! for pytest
             # FIXME
-            self.max_clip_per_video = 16
+            self.max_clip_per_video = 16 ###????
     
     def get_transform_fn(self, transform=None):
         '''
@@ -86,37 +87,37 @@ class VideoSceneTextTokenizationTask(BaseTask):
 
             # # Each returned scene is a tuple of the (start, end) timecode.
             # scene_timestamp_list = scene_manager.get_scene_list()
-            try:
-                vr = VideoReader(fp)
-                fps = vr.get_avg_fps()
-                interval = int(fps / self.sample_fps + 0.5)
-                origin_frame_num = vr._num_frame
-                sampled_frame_num = int((origin_frame_num+interval-1)/interval)
-                sampled_frames_idx = list(range(0, interval * sampled_frame_num, interval))
-                sampled_frames = vr.get_batch(sampled_frames_idx).asnumpy()
-                
-                # scene detect
-                cut_list = self.detect_cuts(sampled_frames)
-                img_groups = []
-                clip_cnt = 0
-                for cuti in range(len(cut_list)-1):
-                    for blocki in range(int((cut_list[cuti+1]-cut_list[cuti])/self.out_frame_num)):
-                        imgs = []
-                        for framei in range(self.out_frame_num):
-                            img = Image.fromarray(sampled_frames[cut_list[cuti]+blocki*self.out_frame_num+framei]).convert('RGB')
-                            if local_transform is not None:
-                                img = local_transform(img)
-                            imgs.append(img)
-                        img_groups.append(imgs)
-                        clip_cnt += 1
-                        if clip_cnt >= self.max_clip_per_video:
-                            break
+            # try:
+            vr = VideoReader(fp)
+            fps = vr.get_avg_fps()
+            interval = int(fps / self.sample_fps + 0.5)
+            origin_frame_num = vr._num_frame
+            sampled_frame_num = int((origin_frame_num+interval-1)/interval)
+            sampled_frames_idx = list(range(0, interval * sampled_frame_num, interval))
+            sampled_frames = vr.get_batch(sampled_frames_idx).asnumpy()
+            
+            # scene detect
+            cut_list = self.detect_cuts(sampled_frames)
+            img_groups = []
+            clip_cnt = 0
+            for cuti in range(len(cut_list)-1):
+                for blocki in range(int((cut_list[cuti+1]-cut_list[cuti])/self.out_frame_num)):
+                    imgs = []
+                    for framei in range(self.out_frame_num):
+                        img = Image.fromarray(sampled_frames[cut_list[cuti]+blocki*self.out_frame_num+framei]).convert('RGB')
+                        if local_transform is not None:
+                            img = local_transform(img)
+                        imgs.append(img)
+                    img_groups.append(imgs)
+                    clip_cnt += 1
                     if clip_cnt >= self.max_clip_per_video:
                         break
-                return img_groups, filename
-            except:
-                get_logger().warning(f'Video {full_filename} is damaged.')
-                return list(), list()
+                if clip_cnt >= self.max_clip_per_video:
+                    break
+            return img_groups, filename
+            # except:
+            #     get_logger().warning(f'Video {full_filename} is damaged.')
+            #     return list(), list()
 
         return transform_fn
 
@@ -125,11 +126,11 @@ class VideoSceneTextTokenizationTask(BaseTask):
         frame_num = len(frames)
         for fr in range(frame_num):
             if fr == 0:
-                curr_hsv = cv2.split(cv2.cvtColor(frames[0], cv2.COLOR_BGR2HSV))
+                curr_hsv = list(cv2.split(cv2.cvtColor(frames[0], cv2.COLOR_BGR2HSV)))
                 cut_list = [0, ]
                 continue
             last_hsv = curr_hsv
-            curr_hsv = cv2.split(cv2.cvtColor(frames[fr], cv2.COLOR_BGR2HSV))
+            curr_hsv = list(cv2.split(cv2.cvtColor(frames[fr], cv2.COLOR_BGR2HSV)))
             frame_score = self.calculate_frame_score(curr_hsv, last_hsv)
             if frame_score >= self.threshold:
                 cut_list.append(fr)
@@ -177,19 +178,20 @@ class VideoSceneTextTokenizationTask(BaseTask):
         device = kwargs.get('device', 'cuda')
         batch_size = kwargs.get('batch_size', 16)
         num_workers = kwargs.get('dataloader_num_workers', 2)
-        txt_len = kwargs.get('txt_len', 64)
+        # txt_len = kwargs.get('txt_len', 64)
         ratio = kwargs.get('ratio', 1)
         img_sizes = self.img_sizes
-        tokenizer = get_tokenizer(
-            kwargs.get('model_path', 'downloads/vqvae_hard_biggerset_011.pt')
-        )
-        normfunc = transforms.Normalize([0.79093, 0.76271, 0.75340], [
-                                        0.30379, 0.32279, 0.32800])
+        # tokenizer = get_tokenizer(
+        #     kwargs.get('model_path', 'downloads/vqvae_hard_biggerset_011.pt')
+        # )
+        # normfunc = transforms.Normalize([0.79093, 0.76271, 0.75340], [
+        #                                 0.30379, 0.32279, 0.32800])
         
-        buf_videos = [torch.zeros(self.out_frame_num, 3, self.img_size,
-                               self.img_size, device=device, dtype=torch.float) for _ in range(self.max_clip_per_video*batch_size)]  # buffer
-        buf_txts = torch.zeros(self.max_clip_per_video*batch_size, txt_len,
-                               device='cpu', dtype=torch.int) - 1
+        # buf_videos = [torch.zeros(self.out_frame_num, 3, self.img_size,
+        #                        self.img_size, device=device, dtype=torch.float) for _ in range(self.max_clip_per_video*batch_size)]  # buffer
+        # buf_txts = torch.zeros(self.max_clip_per_video*batch_size, txt_len,
+        #                        device='cpu', dtype=torch.int) - 1
+        
 
         cnt, total_cnt = 0, sum([len(dataset) for dataset in sub_datasets])
         for dataset in sub_datasets:
@@ -198,60 +200,23 @@ class VideoSceneTextTokenizationTask(BaseTask):
             for batch_videos, raw_filenames in loader:
                 if len(batch_videos) == 0:
                     continue
-                batch_codes = []
+                
+                batch_frames = []
                 batch_raw_filenames = []
                 for video_i, video in enumerate(batch_videos):
-                    for group in video:
-                        code = torch.cat([pil_to_tensor(x).unsqueeze(0)
-                                    for x in group])
-                        batch_codes.append(code)
+                    if raw_filenames[video_i]!= "failed_video":
                         batch_raw_filenames.append(raw_filenames[video_i])
+                        batch_frames.append(video)
 
-                cnt += len(raw_filenames)
-                if cnt > total_cnt * ratio:
-                    break
-                filenames = []
-                for i, filename in enumerate(batch_raw_filenames):
-                    if filename != "failed_video" and filename in text_dict:
-                        buf_videos[len(filenames)] = batch_codes[i].to(device)
-                        filenames.append(filename)
-                    else:
-                        pass
-                n = len(filenames)
+                print("save: ", batch_raw_filenames)
+                n = len(batch_raw_filenames)
                 if n == 0:
                     continue
 
-                buf_txts.fill_(-1)
-                for i, filename in enumerate(filenames):
-                    txt = text_dict[filename]
-                    code_txt = tokenizer(txt)[:txt_len]
-                    buf_txts[i, :len(code_txt)] = torch.tensor(
-                        code_txt, dtype=torch.int)
-                codes_txt = buf_txts[:n]
-
-                videos = []
-                for i in range(n):
-                    videos.append(normfunc(buf_videos[i] / 255.))
-                # videos = normfunc(buf_videos[:n] / 255.)
-                codes_video = []
-                for k in range(n):
-                    video = []
-                    for i, img_size in enumerate(img_sizes):
-                        for j in range(self.out_frame_num):
-                            imgs = videos[k][j].unsqueeze(0)
-                            if i > 0:
-                                tmp_imgs = torch.nn.functional.interpolate(
-                                    imgs, (img_size, img_size), mode='bilinear')
-                            else:
-                                tmp_imgs = imgs
-                            video.append(tokenizer.img_tokenizer.EncodeAsIds(
-                                tmp_imgs).type(torch.IntTensor))
-                    video = torch.cat(video, dim=1)
-                    codes_video.append(video)
-                codes_video = torch.cat(codes_video)
-                data = torch.cat((codes_txt, codes_video), dim=1)
-
-                self.saver.save(data)
+                self.saver.save(batch_frames, batch_raw_filenames)
+                cnt += len(raw_filenames)
+                if cnt > total_cnt * ratio:
+                    break
                 if cnt // batch_size % 2 == 0:
                     get_logger().info("progress {}/{}".format(cnt, total_cnt))
                     if progress_record is not None:
