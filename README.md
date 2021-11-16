@@ -44,18 +44,37 @@ cogdata create_task [-h] [--description DESCRIPTION] --task_type TASK_TYPE --sav
                            [--dtype {int32,int64,float32,uint8,bool}]
                            task_id
 ```
+Alias: `cogdata task ...`. `task_type` and `saver_type` is chosen from class names in cogdata, e.g. `ImageTextTokenizationTask` or `BinarySaver`.
+```
+cogdata process [-h] --task_id TASK_ID [--nproc NPROC] [--dataloader_num_workers DATALOADER_NUM_WORKERS]
+                       [--batch_size BATCH_SIZE] [--ratio RATIO]
+                       [datasets [datasets ...]]
+```
+The i-th proc will be binded to the i-th GPU.
+
+```
+cogdata merge [-h] --task_id TASK_ID
+```
+Merge all the processed data.
+
+```
+cogdata list [-h] [--task_id TASK_ID]
+```
+List all the current datasets in this folder.
+```
+cogdata clean [-h] [--task_id TASK_ID]
+```
+Clean the unfinished states of the task.
 ### Customized Tasks
 Add `--extra_code PATH_TO_CODE` after `cogdata `(e.g., `cogdata --extra_code ../examples/convert2tar_task.py [task or process]` to execute and register your own task before running the command. See `examples/` for details. 
 
 ## TODO List
 
-* 验证create task任务对应task和saver的参数是否传全且合理 [wendi]
-* 将现有的cogview数据纳入管理，并测试 [zhuoyi]
-* [x] 增加tokenization task中多个imgsize的处理 [mingding]
-* 增加在不修改源代码的基础上register args task saver dataset的功能 [mingding]
-* 上传至真实的pypi，公开仓库 [mingding]
-* [x] sphinx 注释文档撰写 [yuxiang]
-* [x] 整理单元测试，只使用小的testcase [wendi]
-* PPT [yuxiang]
-* 视频介绍 [yuxiang]
+* [ ] 支持多种不同格式文本处理
+* [ ] sphinx 注释文档更详细撰写
+* [ ] 更精细化的参数管理，将tokenization一般化
+* [ ] PPT & 视频介绍
+* [ ] Merge 视频处理 [Wenyi]
+* [ ] Merge Object detection [Zhuoyi]
+
 
