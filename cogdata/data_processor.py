@@ -36,7 +36,7 @@ def initialize_distributed(local_rank, world_size, rank=None,
         rank = local_rank
     device = local_rank
     torch.cuda.set_device(device)
-    # Call the init process
+    # Call the init processn
     init_method = 'tcp://'
     if master_addr is None:
         master_addr = os.getenv('MASTER_ADDR', 'localhost')
@@ -184,7 +184,6 @@ class DataProcessor():
         args_dict:dict
             Parse from a string provided by console
         """
-
         rank = local_rank
         world_size = args_dict['nproc']  # TODO: multi-node
         current_dir = args_dict.pop('_current_dir')
@@ -225,6 +224,8 @@ class DataProcessor():
                 start, intv = 0, 1
                 _ds_world_size = world_size
                 _ds_rank = rank
+
+            get_logger().info(f'building {name} datasets...')
             sub_datasets = [
                 ds_cls(
                     path=os.path.join(current_dir, name, sub_dataset_name),
@@ -234,7 +235,7 @@ class DataProcessor():
                 )
                 for sub_dataset_name in ds_info['data_files'][start::intv]
             ]
-            get_logger().debug(f'process {name}...')
+            get_logger().info(f'process {name}...')
             # others in ds_info are for dataset or task
             ds_info.update(args_dict)
             task.process(sub_datasets, progress_record=progress_record,

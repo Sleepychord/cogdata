@@ -38,7 +38,10 @@ class BinaryDataset(Dataset):
         self.dtype = np.dtype(dtype)
         if preload:
             self.bin = np.fromfile(
-                path, dtype=self.dtype).reshape(-1, length_per_sample)
+                path, dtype=self.dtype)
+            if len(self.bin) % length_per_sample > 0:
+                self.bin = self.bin[:-(len(self.bin) % length_per_sample)]
+            self.bin = self.bin.reshape(-1, length_per_sample)
         else:
             with open(path, 'r') as fid:
                 nbytes = fid.seek(0, 2)

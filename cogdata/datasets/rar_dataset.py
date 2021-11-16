@@ -65,7 +65,7 @@ class StreamingRarDataset(IterableDataset):
         self.handle = None
         self.raw_members = [
             x for x in self.rar.namelist()
-            if x[-1] != os.sep and '__MACOSX' not in x
+            if x[-1] != os.sep #and '__MACOSX' not in x
         ]
         # split by distributed
         if world_size > 1:

@@ -120,7 +120,13 @@ class DataManager():
         name_size_pair, sum_size = [], 0
         for dataset in all_datasets:
             path = os.path.join(base_dir, dataset)
-            size = dir_size(path)
+            with open(os.path.join(path, 'cogdata_info.json'), 'r') as finfo:
+                this_info = json.load(finfo)
+                size = 0
+                for file_name in this_info['data_files']:
+                    data_path = os.path.join(path, file_name)
+                    size += os.path.getsize(data_path)
+            # size = dir_size(path)
             name_size_pair.append((dataset, format_file_size(size)))
             sum_size += size
         nsdict = dict(name_size_pair)

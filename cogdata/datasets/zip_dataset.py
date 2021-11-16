@@ -51,10 +51,7 @@ class ZipDataset(Dataset):
         assert len(args) == 0, 'transform_fn is a kwarg.'
         self.path = path
         self.zip = zipfile.ZipFile(path)
-        self.members = [
-            info for info in self.zip.infolist()
-            if info.filename[-1] != os.sep and '__MACOSX' not in info.filename
-        ]
+        self.members = self.zip.infolist()
         # split by distributed
         if world_size > 1:
             self.members = self.members[rank::world_size]
@@ -94,7 +91,10 @@ class ZipDataset(Dataset):
         full_filename = self.members[idx].filename
         file_size = self.members[idx].file_size
         try:
-            fp = self.zip.open(target_info)
+            if full_filename[-1] != os.sep:
+                fp = self.zip.open(target_info)
+            else:
+                fp = None
         except zipfile.BadZipFile as e:
             fp = None
             get_logger().warning(f'{full_filename} is a bad zipfile.')

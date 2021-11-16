@@ -36,7 +36,7 @@ class TarDataset(Dataset):
         self.tar = tarfile.TarFile(path)
         self.members = [
             x for x in self.tar.getmembers()
-            if x.isfile() and '__MACOSX' not in x.name
+            if x.isfile() #and '__MACOSX' not in x.name
         ]
         # split by distributed
         if world_size > 1:

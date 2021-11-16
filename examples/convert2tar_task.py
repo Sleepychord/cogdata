@@ -33,6 +33,14 @@ class Convert2TarTask(BaseTask):
         return None
 
     def process(self, sub_datasets, progress_record=None, dataset_dir='', **kwargs):
+        if not ('text_files' in kwargs and 'text_format' in kwargs):
+            assert False
+            text_files = text_format = None
+        else:
+            text_files = [os.path.join(dataset_dir, tf)
+                          for tf in kwargs['text_files']]
+            text_format = kwargs['text_format']
+        text_dict = self.read_text(text_files, text_format)
 
         batch_size = kwargs.get('batch_size', 128)
         num_workers = kwargs.get('dataloader_num_workers', 2)
@@ -49,7 +57,8 @@ class Convert2TarTask(BaseTask):
                 if cnt > total_cnt * ratio:
                     break
                 for fp, filename, filesize in batch:
-                    self.saver.save(fp, filename, filesize)
+                    if filename in text_dict:
+                        self.saver.save(fp, filename, filesize)
                 if cnt // batch_size % 20 == 0:
                     if progress_record is not None:
                         progress_record.update(cnt, total_cnt)
