@@ -34,21 +34,25 @@ class VideoSceneTextTokenizationTask(BaseTask):
         if 'frame_num' in kwargs and kwargs['frame_num'] > 0:
             self.out_frame_num = kwargs['frame_num']
         else:
-            self.out_frame_num = 16
+            self.out_frame_num = 6
         if 'interval' in kwargs and kwargs['sample_fps'] > 0:
             self.sample_fps = kwargs['sample_fps']
         else:
-            self.sample_fps = 4
+            self.sample_fps = 6
         if 'interval' in kwargs and kwargs['threshold'] > 0:
             self.threshold = kwargs['threshold']
         else:
-            self.threshold = 45.0
+            self.threshold = 30.0
         if 'max_clip_per_video' in kwargs and kwargs['max_clip_per_video'] > 0:
             self.max_clip_per_video = kwargs['max_clip_per_video']
         else:
             # tmp!!! for pytest
             # FIXME
-            self.max_clip_per_video = 16
+            self.max_clip_per_video = 128
+        if 'cut_step' in kwargs and kwargs['cut_step'] > 0:
+            self.cut_step = kwargs['cut_step']
+        else:
+            self.cut_step = 1
     
     def get_transform_fn(self, transform=None):
         '''
@@ -73,6 +77,7 @@ class VideoSceneTextTokenizationTask(BaseTask):
         def transform_fn(fp, full_filename, *args, local_transform=transform):
             dirs, filename = os.path.split(full_filename)
             filename = filename.split('.')[0]
+            taskname = full_filename.split('/')[-2]
 
             # #detect scenes
             # video_manager = VideoManager([full_filename])
@@ -100,7 +105,7 @@ class VideoSceneTextTokenizationTask(BaseTask):
                 img_groups = []
                 clip_cnt = 0
                 for cuti in range(len(cut_list)-1):
-                    for blocki in range(int((cut_list[cuti+1]-cut_list[cuti])/self.out_frame_num)):
+                    for blocki in range(0, int((cut_list[cuti+1]-cut_list[cuti])/self.out_frame_num), self.cut_step):
                         imgs = []
                         for framei in range(self.out_frame_num):
                             img = Image.fromarray(sampled_frames[cut_list[cuti]+blocki*self.out_frame_num+framei]).convert('RGB')
@@ -113,7 +118,7 @@ class VideoSceneTextTokenizationTask(BaseTask):
                             break
                     if clip_cnt >= self.max_clip_per_video:
                         break
-                return img_groups, filename
+                return img_groups, taskname
             except:
                 get_logger().warning(f'Video {full_filename} is damaged.')
                 return list(), list()
@@ -125,11 +130,11 @@ class VideoSceneTextTokenizationTask(BaseTask):
         frame_num = len(frames)
         for fr in range(frame_num):
             if fr == 0:
-                curr_hsv = cv2.split(cv2.cvtColor(frames[0], cv2.COLOR_BGR2HSV))
+                curr_hsv = list(cv2.split(cv2.cvtColor(frames[0], cv2.COLOR_BGR2HSV)))
                 cut_list = [0, ]
                 continue
             last_hsv = curr_hsv
-            curr_hsv = cv2.split(cv2.cvtColor(frames[fr], cv2.COLOR_BGR2HSV))
+            curr_hsv = list(cv2.split(cv2.cvtColor(frames[fr], cv2.COLOR_BGR2HSV)))
             frame_score = self.calculate_frame_score(curr_hsv, last_hsv)
             if frame_score >= self.threshold:
                 cut_list.append(fr)
@@ -173,7 +178,7 @@ class VideoSceneTextTokenizationTask(BaseTask):
             text_files = [os.path.join(dataset_dir, tf)
                             for tf in kwargs['text_files']]
             text_format = kwargs['text_format']
-        text_dict = self.read_text(text_files, text_format)
+        task_text_dict = self.read_text(text_files, text_format)
         device = kwargs.get('device', 'cuda')
         batch_size = kwargs.get('batch_size', 16)
         num_workers = kwargs.get('dataloader_num_workers', 2)
@@ -190,51 +195,46 @@ class VideoSceneTextTokenizationTask(BaseTask):
                                self.img_size, device=device, dtype=torch.float) for _ in range(self.max_clip_per_video*batch_size)]  # buffer
         buf_txts = torch.zeros(self.max_clip_per_video*batch_size, txt_len,
                                device='cpu', dtype=torch.int) - 1
-
+        
         cnt, total_cnt = 0, sum([len(dataset) for dataset in sub_datasets])
         for dataset in sub_datasets:
             loader = DataLoader(dataset, batch_size=batch_size, shuffle=False,
                                 num_workers=num_workers, collate_fn=video_collate_fn, pin_memory=True)
+            
             for batch_videos, raw_filenames in loader:
                 if len(batch_videos) == 0:
                     continue
                 batch_codes = []
-                batch_raw_filenames = []
+                filenames = []
+                code_n = 0
                 for video_i, video in enumerate(batch_videos):
                     for group in video:
                         code = torch.cat([pil_to_tensor(x).unsqueeze(0)
                                     for x in group])
-                        batch_codes.append(code)
-                        batch_raw_filenames.append(raw_filenames[video_i])
+                        buf_videos[code_n] = code.to(device)
+                        filenames.append(task_text_dict[raw_filenames[video_i]])
+                        code_n += 1
 
                 cnt += len(raw_filenames)
                 if cnt > total_cnt * ratio:
                     break
-                filenames = []
-                for i, filename in enumerate(batch_raw_filenames):
-                    if filename != "failed_video" and filename in text_dict:
-                        buf_videos[len(filenames)] = batch_codes[i].to(device)
-                        filenames.append(filename)
-                    else:
-                        pass
-                n = len(filenames)
-                if n == 0:
-                    continue
 
+                if code_n == 0:
+                    continue
+                
                 buf_txts.fill_(-1)
                 for i, filename in enumerate(filenames):
-                    txt = text_dict[filename]
-                    code_txt = tokenizer(txt)[:txt_len]
+                    code_txt = tokenizer(filename)[:txt_len]
                     buf_txts[i, :len(code_txt)] = torch.tensor(
                         code_txt, dtype=torch.int)
-                codes_txt = buf_txts[:n]
+                codes_txt = buf_txts[:code_n]
 
                 videos = []
-                for i in range(n):
+                for i in range(code_n):
                     videos.append(normfunc(buf_videos[i] / 255.))
                 # videos = normfunc(buf_videos[:n] / 255.)
                 codes_video = []
-                for k in range(n):
+                for k in range(code_n):
                     video = []
                     for i, img_size in enumerate(img_sizes):
                         for j in range(self.out_frame_num):
@@ -249,8 +249,8 @@ class VideoSceneTextTokenizationTask(BaseTask):
                     video = torch.cat(video, dim=1)
                     codes_video.append(video)
                 codes_video = torch.cat(codes_video)
-                data = torch.cat((codes_txt, codes_video), dim=1)
 
+                data = torch.cat((codes_txt, codes_video), dim=1)
                 self.saver.save(data)
                 if cnt // batch_size % 2 == 0:
                     get_logger().info("progress {}/{}".format(cnt, total_cnt))
@@ -273,56 +273,15 @@ class VideoSceneTextTokenizationTask(BaseTask):
         if txt_files is None:  # no txt, accept all
             return defaultdict(str)
         text_dict = {}
-        if mode == "json":
-            import json
-            txt_list = []
-            for txt in txt_files:
-                with open(txt, 'r') as fin:
-                    t = json.load(fin)
-                    txt_list.extend(list(t.items()))
-            tmp = []
-            for k, v in txt_list:
-                tmp.append((v['uniqueKey'], v['cnShortText']))
-            text_dict = dict(tmp)
-        elif mode == "txt":
-            txt_list = []
-            for txt in txt_files:
-                with open(txt, 'r') as fin:
-                    lines = fin.readlines()
-                for line in lines:
-                    key, value = line[:-1].split('\t')
-                    key = key[:-2]
-                    txt_list.append((key, value))
-            text_dict = dict(txt_list)
-        elif mode == "json_ks":
-            import json
-            txt_list = []
-            for txt in txt_files:
-                with open(txt, 'r') as fin:
-                    t = json.load(fin)
-                txt_list.extend(t["RECORDS"])
-            tmp = []
-            for v in txt_list:
-                if 'cnShortText' not in v or len(v['cnShortText']) <= 1:
-                    get_logger().warning("some item do not have cnShortText")
-                    continue
-                tmp.append((v['uniqueKey'], v['cnShortText']))
-            text_dict = dict(tmp)
-        elif mode == "tsv":
-            import pandas as pd
-            txt_list = []
-            for txt in txt_files:
-                t = pd.read_csv(txt, sep='\t')
-                txt_list.extend(list(t.values))
-            tmp = []
-            for k, v in txt_list:
-                tmp.append((str(k), v))
-            text_dict = dict(tmp)
-        elif mode == "dict":
-            import json
-            text_dict = {}
-            for txt in txt_files:
-                with open(txt, "r") as fin:
-                    t = json.load(fin)
-                    text_dict.update(t)
+        assert mode == 'json_ks'
+        import json
+        txt_list = []
+        for txt in txt_files:
+            with open(txt, 'r') as fin:
+                t = json.load(fin)
+            txt_list.extend(t["RECORDS"])
+        tmp = []
+        for v in txt_list:
+            tmp.append((v['rawname'], v['cnShortText']))
+        text_dict = dict(tmp)
         return text_dict
