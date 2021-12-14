@@ -15,9 +15,9 @@ import shutil
 import random
 import torch
 from cogdata.datasets import TarDataset, BinaryDataset
-from cogdata.data_savers import BinarySaver, CustomFrameSaver
+from cogdata.data_savers import BinarySaver, CustomFrameSaver, CustomFrameTarSaver
 from cogdata.tasks import ImageTextTokenizationTask
-from cogdata.tasks import VideoSceneTextTokenizationTask, VideoSceneSplit2FrameTask
+from cogdata.tasks import VideoSceneTextTokenizationTask, VideoSceneSplit2FrameTask, VideoSplitTokenizationTask
 from cogdata.utils.cogview import get_tokenizer
 
 def test_video_scene_text_tokenization_task():
@@ -119,8 +119,9 @@ def test_video_scene_split2frame_task():
     if os.path.exists(test_dir):
         shutil.rmtree(test_dir)
     os.makedirs(test_dir)
-    saver = CustomFrameSaver(os.path.join(test_dir, 'testcase'))
-    task = VideoSceneSplit2FrameTask(img_sizes=[256,], saver=saver, frame_num=17, max_clip_per_video=256)
+    # saver = CustomFrameSaver(os.path.join(test_dir, 'testcase'))
+    saver = CustomFrameTarSaver(os.path.join(test_dir, 'testcase.tar'))
+    task = VideoSceneSplit2FrameTask(img_sizes=[256,], saver=saver, frame_num=17, max_clip_per_video=3)
     ds = TarDataset(os.path.join(case_dir, 'testcase.tar'), 
         transform_fn=task.get_transform_fn()
     )
@@ -131,3 +132,37 @@ def test_video_scene_split2frame_task():
         ratio=1,
         batch_size=1,
         )
+    
+    
+def test_video_split_tokenization_task():
+    test_dir = 'tmp/test_video_split_tokenization_task'
+    case_dir = 'downloads/testcase/test_video_scene_text_tokenization_task'
+    if os.path.exists(test_dir):
+        shutil.rmtree(test_dir)
+    os.makedirs(test_dir)
+    model_path = 'downloads/vqvae_hard_biggerset_011.pt'
+    saver = BinarySaver(os.path.join(test_dir, 'testcase.bin'))
+    task = VideoSplitTokenizationTask(img_sizes=[128,], saver=saver, frame_num=8, max_clip_per_video=2)
+    ds = TarDataset(os.path.join(case_dir, 'testcase.tar'), 
+        transform_fn=task.get_transform_fn()
+    )
+    task.process([ds], 
+        text_files=[os.path.join(case_dir, 'testcase.json')], 
+        text_format='json_ks',
+        device='cuda',
+        dataloader_num_workers=2,
+        ratio=1,
+        model_path=model_path
+        )
+
+
+    bin_ds = BinaryDataset(os.path.join(test_dir, 'testcase.bin'), length_per_sample=256*8, dtype='int32', preload=True)
+    tokenizer = get_tokenizer()
+
+    from torchvision.utils import save_image
+    for i in range(8):
+        imgs = torch.cat([tokenizer.img_tokenizer.DecodeIds(x[256*i:256*(i+1)].to('cuda')) for x in bin_ds], dim=0)
+        save_image(imgs, os.path.join(test_dir, f'testcase128_2_{i}.jpg'), normalize=True)
+        
+if __name__ == "__main__":
+    test_video_split_tokenization_task()
