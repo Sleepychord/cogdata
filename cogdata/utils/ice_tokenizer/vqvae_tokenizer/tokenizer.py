@@ -18,7 +18,7 @@ class VQVAETokenizer(object):
     def __init__(self,
                     model_path=None,
                     device='cuda'):
-        model = load_default_hvqvae()
+        model = load_default_HVQVAE()
         model = load_ckpt(model, model_path)
         model = model.to(device)
         model.eval()
