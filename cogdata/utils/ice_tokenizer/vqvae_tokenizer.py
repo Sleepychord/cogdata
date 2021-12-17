@@ -2,7 +2,7 @@ import math
 import torch
 import torch.nn.functional as F
 
-from .api import load_default_HVQVAE, load_ckpt
+from vqvae import load_default_HVQVAE, load_ckpt
 
 def is_exp2(x):
     t = math.log2(x)
