@@ -2,7 +2,17 @@ import math
 import torch
 import torch.nn.functional as F
 
-from .api import load_default_hvqvae, load_ckpt
+from .api import load_default_HVQVAE, load_ckpt
+
+def is_exp2(x):
+    t = math.log2(x)
+    return abs(t - int(t)) < 1e-4
+
+
+def sqrt_int(x):
+    r = int(math.sqrt(x) + 1e-4)
+    assert r * r == x
+    return r
 
 class VQVAETokenizer(object):
     def __init__(self,

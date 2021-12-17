@@ -39,9 +39,9 @@ def load_ckpt(model, path=None):
     model.load_state_dict(sd, strict=False)
     return model
 
-def load_default_hvqvae():
+def load_default_HVQVAE():
     config = {
-        "target": "vqvae.DSHVQVAE",
+        "target": "vqvae.HVQVAE",
         "params": {
             "levels": 3,
             "embedding_dim": 256,
