@@ -60,14 +60,14 @@ class VQVAETokenizer(object):
                 b = codes[0].shape[0]
                 codes = [code.view(b, s, s) for code in codes]
             with torch.no_grad():
-                out = model.decode_code(codes)
+                out = self.model.decode_code(codes)
                 out = [item * torch.tensor([0.30379, 0.32279, 0.32800], device=out.device).view(1, -1, 1, 1) + torch.tensor([0.79093, 0.76271, 0.75340], device=out.device).view(1, -1, 1, 1) for item in out]
         else:
             if len(codes.shape) == 2:
                 s = int(math.sqrt(len(codes.view(-1))) + 1e-5)
                 codes = codes.view(codes.shape[0], s, s)
             with torch.no_grad():
-                out = model.single_decode_code(codes)
+                out = self.model.single_decode_code(codes)
                 out = out * torch.tensor([0.30379, 0.32279, 0.32800], device=out.device).view(1, -1, 1, 1) + torch.tensor([0.79093, 0.76271, 0.75340], device=out.device).view(1, -1, 1, 1)
         return out
 
