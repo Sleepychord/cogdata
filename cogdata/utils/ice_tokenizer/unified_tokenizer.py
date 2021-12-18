@@ -58,13 +58,13 @@ class UnifiedTokenizer(object):
         """total number of tokens"""
         return self.num_tokens
     
-    def __call__(self, inputs, process_fn=None):
+    def __call__(self, inputs, process_fn=None, l=None):
         """run preprocessing and encode inputs as Ids
             CANNOT contain command tokens"""
         if isinstance(inputs, torch.Tensor):
             if len(inputs.shape) == 3:
                 inputs = inputs.unsqueeze(0)
-            return self.img_tokenizer.EncodeAsIds(inputs)
+            return self.img_tokenizer.img2code(inputs, l)
         return self.EncodeAsIds(inputs, process_fn=process_fn)
 
     def EncodeAsIds(self, text, process_fn=None):
@@ -170,14 +170,14 @@ class UnifiedTokenizer(object):
                 raw_img = self.img_tokenizer.read_img(
                     img_path, img_size=img_size)
                 if num_codes == '':
-                    img_codes = self.img_tokenizer.EncodeAsIds(
+                    img_codes = self.img_tokenizer.img2code(
                         raw_img)  # [1, 32*32] * l
                     for i, img_code in enumerate(img_codes):
                         img_code = img_code[0].tolist()
                         ret.extend(self.wrap_code(img_code, 2-i))
                 else:
                     l = 6 - np.log2(sqrt_int(num_codes))
-                    img_codes = self.img_tokenizer.EncodeAsIds(
+                    img_codes = self.img_tokenizer.img2code(
                         raw_img, l)  # [1, 32*32]
                     img_codes[0, num_codes:] = -1
                     img_codes = img_codes[0].tolist()

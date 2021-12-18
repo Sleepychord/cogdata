@@ -15,7 +15,7 @@ from torchvision.utils import save_image, make_grid
 from torchvision import transforms
 import torch.nn.functional as F
 
-PRETRAINED_MODEL_FILE = ""
+PRETRAINED_MODEL_FILE = "/workspace/zwd/CogView-VQVAE/save_dir/pool_present_12-16-06-36/30000/mp_rank_00_model_states.pt"
 
 def new_module(config):
     '''in config:
@@ -41,56 +41,56 @@ def load_ckpt(model, path=None):
 
 def load_default_HVQVAE():
     config = {
-        "target": "vqvae.HVQVAE",
+        "target": "cogdata.utils.ice_tokenizer.vqvae.HVQVAE",
         "params": {
             "levels": 3,
             "embedding_dim": 256,
             "codebook_scale": 1,
             "down_sampler_configs": [
                 {
-                    "target": "vqvae.ResidualDownSample",
+                    "target": "cogdata.utils.ice_tokenizer.vqvae.ResidualDownSample",
                     "params": {
                         "in_channels": 256
                     }
                 },
                 {
-                    "target": "vqvae.ResidualDownSample",
+                    "target": "cogdata.utils.ice_tokenizer.vqvae.ResidualDownSample",
                     "params": {
                         "in_channels": 256
                     }
                 }
             ],
             "enc_config": {
-                    "target": "vqvae.Encoder",
+                    "target": "cogdata.utils.ice_tokenizer.vqvae.Encoder",
                     "params": {
                         "num_res_blocks": 2,
                         "channels_mult": [1,2,4]
                     }
             },
             "quantize_config": {
-                    "target": "vqvae.VectorQuantizeEMA",
+                    "target": "cogdata.utils.ice_tokenizer.vqvae.VectorQuantizeEMA",
                     "params": {
                         "hidden_dim": 256,
                         "embedding_dim": 256,
                         "n_embed": 20000,
-                        "training_loc": false
+                        "training_loc": False
                     }
             },
             "dec_configs": [
                 {
-                    "target": "vqvae.Decoder",
+                    "target": "cogdata.utils.ice_tokenizer.vqvae.Decoder",
                     "params": {
                         "channels_mult": [1,1,1,2,4]
                     }
                 },
                 {
-                    "target": "vqvae.Decoder",
+                    "target": "cogdata.utils.ice_tokenizer.vqvae.Decoder",
                     "params": {
                         "channels_mult": [1,1,2,4]
                     }
                 },
                 {
-                    "target": "vqvae.Decoder",
+                    "target": "cogdata.utils.ice_tokenizer.vqvae.Decoder",
                     "params": {
                         "channels_mult": [1,2,4]
                     }

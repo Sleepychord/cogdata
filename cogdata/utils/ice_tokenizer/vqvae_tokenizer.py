@@ -2,7 +2,7 @@ import math
 import torch
 import torch.nn.functional as F
 
-from vqvae import load_default_HVQVAE, load_ckpt
+from .vqvae import load_default_HVQVAE, load_ckpt
 
 def is_exp2(x):
     t = math.log2(x)
@@ -40,6 +40,7 @@ class VQVAETokenizer(object):
         if l is None:
             with torch.no_grad():
                 quants, diffs, ids = self.model.encode(img)
+            print([id.shape for id in ids])
             return [id.view(img.shape[0], -1) for id in ids]
         else:
             with torch.no_grad():
@@ -72,7 +73,10 @@ class VQVAETokenizer(object):
 
     def EncodeAsIds(self, img, l=None):
         assert len(img.shape) == 4 # [b, c, h, w]
-        return self.img2code(img, l)
+        if l is None:
+            return torch.cat(self.img2code(img, l), dim=1)
+        else:
+            return self.img2code(img, l)            
     
     def DecodeIds(self, codes, l=None):
         return self.code2img(codes, l)

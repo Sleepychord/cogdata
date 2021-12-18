@@ -3,7 +3,7 @@ from torch import nn
 import json
 import os
 
-from api import new_module
+from .api import new_module
 
 class HVQVAE(nn.Module):
     def __init__(

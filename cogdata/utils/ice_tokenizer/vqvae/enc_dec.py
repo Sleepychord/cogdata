@@ -284,13 +284,13 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
     def __init__(self,
-                    in_channels,
-                    out_channels,
-                    z_channels,
-                    channels,
-                    num_res_blocks,
-                    resolution,
-                    attn_resolutions,
+                    in_channels=3,
+                    out_channels=3,
+                    z_channels=256,
+                    channels=128,
+                    num_res_blocks=0,
+                    resolution=256,
+                    attn_resolutions=[16],
                     channels_mult=(1,2,4,8),
                     resample_with_conv=True,
                     dropout=0.
