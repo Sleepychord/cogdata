@@ -176,7 +176,7 @@ class UnifiedTokenizer(object):
                         img_code = img_code[0].tolist()
                         ret.extend(self.wrap_code(img_code, 2-i))
                 else:
-                    l = 6 - np.log2(sqrt_int(num_codes))
+                    l = 6 - int(np.log2(sqrt_int(num_codes)) + 1e-4)
                     img_codes = self.img_tokenizer.img2code(
                         raw_img, l)  # [1, 32*32]
                     img_codes[0, num_codes:] = -1
