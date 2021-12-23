@@ -9,14 +9,16 @@ from torch.utils.data import DataLoader
 
 from .base_task import BaseTask
 from cogdata.utils.logger import set_logger, get_logger
-from cogdata.utils.ice_tokenizer import get_tokenizer
 import numpy as np
+
+from icetk import icetk as tokenizer
+
 
 def txt_collate_fn(x):
     return x
 
 @register
-class BilingualTextTokenizationTask(BaseTask):
+class IcetkTextTask(BaseTask):
     '''handle tokenization
     '''
 
@@ -65,10 +67,6 @@ class BilingualTextTokenizationTask(BaseTask):
         num_workers = kwargs.get('dataloader_num_workers', 2)
         ratio = kwargs.get('ratio', 1)
 
-        tokenizer = get_tokenizer(
-            kwargs.get('model_path', 'downloads/vqvae_hard_biggerset_011.pt') # TODO
-        )
-
         cnt, total_cnt = 0, sum([len(dataset) for dataset in sub_datasets])
         for dataset in sub_datasets:
             loader = DataLoader(dataset, batch_size=batch_size, shuffle=False,
@@ -80,9 +78,9 @@ class BilingualTextTokenizationTask(BaseTask):
                     break
                 
                 ret = []
-                for txt in batch_txts:
+                for txt in batch_txts: 
                     ret.extend(tokenizer.encode(txt))
-                    ret.append(tokenizer.eos) # </s> TODO
+                    ret.append(tokenizer['</s>']) # </s> TODO
                     
                 data = torch.tensor(ret)
 
