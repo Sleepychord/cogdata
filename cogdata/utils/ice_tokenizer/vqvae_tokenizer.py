@@ -51,8 +51,8 @@ class VQVAETokenizer(object):
         '''Convert a batch of code to imgs
         Args:
             model: ...
-            codes w/o l: [l, b, h, w] or [l, b, h*w] List of LongTensor
-            codes w/ l: [b, h, w] or [b, h*w] LongTensor
+            codes w/o l: [b, h, w] or [b, h*w] LongTensor
+            codes w/ l: [b, h, w] * l or [b, h*w] * l List of LongTensor
         '''
         if l is None:
             if len(codes[0].shape) == 2:
@@ -67,7 +67,7 @@ class VQVAETokenizer(object):
                 s = int(math.sqrt(len(codes.view(-1))) + 1e-5)
                 codes = codes.view(codes.shape[0], s, s)
             with torch.no_grad():
-                out = self.model.single_decode_code(codes)
+                out = self.model.single_decode_code(codes, l)
                 out = out * torch.tensor([0.30379, 0.32279, 0.32800], device=out.device).view(1, -1, 1, 1) + torch.tensor([0.79093, 0.76271, 0.75340], device=out.device).view(1, -1, 1, 1)
         return out
 
