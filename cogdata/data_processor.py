@@ -34,7 +34,7 @@ def initialize_distributed(local_rank, world_size, rank=None,
     """
     if rank is None:
         rank = local_rank
-    device = local_rank
+    device = local_rank % torch.cuda.device_count()
     torch.cuda.set_device(device)
     # Call the init processn
     init_method = 'tcp://'

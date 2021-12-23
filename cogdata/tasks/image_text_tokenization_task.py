@@ -33,7 +33,7 @@ class ImageTextTokenizationTask(BaseTask):
         self.img_sizes = sorted(img_sizes, reverse=True)  # multi-scale
         self.img_size = max(img_sizes)
 
-    def get_transform_fn(self, transform=None):
+    def get_transform_fn(self, transform=None, **kwargs):
         '''
 
         Parameters
