@@ -14,6 +14,7 @@ import random
 import torch
 from torch.utils.data import Dataset, IterableDataset
 from cogdata.utils.register import register
+from cogdata.utils.logger import get_logger
 
 
 def _line_count(path):
@@ -52,9 +53,14 @@ class StreamingTxtDataset(IterableDataset):
         self.pointer = 0
         self.world_size = self.all_world_size = world_size
         self.rank = self.all_rank = rank
-        self.length = _line_count(path)
-        self.length = self.length // world_size + \
-            int(self.length % world_size > 0 and self.length % world_size <= rank + 1)
+        n_bytes = os.path.getsize(path)
+        self.use_bytes_as_length = (n_bytes > 2**28)
+        if not self.use_bytes_as_length:
+            self.length = _line_count(path)
+            self.length = self.length // world_size + \
+                int(self.length % world_size > 0 and self.length % world_size <= rank + 1)
+        else:
+            self.length = int(os.path.getsize(path) / world_size)
 
     def __len__(self):
         """Get the total number of the valid samples.
@@ -74,10 +80,14 @@ class StreamingTxtDataset(IterableDataset):
             skipped = self.all_rank
         else:
             skipped = self.all_world_size - 1 
-        for i in range(skipped):
-            _dump = self.handle.__next__()
-        line = self.handle.__next__()
-        
+        try:
+            for i in range(skipped):
+                _dump = self.handle.__next__()
+            line = self.handle.__next__()
+        except UnicodeDecodeError as e:
+            get_logger().warning(self.path)
+            get_logger().warning(str(e))
+            line = ''
         return line.strip()
 
     def __iter__(self):

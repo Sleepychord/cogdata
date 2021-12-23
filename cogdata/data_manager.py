@@ -344,14 +344,25 @@ class DataManager():
             print('Removing previous split_merged_files...')
             shutil.rmtree(split_path)
 
-        print('Merging...')
         all_datasets, processed, hanging, unprocessed, additional = DataManager.fetch_datasets_states(
             base_dir, task_id)
-        merge_path = os.path.join(
-            task_path, 'merge'+get_registered_cls(saver_type).suffix)
+        
 
         data_paths = []
-        for dataset in processed:
+        if args.datasets is None:
+            datasets_to_merge = processed
+            mid_name = ''
+        else:
+            datasets_to_merge = args.datasets
+            mid_name = '_' + ','.join(datasets_to_merge)
+            if len(mid_name) > 30:
+                mid_name = mid_name[:30] + f'...{len(datasets_to_merge)}ds'
+        print(f'Merging {datasets_to_merge} ...')
+        
+        merge_path = os.path.join(
+            task_path, 'merge'+mid_name+get_registered_cls(saver_type).suffix)
+        
+        for dataset in datasets_to_merge:
             for item in os.listdir(os.path.join(task_path, dataset)):
                 if item.endswith('.cogdata'):
                     data_paths.append(os.path.join(task_path, dataset, item))

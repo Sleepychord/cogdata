@@ -84,6 +84,7 @@ def get_args():
     subparser.set_defaults(func=DataManager.process)
 
     subparser = subparsers.add_parser("merge")
+    need_datasets(subparser)
     need_taskid(subparser)
     subparser.set_defaults(func=DataManager.merge)
 

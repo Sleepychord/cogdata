@@ -19,7 +19,7 @@ class BaseTask(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_transform_fn(self):
+    def get_transform_fn(self, **kwargs):
         def transform_fn(*args):
             '''Run in dataloader subprocess
             '''
