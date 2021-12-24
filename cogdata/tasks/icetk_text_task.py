@@ -68,7 +68,6 @@ class IcetkTextTask(BaseTask):
                     cnt += len(batch_txts)  # may not full batch
                 if cnt > total_cnt * ratio:
                     break
-                
                 ret = []
                 for txt in batch_txts:
                     if len(txt) == 0:
@@ -81,12 +80,17 @@ class IcetkTextTask(BaseTask):
                         if tokenized_line is not None:
                             ret.extend(tokenized_line)
                             ret.append(tokenizer['</s>']) # </s> TODO
+                
                 if len(ret) == 0:
                     continue            
                 data = torch.tensor(ret)
 
                 self.saver.save(data)
-                if cnt // batch_size % 50 == 0:
+                
+                if dataset.use_bytes_as_length and (cnt // (total_cnt // 1000)) % 5 == 0:
+                    if progress_record is not None:
+                        progress_record.update(cnt, total_cnt)
+                elif cnt // batch_size % 50 == 0:
                     # get_logger().info("progress {}/{}".format(cnt, total_cnt))
                     if progress_record is not None:
                         progress_record.update(cnt, total_cnt)
@@ -167,4 +171,6 @@ def process_special_line(data, txt_format,
             return None
         text = data.get('text', '')
         return tokenizer.encode(text)
+    else:
+        raise ValueError(f'Unknown text format: \"{txt_format}\"')
 
