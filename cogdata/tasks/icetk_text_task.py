@@ -9,14 +9,16 @@ from torch.utils.data import DataLoader
 
 from .base_task import BaseTask
 from cogdata.utils.logger import set_logger, get_logger
-from cogdata.utils.ice_tokenizer import get_tokenizer
 import numpy as np
+
+from icetk import icetk as tokenizer
+
 
 def txt_collate_fn(x):
     return x
 
 @register
-class BilingualTextTokenizationTask(BaseTask):
+class IcetkTextTask(BaseTask):
     '''handle tokenization
     '''
 
@@ -54,10 +56,6 @@ class BilingualTextTokenizationTask(BaseTask):
         num_workers = kwargs.get('dataloader_num_workers', 2)
         ratio = kwargs.get('ratio', 1)
 
-        tokenizer = get_tokenizer(
-            kwargs.get('model_path', 'downloads/vqvae_hard_biggerset_011.pt') # TODO
-        )
-
         cnt, total_cnt = 0, sum([len(dataset) for dataset in sub_datasets])
         for dataset in sub_datasets:
             loader = DataLoader(dataset, batch_size=batch_size, shuffle=False,
@@ -70,25 +68,29 @@ class BilingualTextTokenizationTask(BaseTask):
                     cnt += len(batch_txts)  # may not full batch
                 if cnt > total_cnt * ratio:
                     break
-                
                 ret = []
                 for txt in batch_txts:
                     if len(txt) == 0:
                         continue
                     if text_format == 'raw_txt':
                         ret.extend(tokenizer.encode(txt))
-                        ret.append(tokenizer.eos) # </s> TODO
+                        ret.append(tokenizer['</s>']) # </s> TODO
                     else:
                         tokenized_line = process_special_line(txt, text_format)
                         if tokenized_line is not None:
                             ret.extend(tokenized_line)
-                            ret.append(tokenizer.eos) # </s> TODO
+                            ret.append(tokenizer['</s>']) # </s> TODO
+                
                 if len(ret) == 0:
                     continue            
                 data = torch.tensor(ret)
 
                 self.saver.save(data)
-                if cnt // batch_size % 50 == 0:
+                
+                if dataset.use_bytes_as_length and (cnt // (total_cnt // 1000)) % 5 == 0:
+                    if progress_record is not None:
+                        progress_record.update(cnt, total_cnt)
+                elif cnt // batch_size % 50 == 0:
                     # get_logger().info("progress {}/{}".format(cnt, total_cnt))
                     if progress_record is not None:
                         progress_record.update(cnt, total_cnt)
@@ -97,7 +99,6 @@ class BilingualTextTokenizationTask(BaseTask):
 
 def process_special_line(data, txt_format, 
                          pile_valid_set=['Pile-CC', "OpenWebText2", "Wikipedia (en)"]):
-    tokenizer = get_tokenizer()
     if txt_format == 'jsonl': # default ["text"]
         data = json.loads(data)
         text = data.get("text", None)
@@ -170,4 +171,6 @@ def process_special_line(data, txt_format,
             return None
         text = data.get('text', '')
         return tokenizer.encode(text)
+    else:
+        raise ValueError(f'Unknown text format: \"{txt_format}\"')
 

@@ -27,7 +27,7 @@ def test_monitor():
 
     task_dir = os.path.join(current_dir, f"cogdata_task_{taskid}")
     if os.path.exists(case_dir): 
-        dataset_names = ['colorhub', '88tph', 'bizhiku']
+        dataset_names = ['colorhub', '88tph']
     else:
         dataset_names = []
         get_logger().warning('Big test not exist, skipping...')

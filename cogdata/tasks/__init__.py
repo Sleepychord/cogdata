@@ -1,9 +1,11 @@
 from .image_text_tokenization_task import ImageTextTokenizationTask
 from .base_task import BaseTask
-from .bilingual_text_tokenization import BilingualTextTokenizationTask
+from .icetk_text_task import IcetkTextTask
+from .icetk_image_text_task import IcetkImageTextTask
 
 __all__ = [
     "BaseTask",
     "ImageTextTokenizationTask",
-    "BilingualTextTokenizationTask"
+    "IcetkTextTask",
+    "IcetkImageTextTask"
 ]
