@@ -349,7 +349,7 @@ class DataManager():
         
 
         data_paths = []
-        if args.datasets is None:
+        if len(args.datasets) == 0:
             datasets_to_merge = processed
             mid_name = ''
         else:
