@@ -38,7 +38,10 @@ class VideoSceneTextTokenizationTask(BaseTask):
         if 'interval' in kwargs and kwargs['sample_fps'] > 0:
             self.sample_fps = kwargs['sample_fps']
         else:
-            self.sample_fps = 6
+            # for quanjing
+            self.sample_fps = 4
+            # for kinetics
+            # self.sample_fps = 6
         if 'interval' in kwargs and kwargs['threshold'] > 0:
             self.threshold = kwargs['threshold']
         else:
@@ -77,20 +80,9 @@ class VideoSceneTextTokenizationTask(BaseTask):
         def transform_fn(fp, full_filename, *args, local_transform=transform):
             dirs, filename = os.path.split(full_filename)
             filename = filename.split('.')[0]
-            taskname = full_filename.split('/')[-2]
+            # if Kinetics
+            # taskname = full_filename.split('/')[-2]
 
-            # #detect scenes
-            # video_manager = VideoManager([full_filename])
-            # scene_manager = SceneManager()
-            # scene_manager.add_detector(ContentDetector())
-            # # Improve processing speed by downscaling before processing.
-            # video_manager.set_downscale_factor()
-            # # Start the video manager and perform the scene detection.
-            # video_manager.start()
-            # scene_manager.detect_scenes(frame_source=video_manager)
-
-            # # Each returned scene is a tuple of the (start, end) timecode.
-            # scene_timestamp_list = scene_manager.get_scene_list()
             try:
                 vr = VideoReader(fp)
                 fps = vr.get_avg_fps()
@@ -118,7 +110,10 @@ class VideoSceneTextTokenizationTask(BaseTask):
                             break
                     if clip_cnt >= self.max_clip_per_video:
                         break
-                return img_groups, taskname
+                # if Kinetics
+                # return img_groups, taskname
+                # if others
+                return img_groups, filename
             except:
                 get_logger().warning(f'Video {full_filename} is damaged.')
                 return list(), list()
@@ -273,15 +268,29 @@ class VideoSceneTextTokenizationTask(BaseTask):
         if txt_files is None:  # no txt, accept all
             return defaultdict(str)
         text_dict = {}
-        assert mode == 'json_ks'
-        import json
-        txt_list = []
-        for txt in txt_files:
-            with open(txt, 'r') as fin:
-                t = json.load(fin)
-            txt_list.extend(t["RECORDS"])
-        tmp = []
-        for v in txt_list:
-            tmp.append((v['rawname'], v['cnShortText']))
-        text_dict = dict(tmp)
-        return text_dict
+        if mode == 'json_ks':
+            import json
+            txt_list = []
+            for txt in txt_files:
+                with open(txt, 'r') as fin:
+                    t = json.load(fin)
+                txt_list.extend(t["RECORDS"])
+            tmp = []
+            for v in txt_list:
+                tmp.append((v['rawname'], v['cnShortText']))
+            text_dict = dict(tmp)
+            return text_dict
+        elif mode == "json_quanjing":
+            import json
+            txt_list = []
+            for txt in txt_files:
+                with open(txt, 'r') as fin:
+                    t = json.load(fin)
+                txt_list.extend(t["RECORDS"])
+            tmp = []
+            for v in txt_list:
+                tmp.append((v['uniqueKey'], v['shortText']))
+            text_dict = dict(tmp)
+            return text_dict
+        else:
+            return defaultdict(str)
