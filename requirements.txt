@@ -4,3 +4,4 @@ pytest
 unrar
 tqdm
 icetk
+decord
