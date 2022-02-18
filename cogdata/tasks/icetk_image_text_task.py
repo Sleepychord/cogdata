@@ -53,7 +53,7 @@ class IcetkImageTextTask(BaseTask):
             ]
             )
 
-        def transform_fn(fp, full_filename, *args, local_transform=transform):
+        def transform_fn(fp, full_filename, *args, local_transform=transform, minimal_size=self.img_size):
             '''file obj to (PIL.Image, filename w/o suffix),
             Run in dataloader subprocess
 
@@ -77,15 +77,18 @@ class IcetkImageTextTask(BaseTask):
                 if fp is None:
                     raise ValueError('')
                 img = Image.open(fp).convert('RGB')
-            except (OSError, PIL.UnidentifiedImageError, Image.DecompressionBombError, ValueError, RuntimeError) as e:
+                if min(img.size) < minimal_size:
+                    raise ValueError('Image {full_filename} is too small.')
+                dirs, filename = os.path.split(full_filename)
+                filename = filename.split('.')[0]
+                if local_transform is not None:
+                    img = local_transform(img)
+                return img, filename
+            except Exception as e:
                 if not isinstance(e, ValueError):
                     get_logger().warning(f'Image {full_filename} is damaged.')
                 return Image.new('RGB', (self.img_size, self.img_size), (255, 255, 255)), f"not_a_image {full_filename}"
-            dirs, filename = os.path.split(full_filename)
-            filename = filename.split('.')[0]
-            if local_transform is not None:
-                img = local_transform(img)
-            return img, filename
+
         return transform_fn
 
     def process(self, sub_datasets, progress_record=None, dataset_dir='', **kwargs):

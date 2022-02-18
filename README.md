@@ -41,7 +41,7 @@ Alias: `cogdata data ...`. `data_format` is chosen from class names in cogdata.d
 
 ```
 cogdata create_task [-h] [--description DESCRIPTION] --task_type TASK_TYPE --saver_type SAVER_TYPE [--length_per_sample LENGTH_PER_SAMPLE] [--img_sizes IMG_SIZES [IMG_SIZES ...]] [--txt_len TXT_LEN]
-                           [--dtype {int32,int64,float32,uint8,bool}]
+                           [--dtype {int32,int64,float32,uint8,bool}] --model_path MODEL_PATH
                            task_id
 ```
 Alias: `cogdata task ...`. `task_type` and `saver_type` is chosen from class names in cogdata, e.g. `ImageTextTokenizationTask` or `BinarySaver`.

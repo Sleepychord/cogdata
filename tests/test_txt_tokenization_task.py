@@ -18,8 +18,8 @@ import random
 import torch
 from cogdata.datasets import StreamingTxtDataset, BinaryDataset
 from cogdata.data_savers import BinarySaver
-from cogdata.tasks import BilingualTextTokenizationTask
-from cogdata.utils.ice_tokenizer import get_tokenizer
+from cogdata.tasks import IcetkTextTask
+from icetk import icetk as tokenizer
 
 def test_image_text_tokenization_task():
     test_dir = 'tmp/test_txt_tokenization_task'
@@ -30,7 +30,7 @@ def test_image_text_tokenization_task():
 
     model_path = 'downloads/vqvae_hard_biggerset_011.pt'
     saver = BinarySaver(os.path.join(test_dir, 'testcase.bin'))
-    task = BilingualTextTokenizationTask(saver=saver)
+    task = IcetkTextTask(saver=saver)
     ds = StreamingTxtDataset(os.path.join(case_dir, 'wiki1k.txt'), 
         transform_fn=task.get_transform_fn()
     )
@@ -41,7 +41,6 @@ def test_image_text_tokenization_task():
         )
 
     bin_ds = BinaryDataset(os.path.join(test_dir, 'testcase.bin'), length_per_sample=100, dtype='int32', preload=True, drop_last=True)
-    tokenizer = get_tokenizer()
     
     for sample in bin_ds[:10]:
         print(tokenizer.decode(sample))

@@ -45,7 +45,7 @@ def test_data_manager():
     with open('d1/cogdata_info.json', 'r') as fin:
         info = json.load(fin)
     assert vars(args) == info    
-
+    args.datasets = ''
     # # test list w/o task
     # args = argparse.Namespace()
     # args.task_id = None
@@ -71,6 +71,7 @@ def test_data_manager():
         info = json.load(fin)
     del args.task_id
     assert vars(args) == info    
+    args.datasets = ''
 
     # # test list with task
     # args = argparse.Namespace()
@@ -90,12 +91,14 @@ def test_data_manager():
 
     # test merge
     args = argparse.Namespace()
+    args.datasets = ''
     args.task_id = 'task0'
     DataManager.merge(args)
     assert os.path.exists('cogdata_task_task0/merge.bin')
 
     # test split
     args = argparse.Namespace()
+    args.datasets = ''
     args.task_id = 'task0'
     args.n = 3
     DataManager.split(args)
