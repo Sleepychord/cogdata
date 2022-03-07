@@ -29,17 +29,18 @@ class VideoSceneTextTokenizationTask(BaseTask):
         """config saver
         """
         self.saver = saver
-        self.img_sizes = sorted(img_sizes, reverse=True)
+        # self.img_sizes = sorted(img_sizes, reverse=True)
+        self.img_sizes = img_sizes # 按照用户规定的顺序
         self.img_size = max(img_sizes)
         if 'frame_num' in kwargs and kwargs['frame_num'] > 0:
             self.out_frame_num = kwargs['frame_num']
         else:
-            self.out_frame_num = 6
+            self.out_frame_num = 24
         if 'interval' in kwargs and kwargs['sample_fps'] > 0:
             self.sample_fps = kwargs['sample_fps']
         else:
             # for quanjing
-            self.sample_fps = 4
+            self.sample_fps = 8
             # for kinetics
             # self.sample_fps = 6
         if 'interval' in kwargs and kwargs['threshold'] > 0:
@@ -51,7 +52,7 @@ class VideoSceneTextTokenizationTask(BaseTask):
         else:
             # tmp!!! for pytest
             # FIXME
-            self.max_clip_per_video = 128
+            self.max_clip_per_video = 16
         if 'cut_step' in kwargs and kwargs['cut_step'] > 0:
             self.cut_step = kwargs['cut_step']
         else:
@@ -232,15 +233,22 @@ class VideoSceneTextTokenizationTask(BaseTask):
                 for k in range(code_n):
                     video = []
                     for i, img_size in enumerate(img_sizes):
-                        for j in range(self.out_frame_num):
-                            imgs = videos[k][j].unsqueeze(0)
-                            if i > 0:
-                                tmp_imgs = torch.nn.functional.interpolate(
-                                    imgs, (img_size, img_size), mode='bilinear')
-                            else:
-                                tmp_imgs = imgs
-                            video.append(tokenizer.img_tokenizer.EncodeAsIds(
-                                tmp_imgs).type(torch.IntTensor))
+                        # for j in range(self.out_frame_num):
+                        #     imgs = videos[k][j].unsqueeze(0)
+                        #     if i > 0:
+                        #         tmp_imgs = torch.nn.functional.interpolate(
+                        #             imgs, (img_size, img_size), mode='bilinear')
+                        #     else:
+                        #         tmp_imgs = imgs
+                        #     video.append(tokenizer.img_tokenizer.EncodeAsIds(
+                        #         tmp_imgs).type(torch.IntTensor))
+                        if img_size != self.img_size:
+                            tmp_clip = torch.nn.functional.interpolate(
+                                videos[k], (img_size, img_size), mode='bilinear')
+                        else:
+                            tmp_clip = videos[k]
+                        video.append(tokenizer.img_tokenizer.EncodeAsIds(
+                                tmp_clip).type(torch.IntTensor).view(1, -1))
                     video = torch.cat(video, dim=1)
                     codes_video.append(video)
                 codes_video = torch.cat(codes_video)
@@ -289,7 +297,7 @@ class VideoSceneTextTokenizationTask(BaseTask):
                 txt_list.extend(t["RECORDS"])
             tmp = []
             for v in txt_list:
-                tmp.append((v['uniqueKey'], v['shortText']))
+                tmp.append((v['uniqueKey'], v['shortText'].replace(",", " ")))
             text_dict = dict(tmp)
             return text_dict
         else:

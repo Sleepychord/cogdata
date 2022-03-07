@@ -9,7 +9,7 @@ __all__ = [
     "BaseTask",
     "ImageTextTokenizationTask",
     "IcetkTextTask",
-    "IcetkImageTextTask"
+    "IcetkImageTextTask",
     "VideoSceneTextTokenizationTask",
     "IcetkVideoSceneTextTokenizationTask",
 ]
