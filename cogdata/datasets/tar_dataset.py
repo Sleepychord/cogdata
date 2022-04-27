@@ -33,7 +33,7 @@ class TarDataset(Dataset):
             Used in __getitem__
         """
         self.path = path
-        self.tar = tarfile.TarFile(path)
+        self.tar = tarfile.open(path)
         self.members = [
             x for x in self.tar.getmembers()
             if x.isfile() #and '__MACOSX' not in x.name
@@ -64,7 +64,7 @@ class TarDataset(Dataset):
             A torch tensor built from numpy array
         """
         if self.tar is None:
-            self.tar = tarfile.TarFile(self.path)
+            self.tar = tarfile.open(self.path)
         target_info = self.members[idx]
         fp = self.tar.extractfile(target_info)
         full_filename = self.members[idx].name
