@@ -35,7 +35,7 @@ def test_icetk_video_text_length_tokenization_task():
         transform_fn=task.get_transform_fn()
     )
     task.process([ds], 
-        text_files=[os.path.join(case_dir, 'kinetics600_tasks_en2cn.json')], 
+        text_files=[os.path.join(case_dir, 'kinetics600_id2text_val_fromDIR.json')], 
         text_format='json_ks',
         device='cuda',
         dataloader_num_workers=2,
@@ -43,8 +43,8 @@ def test_icetk_video_text_length_tokenization_task():
         ratio=1,
         )
 
-    with open(os.path.join(case_dir, 'kinetics600_tasks_en2cn.json')) as testcase_text_file:
-        testcase_text_dic = json.load(testcase_text_file)
+    # with open(os.path.join(case_dir, 'kinetics600_tasks_en2cn.json')) as testcase_text_file:
+    #     testcase_text_dic = json.load(testcase_text_file)
 
     bin_ds = BinaryDataset(os.path.join(test_dir, 'testcase.bin'), length_per_sample=(20*20)*5+64, dtype='int32', preload=True)
     for sample_id in range(len(bin_ds)):

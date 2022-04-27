@@ -88,9 +88,11 @@ class IcetkVideoTextLengthTokenizationKineticsTask(BaseTask):
         def transform_fn(fp, full_filename, *args, local_transform=transform):
             dirs, filename = os.path.split(full_filename)
             # if Quanjing
-            # filename = filename.split('.')[0]
-            # if Kinetics
-            taskname = full_filename.split('/')[-2]
+            filename = filename.split('.')[0]
+            # if Kinetics #改格式了，又换成上面那种了
+            # taskname = full_filename.split('/')[-2]
+            filename = filename.split('.')[0][:-14]
+            
 
             try:
                 vr = VideoReader(fp)
@@ -122,9 +124,9 @@ class IcetkVideoTextLengthTokenizationKineticsTask(BaseTask):
                     img_groups.append(imgs)
                 
                 # if Kinetics
-                return img_groups, taskname, float(tmp_clip_length)
+                # return img_groups, taskname, float(tmp_clip_length)
                 # if others
-                # return img_groups, filename, float(tmp_clip_length)
+                return img_groups, filename, float(tmp_clip_length)
             except:
                 get_logger().warning(f'Video {full_filename} is damaged.')
                 return list(), "", 1.
