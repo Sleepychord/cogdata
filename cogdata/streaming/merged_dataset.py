@@ -232,8 +232,6 @@ class MergedDataset(torch.utils.data.IterableDataset):
                     x['__dprank__'] = self.dp_rank
                     x['__workerid__'] = torch.utils.data.get_worker_info().id if torch.utils.data.get_worker_info() is not None else 0
                     x['__datasetname__'] = self.datasets[chosen].name
-                else:
-                    x['__datasetname__'] = self.datasets[chosen].name + '.' + x['__datasetname__']
                 yield x
             except StopIteration:
                 if not self.cyclic: 
