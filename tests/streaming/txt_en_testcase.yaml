@@ -1,0 +1,12 @@
+name: txt_en_testcase
+percent: 1
+length: 137688580 # tokens
+length_divisor: ${variables:max_text_len}
+target: cogdata.streaming.JsonlIterableDataset
+params:
+  path: downloads/streaming/txt_data/test_0{00..41}.jsonl
+  process_fn:
+    target: cogdata.streaming.processfns.TextJonslProcessFnBuilder
+    params:
+      max_sequence_length: ${variables:max_text_len}
+      tokenizer_name: ${variables:tokenizer_name}

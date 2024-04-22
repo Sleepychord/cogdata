@@ -1,0 +1,16 @@
+target: cogdata.streaming.MergedDataset
+name: img_jsonl_sft_testcase_merge
+params:
+  datasets:
+    - name: img_jsonl_sft_testcase
+      percent: 1
+      length: 2001 # images
+      length_multiplier: 1
+      length_divisor: 1
+      target: cogdata.streaming.ImageJsonlDataset
+      params:
+        jsonl_path: downloads/streaming/sft_data/sharegpt4v_2k.jsonl
+        single_process_fn:
+          target: cogdata.streaming.processfns.ImageJsonlProcessFnBuilder
+          params:
+            img_size: ${variables:img_size}

@@ -5,6 +5,10 @@
 pip install cogdata
 sudo `which install_unrarlib.sh`
 ```
+
+## Streaming in Cogdata v1.0
+[Readme](Readme_streaming.md)
+
 ## Directory Structure
 ```
 .

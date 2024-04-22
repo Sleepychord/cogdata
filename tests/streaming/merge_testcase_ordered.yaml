@@ -1,0 +1,12 @@
+target: cogdata.streaming.MergedDataset
+name: test_merge
+params:
+  datasets:
+    - include: tests/streaming/img_txt_testcase.yaml
+      percent: 0.5
+    - include: tests/streaming/txt_en_testcase.yaml
+      percent: 0.5
+  cyclic: True
+  shuffle_unstreaming_subsets: False
+  shuffle_streaming_subsets: False
+  seed: 0
