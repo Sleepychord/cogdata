@@ -39,14 +39,15 @@ from cogdata.streaming import instantiate_from_yaml, to_state, mixed_collate
 配置文件使用yaml来管理，通过`instantiate_from_yaml`来读取，需要注意的是：
 1. 如果某个yaml的字典对象包含`target`和`params`两个键，将会在最终被转化为一个`target`对应的类的对象，即`target(**params)`. 其他的键值对将变成这个对象的属性。`target`可以为任何能import到的类路径，例如`cogdata.streaming.MetaDistributedWebDataset`.
 2. 如果某个值为`${variables:vname}`，则它会在最终被使用时解析为`instantiate_from_yaml(config_path, variables)`函数调用的`variables`字典中对应的值。这个功能是为了处理读数据时依赖训练超参的情况，例如图像大小和序列长度。
-3. 如果某个yaml的字典对象包含`include`键，则值为一个yaml路径。最终会将该yaml instantiate的结果作为此处的对象，并添加/覆盖其他的键值对。这个一般用在混合多个数据集的时候。
+3. 如果某个值为`${dynamic_objs:vname}`，则它会在最终被使用时解析为`instantiate_from_yaml(config_path, variables, dynamic_objs)`函数调用的`dynamic_objs`字典中对应的值。与variables不同的是这里可以是任意的object，但是**尽量不要使用以防止滥用**，导致数据集的读取依赖于难以找到源码的动态传入的函数。
+4. 如果某个yaml的字典对象包含`include`键，则值为一个yaml路径。最终会将该yaml instantiate的结果作为此处的对象，并添加/覆盖其他的键值对。这个一般用在混合多个数据集的时候。
 
 ## 支持的数据集类型
 
 1. 任何Pytorch的Dataset的子类，支持`__len__()`和`__getitem__()`.
 2. `cogdata.streaming.MetaDistributedWebDataset`. webdataset加强版，每个tar带有一个同名的jsonl文件记录附属信息的格式。
 3. `cogdata.streaming.JsonlIterableDataset`. 类似webdataset，但是每次读一行jsonl。
-4. `cogdata.streaming.MergedDataset`. 融合多个数据集的`IterableDataset`，支持嵌套和按权重采样，也是本库唯一支持的顶层数据集（即使只使用一个数据集，也要包裹一层MergedDataset）。
+4. `cogdata.streaming.MergedDataset`. 融合多个数据集的`IterableDataset`，支持嵌套和按权重采样，也是本库唯一支持的顶层数据集（即使只使用一个数据集，也要包裹一层MergedDataset）。支持创建时参数`customized_yield_fn`来处理混合samples为新的sample的情况（[例子](/tests/streaming/test_customized_yield.py)）
 
 一个混合多种不同类型数据的[配置样例](/tests/streaming/merge_testcase.yaml)。
 
