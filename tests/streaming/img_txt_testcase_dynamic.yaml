@@ -1,0 +1,11 @@
+name: img_txt_testcase
+percent: 1
+length: 4270 # images
+length_multiplier: 1
+length_divisor: 1
+target: cogdata.streaming.MetaDistributedWebDataset
+params:
+  process_fn: ${dynamic_objs:txt_builder}
+  meta_names: ["caption", "caption_zh"]
+  path: downloads/streaming/img_data/test0{00..35}.tar
+  

@@ -1,27 +1,30 @@
 from omegaconf import OmegaConf
 
-def instantiate_from_yaml(config_path, variables={}):
+def instantiate_from_yaml(config_path, variables={}, dynamic_objs={}):
     OmegaConf.register_new_resolver("variables", lambda x: variables.get(x, x))
+    OmegaConf.register_new_resolver("dynamic_objs", lambda x: f'__dynamic_obj@df870__{x}')
     try:
         config = OmegaConf.load(config_path)
         OmegaConf.resolve(config)
-        x = _recursive_instantiate_from_yaml(config)
+        x = _recursive_instantiate_from_yaml(config, dynamic_objs=dynamic_objs)
     finally:
         # remove resolver
         OmegaConf.clear_resolvers()
     return x
 
-def _recursive_instantiate_from_yaml(config):
+def _recursive_instantiate_from_yaml(config, dynamic_objs={}):
     from omegaconf import OmegaConf
     if OmegaConf.is_dict(config):
         conf = {}
         for k, v in config.items():
-            conf[k] = _recursive_instantiate_from_yaml(v)
+            conf[k] = _recursive_instantiate_from_yaml(v, dynamic_objs=dynamic_objs)
     elif OmegaConf.is_list(config):
         conf = []
         for i, v in enumerate(config):
-            conf.append(_recursive_instantiate_from_yaml(v))
+            conf.append(_recursive_instantiate_from_yaml(v, dynamic_objs=dynamic_objs))
     else:
+        if isinstance(config, str) and config.startswith("__dynamic_obj@df870__"):
+            return dynamic_objs[config[len("__dynamic_obj@df870__"):]]
         return config
     
     # already recursive solved children
@@ -29,7 +32,7 @@ def _recursive_instantiate_from_yaml(config):
         assert "target" not in conf and "params" not in conf, "included {conf} should not have target or params"
         sub_config = OmegaConf.load(config["include"])
         OmegaConf.resolve(sub_config)
-        x = _recursive_instantiate_from_yaml(sub_config)
+        x = _recursive_instantiate_from_yaml(sub_config, dynamic_objs=dynamic_objs)
         # override with current config, e.g. percent
         for k, v in conf.items():
             if k != "include":
