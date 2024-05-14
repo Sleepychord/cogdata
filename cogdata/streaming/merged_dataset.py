@@ -5,7 +5,7 @@ import random
 from torch.utils.data import IterableDataset, Dataset
 
 from collections.abc import Generator
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, Callable
 
 def make_iterator_unstreaming(
     d: Dataset, 
@@ -107,7 +107,8 @@ class MergedDataset(torch.utils.data.IterableDataset):
         cyclic=True,
         shuffle_unstreaming_subsets=True,
         shuffle_streaming_subsets=True,
-        seed=0
+        seed=0,
+        customized_yield_fn: Callable = None
     ):
         self.datasets = datasets
         self.cyclic = cyclic
@@ -120,6 +121,7 @@ class MergedDataset(torch.utils.data.IterableDataset):
         self.seed = seed
         self.dataloader_states = {}
         self.reload_from_url_level = False
+        self.customized_yield_fn = customized_yield_fn
             
         for i, d in enumerate(datasets):
             assert hasattr(d, 'name')
@@ -198,7 +200,20 @@ class MergedDataset(torch.utils.data.IterableDataset):
             reload_from_url_level=self.reload_from_url_level
             )
         
-    def __iter_from__(self, dataloader_states, reload_from_url_level=False):
+    def __iter_from__(self, dataloader_states, reload_from_url_level=False, ignore_customized_yield_fn=False):
+        if self.customized_yield_fn is not None and not ignore_customized_yield_fn:
+            closure_cached_states = []
+            def wrapped_yield_fn(src):
+                for x in src:
+                    closure_cached_states.append(to_state(x))
+                    yield x
+            for x in self.customized_yield_fn(
+                src=wrapped_yield_fn(self.__iter_from__(dataloader_states, reload_from_url_level, ignore_customized_yield_fn=True))):
+                x['__states__'] = closure_cached_states
+                closure_cached_states = []
+                yield x
+            return
+        
         iterators = []
         acc_weights = []
         epochs = []
@@ -275,6 +290,9 @@ def mixed_collate(batch, possible_keys=None):
 
 def to_state(sample):
     if isinstance(sample, dict):
+        if '__states__' in sample: # a sample from different datasets
+            assert isinstance(sample['__states__'], list)
+            return {k: v for x in sample['__states__'] for k, v in x.items()}
         key = (sample['__datasetname__'],sample['__dprank__'], sample['__workerid__'])
         if '__url__' in sample:
             val = (sample['__seed__'], sample['__url__'], sample['__key__'])
