@@ -7,3 +7,7 @@ try:
     from .rar_dataset import StreamingRarDataset
 except LookupError:
     print("Couldn't find path to unrar library, skipping.\n StreamingRarDataset cannot be imported now. Run install_unrarlib.sh.")
+try:
+    from .parquet_dataset import ParquetDataset
+except ModuleNotFoundError:
+    print("pyarrow is not installed, ParquetDataset cannot be imported.")
