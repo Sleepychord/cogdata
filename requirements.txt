@@ -4,3 +4,12 @@ pytest
 unrar
 tqdm
 icetk
+pyarrow
+pillow
+torchvision
+webdataset
+braceexpand
+omegaconf
+sentencepiece
+pandas
+transformers

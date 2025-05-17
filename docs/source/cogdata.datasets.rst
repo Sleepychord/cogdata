@@ -35,4 +35,13 @@ cogdata.datasets.zip\_dataset module
    :members:
    :undoc-members:
    :show-inheritance:
-   :special-members: __init__, __len__, __getitem__ 
+   :special-members: __init__, __len__, __getitem__
+
+cogdata.datasets.parquet_dataset module
+--------------------------------------
+
+.. automodule:: cogdata.datasets.parquet_dataset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :special-members: __init__, __len__, __getitem__
